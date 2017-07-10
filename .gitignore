@@ -1,0 +1,9 @@
+/vendor
+/node_modules
+/node_modules2
+.env
+.env.backup
+.idea
+composer.lock
+.DS_STORE
+.php_cs.cache

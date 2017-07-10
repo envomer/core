@@ -1,0 +1,26 @@
+{
+    "name": "envome/core",
+    "homepage": "http://envo.me",
+    "support": {
+        "issues": "https://github.com/envome/core/issues",
+        "source": "https://github.com/envome/core"
+    },
+    "authors": [
+        {
+            "name": "Omer Mohamed Ali",
+            "email": "om@envo.me"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {
+        "php": ">=7.0.0"
+    },
+    "autoload": {
+        "files": [
+            "src/Envo/helpers.php"
+        ],
+        "psr-4": {
+            "Envo\\": "src/Envo"
+        }
+    }
+}
