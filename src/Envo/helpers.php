@@ -25,9 +25,9 @@ if( ! function_exists('_t') )
 	function _t($val, $params = null, $amount = null, $lang = null)
 	{
 		if( $amount ) {
-			return \Translator::choice($val, $amount, $lang);
+			return Translator::choice($val, $amount, $lang);
 		}
-		return \Translator::lang($val, $params, $lang);
+		return Translator::lang($val, $params, $lang);
 	}
 }
 

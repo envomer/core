@@ -47,7 +47,7 @@
 	<div class="footer">
 		<div class="part">Dauer: <b> ~<?php echo number_format($maintenance->retry/60, 2) ?> Std</b></div>
 		<div class="part">Fortschritt: <b><?php echo $maintenance->progress  ?>%</b></div>
-		<div class="part">-- <b>---</b></div>
+		<div class="part">- <b><?php echo getenv('APP_NAME') ?: 'envo' ?></b></div>
 	</div>
 </body>
 </html>

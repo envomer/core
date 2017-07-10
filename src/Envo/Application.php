@@ -3,9 +3,12 @@
 namespace Envo;
 
 use Envo\Foundation\IP;
+use Envo\Foundation\ApplicationTrait;
 
 class Application extends \Phalcon\Mvc\Application
 {
+	use ApplicationTrait;
+
     public $inMaintenance = null;
 
     public function isMaintained($complete = false)
@@ -28,39 +31,14 @@ class Application extends \Phalcon\Mvc\Application
 		}
 	}
 
-    public function setup()
-    {
-        define('APP_START', microtime(true));
-        define('ENVO_PATH', __DIR__ . '/');
-
-        if( ! defined('APP_PATH') ) {
-            exit('APP_PATH not defined');
-        }
-
-        /** Read the configuration */
-		if( ! file_exists(APP_PATH . '.env') ) {
-			throw new \Exception("Configuration file not set. Contact support team.", 500);
-		}
-
-        ini_set("error_log", APP_PATH . 'storage/logs/errors/'.date('Y-m-d').'.log');
-    }
-
     public function start()
     {
         $this->setup();
         (new IP())->isBlocked();
 
         $this->isMaintained();
-
-        $config = new \Phalcon\Config\Adapter\Ini(APP_PATH . '.env');
-		
-		if( env('APP_ENV') == 'testing' ) {
-			unset($config['APP_ENV']);
-		}
-		
-		foreach($config as $key => $conf) {
-			putenv($key.'='.$conf);
-		}
+		$this->setupConfig();
+		require_once ('helpers.php');
 
         die(var_dump('starting app'));
     }

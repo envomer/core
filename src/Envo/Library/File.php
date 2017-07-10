@@ -1,13 +1,11 @@
 <?php
 
-namespace Envo\File;
+namespace Envo\Library;
 
 class File
 {
     public static function filesystem($driver)
     {
-        \AbstractService::autoloader();
-
         switch ($driver) {
             case 'sftp':
                 $adapter = new \League\Flysystem\Sftp\SftpAdapter(array(

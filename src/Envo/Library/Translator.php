@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Foundation;
+namespace Envo\Library;
 
 class Translator
 {

@@ -1,6 +1,8 @@
 <?php
 
-namespace Envo\Foundation;
+namespace Envo\Library;
+
+use Envo\Foundation;
 
 /**
  * System class
