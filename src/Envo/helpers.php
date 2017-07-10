@@ -218,3 +218,20 @@ if( ! function_exists('abort_unless') )
 		}
 	}
 }
+
+/**
+ * Abort unless
+ */
+if( ! function_exists('resolve') )
+{
+	function resolve($class, $instance = null)
+	{
+		$di = \Phalcon\DI::getDefault();
+		if( ! ($repo = $di->getShared($class)) ) {
+			$repo = $instance ?: new $repo;
+			$di->setShared($class, $repo);
+		}
+
+        return $repo;
+	}
+}
