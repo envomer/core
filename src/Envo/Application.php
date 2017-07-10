@@ -5,6 +5,14 @@ namespace Envo;
 use Envo\Foundation\IP;
 use Envo\Foundation\ApplicationTrait;
 
+use Phalcon\Cache\Frontend\Data as FrontendData;
+use Phalcon\Db\Adapter\Pdo\Mysql as Database;
+use Phalcon\DI\FactoryDefault;
+use Phalcon\Http\Response\Cookies;
+use Phalcon\Mvc\View;
+use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
+use Phalcon\Session\Adapter\Files as SessionAdapter;
+
 class Application extends \Phalcon\Mvc\Application
 {
 	use ApplicationTrait;
@@ -38,8 +46,74 @@ class Application extends \Phalcon\Mvc\Application
 
         $this->isMaintained();
 		$this->setupConfig();
-		require_once ('helpers.php');
+		$this->registerServices();
 
         die(var_dump('starting app'));
     }
+
+	public function registerServices()
+	{
+		$di = new FactoryDefault();
+
+		/**
+		 * Start the session the first time some component request the session service
+		 */
+		$di->set('session', function () {
+			session_save_path(APP_PATH.'storage/framework/sessions/');
+			$session = new SessionAdapter(array('uniqueId' => 'envo-session'));
+			$session->start();
+
+			return $session;
+		});
+
+		/**
+		 * Enable cookies
+		 */
+		$di->set('cookies', function () {
+			$cookies = new Cookies();
+			$cookies->useEncryption(false);
+			return $cookies;
+		});
+
+		/**
+		 * Custom authentication component
+		 */
+		$di->set('auth', function () {
+			return Auth::getInstance();
+		});
+
+		/**
+		 * Listen to dispatch
+		 */
+		$di->setShared('dispatcher', function() {
+			$eventManager = new \Phalcon\Events\Manager();
+			$eventManager->attach('dispatch:beforeException', new NotFound);
+
+			$dispatcher = new \Phalcon\Mvc\Dispatcher();
+			$dispatcher->setEventsManager($eventManager);
+			$dispatcher->setDefaultNamespace("Core\Controllers\\");
+			return $dispatcher;
+		});
+
+		/**
+		 * Register the router
+		 */
+		$di->set('router', function() {
+			$router = new Router(false);
+			$router->setDefaultModule('Core');
+			return require APP_PATH . 'app/routes.php';
+		});
+
+		/**
+		 * Set the database configuration
+		 */
+		$di->set('db', function () {
+			$databaseConfig = require(APP_PATH . 'config/database.php');
+			$connection = new Database($databaseConfig['connections'][$databaseConfig['default']]);
+
+			return $connection;
+		});
+
+		$this->setDI($di);
+	}
 }
