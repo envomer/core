@@ -2,9 +2,11 @@
 
 namespace Envo;
 
+use Envo\Model\EagerloadTrait;
+
 class AbstractModel extends \Phalcon\Mvc\Model
 {
-	use Envo\Model\EagerloadTrait;
+	use EagerloadTrait;
 
 	protected $fillable = [];
 	protected $softDeletes = false;

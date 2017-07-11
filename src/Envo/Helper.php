@@ -11,8 +11,7 @@ if( ! function_exists('env') )
 {
 	function env($name, $default = false)
 	{
-        $env = getenv($name);
-		return $env !== false ? $env : $default;
+		return ($env = getenv($name)) !== false ? $env : $default;
 	}
 }
 
@@ -48,9 +47,7 @@ if( ! function_exists('public_path') )
 {
 	function public_path($path = '')
 	{
-        // return 'http://localhost:3001';
         return '';
-        // return (env('APP_ENV') == 'local' ? 'http://localhost:8080' : '') . $path;
 	}
 }
 
@@ -88,7 +85,6 @@ if( ! function_exists('dd') )
 {
 	function dd($arg)
 	{
-		// die(var_dump(...$args));
 		die((new \Phalcon\Debug\Dump())->variables($args));
 	}
 }
@@ -241,3 +237,24 @@ if( ! function_exists('config') )
 	}
 }
 
+/**
+ * Event listener
+ */
+if( ! function_exists('on') )
+{
+	function on($name, $callback)
+	{
+		return resolve('eventsManager')->attach($name, $callback);
+	}
+}
+
+/**
+ * Trigger event
+ */
+if( ! function_exists('fire') )
+{
+	function fire($name, $data)
+	{
+		return resolve('eventsManager')->fire($name, $data);
+	}
+}

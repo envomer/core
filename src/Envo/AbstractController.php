@@ -10,15 +10,6 @@ class AbstractController extends \Phalcon\Mvc\Controller
 	protected $clientModules = null;
 
 	/**
-	 * Initialize composer autoloader
-	 * Caution: Slows down app enormously
-	 */
-	public function autoloader()
-	{
-
-	}
-
-	/**
 	 * Initialize repo
 	 */
 	public function initialize()
@@ -42,15 +33,6 @@ class AbstractController extends \Phalcon\Mvc\Controller
 	public function user()
 	{
 		return $this->getUser();
-	}
-
-	/**
-	 * Get repo
-	 */
-	public function getRepo($path)
-	{
-		$repo = new \App\Services\Repo(\Auth::user());
-		return $repo->get($path);
 	}
 	
 	/**
@@ -160,53 +142,6 @@ class AbstractController extends \Phalcon\Mvc\Controller
 		]);
 	}
 
-	/**
-	* Setup modules
-	*/
-	public function getModules()
-	{
-		if( $this->modules ) {
-			return $this->modules;
-		}
-
-		$modules = \App::modules();
-		unset($modules['default']);
-
-		if( ! $this->user || ! $this->user->loggedIn ) {
-			return null;
-		}
-
-		if( $this->user->isMod() ) {
-			return $this->modules = $modules;
-		}
-
-		// globally available modules
-		$userModules = array();
-		$userModules['cr'] = $modules['cr'];
-		$userModules['cs'] = $modules['cs'];
-		if( $this->user->id == 41 ) {
-			$userModules['cc'] = $modules['cc'];
-		}
-		// $userModules['cal'] = $modules['cal'];
-		// $userModules['cc'] = $modules['cc'];
-
-
-		if( $this->user && ($assignedModules = $this->user->getModules()) && count($modules) ) {
-			$this->clientModules = $assignedModules;
-			foreach($assignedModules as $mod) {
-				$module = $mod->module;
-				if( ! $module ) {
-					continue;
-				}
-				if( array_key_exists($module->code, $modules) ) {
-					$userModules[$module->code] = $modules[$module->code];
-				}
-			}
-			return $this->modules = $userModules;
-		}
-		return $this->modules = $userModules;
-	}
-
 	public function mustBeAdmin()
 	{
 		if( $this->user->isAdmin() ) {
@@ -227,7 +162,6 @@ class AbstractController extends \Phalcon\Mvc\Controller
 
 	public function abort($code = 403, $msg = 'Unauthorized')
 	{
-		// http_response_code(403);
 		throw new \Exception($msg, $code);
 	}
 }

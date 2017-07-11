@@ -17,7 +17,7 @@
     },
     "autoload": {
         "files": [
-            "src/Envo/helpers.php"
+            "src/Envo/Helper.php"
         ],
         "psr-4": {
             "Envo\\": "src/Envo"

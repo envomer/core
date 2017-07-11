@@ -4,7 +4,7 @@ namespace Envo\Model;
 
 use Envo\Model\Loader;
 
-trait EagerLoadingTrait
+trait EagerloadTrait
 {
     /**
      * <code>

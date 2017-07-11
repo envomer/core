@@ -9,17 +9,20 @@ use Envo\Foundation\ApplicationTrait;
 use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Db\Adapter\Pdo\Mysql as Database;
 use Phalcon\DI\FactoryDefault;
+use Phalcon\DI;
 use Phalcon\Http\Response\Cookies;
+use Phalcon\Http\Request;
 use Phalcon\Mvc\View;
+use Phalcon\Mvc\Model\Manager;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 
 class Application extends \Phalcon\Mvc\Application
 {
 	use ApplicationTrait;
 
-    public $inMaintenance = null;
+	public $inMaintenance = null;
 
-    public function isMaintained($complete = false)
+	public function isMaintained($complete = false)
 	{
 		if( $this->inMaintenance === null ) {
 			$this->inMaintenance = @file_get_contents(APP_PATH . 'storage/framework/down') ?: false;
@@ -39,32 +42,27 @@ class Application extends \Phalcon\Mvc\Application
 		}
 	}
 
-    public function start()
-    {
+	public function start()
+	{
 		$this->setup();
 
 		$this->isMaintained();
 		$this->setupConfig();
-		$debug = false;
-
-		if( env('APP_ENV') === 'local' && env('APP_DEBUG', false) ) {
-			$debug = new \Phalcon\Debug();
-			$debug->listen();
-		}
 
 		$this->registerServices();
-		
+
 		echo $this->handle()->getContent();
-    }
+	}
 
 	public function registerServices()
 	{
-		$di = new FactoryDefault();
+		$di = new DI();
+		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG', false);
 
 		/**
 		 * Start the session the first time some component request the session service
 		 */
-		$di->set('session', function () {
+		$di->setShared('session', function () {
 			session_save_path(APP_PATH.'storage/framework/sessions');
 			$session = new SessionAdapter(array('uniqueId' => 'envo-session'));
 			$session->start();
@@ -74,28 +72,37 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Enable cookies
 		 */
-		$di->set('cookies', function () {
+		$di->setShared('cookies', function () {
 			$cookies = new Cookies();
 			$cookies->useEncryption(false);
 			return $cookies;
 		});
 
+		$di->setShared('request', Request::class);
+		$di->setShared('modelsManager', Manager::class);
+
 		/**
 		 * Custom authentication component
 		 */
-		$di->set('auth', function () {
+		$di->setShared('auth', function () {
 			return Auth::getInstance();
+		});
+
+		$di->set('eventsManager', function() use($debug) {
+			$eventManager = new \Phalcon\Events\Manager();
+			if( ! $debug ) {
+				$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
+			}
+
+			return $eventManager;
 		});
 
 		/**
 		 * Listen to dispatch
 		 */
 		$di->setShared('dispatcher', function() {
-			$eventManager = new \Phalcon\Events\Manager();
-			$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
-
 			$dispatcher = new \Phalcon\Mvc\Dispatcher();
-			$dispatcher->setEventsManager($eventManager);
+			$dispatcher->setEventsManager($this->get('eventsManager'));
 			$dispatcher->setDefaultNamespace("App\Core\Controller\\");
 			return $dispatcher;
 		});
@@ -103,9 +110,9 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Register the router
 		 */
-		$di->set('router', function() {
+		$di->setShared('router', function() {
 			$router = new \Envo\Foundation\Router(false);
-			require APP_PATH . 'app/routes.php';
+			require_once APP_PATH . 'app/routes.php';
 			$router->api();
 
 			return $router;
@@ -114,7 +121,7 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Register the VIEW component
 		 */
-		$di->set('view', function () {
+		$di->setShared('view', function () {
 			$view = new View();
 			$view->setViewsDir(APP_PATH . 'app/Core/views/');
 			$view->registerEngines(array('php' => "Phalcon\Mvc\View\Engine\Php"));
@@ -124,11 +131,44 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set the database configuration
 		 */
-		$di->set('db', function () {
+		$di->setShared('db', function () {
 			$databaseConfig = require(APP_PATH . 'config/database.php');
 			$connection = new Database($databaseConfig['connections'][$databaseConfig['default']]);
 			return $connection;
 		});
+
+		/**
+		* If the configuration specify the use of metadata adapter use it or use memory otherwise
+		*/
+		$di->set('modelsMetadata', function () {
+			$metaData = new \Phalcon\Mvc\Model\Metadata\Files(array(
+				'metaDataDir' => APP_PATH . 'storage/framework/cache/'
+			));
+
+			return $metaData;
+		});
+
+		/**
+		 * Set the models cache service
+		 */
+		$di->set('modelsCache', function () {
+			// Cache data for one day by default
+			$frontCache = new FrontendData(["lifetime" => 86400]);
+
+			$cache = new Phalcon\Cache\Backend\File($frontCache, array(
+				"cacheDir" => APP_PATH . 'storage/framework/cache/'
+			));
+
+			return $cache;
+		});
+
+		if( $debug ) {
+			$di->set('url', \Phalcon\Mvc\Url::class);
+			$di->set('escaper', \Phalcon\Escaper::class);
+			
+			$debug = new \Phalcon\Debug();
+			$debug->listen();
+		}
 
 		$this->setDI($di);
 	}

@@ -64,7 +64,19 @@
 	         . " Line:  ". $error->getLine(). "\n";
 
 			 echo '<h2>'. $error->getMessage() .'</h2>';
-	         echo '<pre style="word-wrap:break-word">' .  $message . "\n" . $error->getTraceAsString() . '</pre>';
+	         echo '<pre style="word-wrap:break-word">' .  $message . "\n";
+
+             echo $error->getTraceAsString();
+
+            //  foreach($error->getTrace() as $trace) {
+            //      echo isset($trace['class']) ? $trace['class'] : '';
+            //      echo $trace['function'];
+            //      if( isset($trace['file']) ) {
+            //          var_dump(file_get_contents($trace['file']));
+            //      }
+            //  }
+             
+             echo '</pre>';
 	    ?>
 	</div>
 	<?php endif; ?>

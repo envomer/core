@@ -7,23 +7,16 @@ use Envo\AbstractController;
 
 class ApiController extends AbstractController
 {
-    /**
-     * Construct a new model repo and enable all the basic
-     * rest api functions
-     */
-    public function initialize()
-    {
-        parent::initialize();
-        $this->mustBeLoggedIn();
-
-        $repo = new ModelRepo($this->user, $this->getModules());
-        $params = $this->router->getParams();
-        $model = ( isset($params['model']) ) ? $params['model'] : null;
-        $this->repo = $repo->get($model);
-    }
-
+    protected $api = null;
     public function handleAction($method, $model = null, $id = null)
     {
+        /** TODO cache */
+        $api = new Handler();
+        $api->model = $model;
+
+        require_once APP_PATH . 'app/api.php';
+        $this->api = $api->getHandler();
+
         try {
             return $this->$method($model, $id);
         }
@@ -44,7 +37,7 @@ class ApiController extends AbstractController
     public function index()
     {
         $page = $this->get('page', 1);
-        $msgs = $this->repo->getAll($page, $this->get());
+        $msgs = $this->api->getAll($page, $this->get());
 
         return $this->json($msgs);
     }
@@ -58,7 +51,7 @@ class ApiController extends AbstractController
 	 */
     public function store($model)
     {
-        $resp = $this->repo->save($this->get());
+        $resp = $this->api->save($this->get());
         return $this->json($resp);
     }
 	
@@ -72,7 +65,7 @@ class ApiController extends AbstractController
 	 */
     public function show($model, $id)
     {
-        $entries = $this->repo->get($id, $this->get());
+        $entries = $this->api->get($id, $this->get());
         return $this->json( $entries );
     }
 
@@ -86,7 +79,7 @@ class ApiController extends AbstractController
 	 */
     public function update($model, $id)
     {
-        $resp = $this->repo->update($id, $this->get());
+        $resp = $this->api->update($id, $this->get());
         return $this->json( $resp );
     }
 	
@@ -101,10 +94,10 @@ class ApiController extends AbstractController
     public function destroy($model, $id)
     {
         if( $this->get('restore') ) {
-            $resp = $this->repo->restore($id);
+            $resp = $this->api->restore($id);
         }
         else {
-            $resp = $this->repo->delete($id, $this->get('force'), $this->get());
+            $resp = $this->api->delete($id, $this->get('force'), $this->get());
         }
 
         return $this->json( $resp );
