@@ -2,6 +2,8 @@
 
 namespace Envo\Foundation;
 
+use Phalcon\Config\Adapter\Ini;
+
 trait ApplicationTrait
 {
     public function setup()
@@ -18,12 +20,14 @@ trait ApplicationTrait
 			throw new \Exception("Configuration file not set. Contact support team.", 500);
 		}
 
-        ini_set("error_log", APP_PATH . 'storage/logs/errors/'.date('Y-m-d').'.log');
+        ini_set('error_log', APP_PATH . 'storage/logs/errors/'.date('Y-m-d').'.log');
+
+		(new IP())->isBlocked();
     }
 
 	public function setupConfig()
 	{
-		$config = new \Phalcon\Config\Adapter\Ini(APP_PATH . '.env');
+		$config = new Ini(APP_PATH . '.env');
 		
 		if( getenv('APP_ENV') == 'testing' ) {
 			unset($config['APP_ENV']);

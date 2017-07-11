@@ -1,0 +1,116 @@
+<?php
+
+namespace Envo\Foundation;
+
+use Exception;
+use Phalcon\Events\Event;
+use Phalcon\Mvc\User\Plugin;
+use Phalcon\Dispatcher;
+use Phalcon\Mvc\Dispatcher\Exception as DispatcherException;
+use Phalcon\Mvc\Dispatcher as MvcDispatcher;
+
+/**
+ * ExceptionHandler
+ *
+ * Handles not-found controller/actions
+ */
+class ExceptionHandler extends Plugin
+{
+	/**
+	 * Handle all exceptions types here
+	 */
+	public static function handleError(Exception $exception)
+	{
+		$e = $exception;
+
+	    $error = array(
+			'controller' => 'errors',
+			'action'     => 'show500',
+	      	'namespace' => 'Core\Controllers',
+	      	'exception' => $e
+		);
+		$code = 500;
+
+		$message = $e->getMessage(). "\n"
+			 . " Class=" . get_class($e) . "\n"
+             . " File=". $e->getFile(). "\n"
+             . " Line=". $e->getLine(). "\n";
+            //  . $e->getTraceAsString() . "\n";
+
+		if( $exception->getCode() == 403 ) {
+			$code = 403;
+			$error['action'] = 'show403';
+		}
+		else if( $exception->getCode() == 404 ) {
+			$code = 404;
+			$error['action'] = 'show404';
+			$message = null;
+		}
+
+		if ($exception instanceof DispatcherException) {
+			switch ($exception->getCode()) {
+				case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
+				case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
+					$code = 404;
+        			$error['action'] = 'show404';
+					break;
+				default:
+			}
+		}
+
+		$error['code'] = $code;
+       
+		$requestMethod = null;
+		if( isset($_SERVER['REQUEST_METHOD']) ) {
+			$requestMethod = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'];
+		}
+		
+		/**
+		 * 2002: Means the database is down. so don't record event in database
+		 * otherwise store message in database
+		 *
+		 * 1049: Means the database couldn't be found
+		 */
+		if( config('app.events') && ! is_a($e, 'PDOException') &&  $e->getCode() != 2002 && $e->getCode() != 1049 && ! env('APP_TESTING') ) {
+			$event = new \Core\Events\Exception($code .' '. $requestMethod. ' ', true, null, ['message' => $message]);
+			$event->notify();
+		}
+
+		// send a Notification every 5 minutes if the error repeats itself
+		if( env('APP_ENV') == 'production' ) {
+			// \Notification::pushoverRemind($_SERVER['SERVER_NAME'],  'IP: ' . \IP::getIpAddress() . "\nCode: ".  $code . ' ' . $requestMethod . ' ' . "\n\rMessage: " . $message, 60*5);
+		}
+
+		// also log the error message into a log file
+       	error_log($message . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/framework/logs/errors/'.date('Y-m-d') . '.log');
+
+		return $error;	
+	}
+
+	/**
+	 * This action is executed before any exception occurs when running phalcon
+	 *
+	 * @param Event $event
+	 * @param MvcDispatcher $dispatcher
+	 * @param Exception $exception
+	 * @return boolean
+	 */
+	public function beforeException(Event $event, MvcDispatcher $dispatcher, Exception $exception)
+	{
+		$error = self::handleError($exception);
+		envo_exception_handler($exception);
+	}
+
+	/**
+	 * Handle the exception from any other place in the app
+	 */
+	public static function handleException($exception)
+	{
+		if( defined('APP_CLI') && APP_CLI ) {
+			throw $exception;
+		}
+
+		$error = self::handleError($exception);
+		envo_exception_handler($exception);
+	}
+}

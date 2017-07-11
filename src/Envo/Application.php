@@ -3,6 +3,7 @@
 namespace Envo;
 
 use Envo\Foundation\IP;
+use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\ApplicationTrait;
 
 use Phalcon\Cache\Frontend\Data as FrontendData;
@@ -40,14 +41,20 @@ class Application extends \Phalcon\Mvc\Application
 
     public function start()
     {
-        $this->setup();
-        (new IP())->isBlocked();
+		$this->setup();
 
-        $this->isMaintained();
+		$this->isMaintained();
 		$this->setupConfig();
-		$this->registerServices();
+		$debug = false;
 
-        echo $this->handle()->getContent();
+		if( env('APP_ENV') === 'local' && env('APP_DEBUG', false) ) {
+			$debug = new \Phalcon\Debug();
+			$debug->listen();
+		}
+
+		$this->registerServices();
+		
+		echo $this->handle()->getContent();
     }
 
 	public function registerServices()
@@ -85,7 +92,7 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('dispatcher', function() {
 			$eventManager = new \Phalcon\Events\Manager();
-			// $eventManager->attach('dispatch:beforeException', new NotFound);
+			$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
 
 			$dispatcher = new \Phalcon\Mvc\Dispatcher();
 			$dispatcher->setEventsManager($eventManager);

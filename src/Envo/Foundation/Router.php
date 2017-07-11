@@ -23,18 +23,51 @@ class Router extends \Phalcon\Mvc\Router
     {
         $api = new \Phalcon\Mvc\Router\Group();
 
-        $modelApiClass = '';
-
         $api->setPrefix('/api/v1');
         $api->add('/:params', 'Errors::show404');
 
-        $api->addGet('/model/{model}', ['controller' => $modelApiClass, 'action' => 'handle', 'method' => 'index'] );
-        $api->addGet('/model/{model}/{id}', ['controller' => $modelApiClass, 'action' => 'handle', 'method' => 'show'] );
-        $api->addPost('/model/{model}/search', ['controller' => $modelApiClass, 'action' => 'handle', 'method' => 'index'] );
-        $api->addPost('/model/{model}', ['controller' => $modelApiClass, 'action' => 'handle', 'method' => 'store'] );
-        $api->addPut('/model/{model}/{id}', ['controller' => $modelApiClass, 'action' => 'handle', 'method' => 'update'] );
-        $api->addPost('/model/{model}/{id}', ['controller' => $modelApiClass, 'action' => 'handle', 'method' => 'update'] );
-        $api->addDelete('/model/{model}/{id}', ['controller' => $modelApiClass, 'action' => 'handle', 'method' => 'destroy'] );
+        $api->addGet('/model/{model}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'index'
+        ]);
+        $api->addGet('/model/{model}/{id}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'show'
+        ]);
+        $api->addPost('/model/{model}/search', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'index'
+        ]);
+        $api->addPost('/model/{model}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'store'
+        ]);
+        $api->addPut('/model/{model}/{id}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'update'
+        ]);
+        $api->addPost('/model/{model}/{id}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'update'
+        ]);
+        $api->addDelete('/model/{model}/{id}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'destroy'
+        ]);
 
         $this->mount($api);
     }

@@ -1,8 +1,7 @@
 <?php
 
-namespace Envo;
-
-use Envo\Translator;
+use Envo\Library\Translator;
+use Envo\Foundation\Config;
 
 /**
  * Environment helper function.
@@ -25,9 +24,9 @@ if( ! function_exists('_t') )
 	function _t($val, $params = null, $amount = null, $lang = null)
 	{
 		if( $amount ) {
-			return Translator::choice($val, $amount, $lang);
+			return resolve(Translator::class)->choice($val, $amount, $lang);
 		}
-		return Translator::lang($val, $params, $lang);
+		return resolve(Translator::class)->lang($val, $params, $lang);
 	}
 }
 
@@ -128,7 +127,7 @@ if (! function_exists('cache'))
     function cache()
     {
         $arguments = func_get_args();
-        $instance = \Cache::getInstance();
+        $instance = resolve(Cache::class);
 
         if (empty($arguments)) {
             return $instance;
@@ -184,14 +183,9 @@ if( ! function_exists('user') )
  * Handle all exceptions
  * TODO: modify
  */
-function asp_exception_handler($error)
+function envo_exception_handler($error)
 {
-	$di = \Phalcon\DI::getDefault();
-	$view = $di->getView();
-	$view->setViewsDir(APP_PATH . 'app/Core/views/');
-	$view->render('errors', 'show500');
-	$view->finish();
-	echo $view->getContent();
+	require_once ENVO_PATH . 'View/html/errors.php';
 	exit;
 }
 
@@ -220,7 +214,7 @@ if( ! function_exists('abort_unless') )
 }
 
 /**
- * Abort unless
+ * Resolve
  */
 if( ! function_exists('resolve') )
 {
@@ -235,3 +229,15 @@ if( ! function_exists('resolve') )
         return $repo;
 	}
 }
+
+/**
+ * Config
+ */
+if( ! function_exists('config') )
+{
+	function config($name)
+	{
+		return resolve(Config::class)->get($name);
+	}
+}
+
