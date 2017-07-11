@@ -10,7 +10,6 @@ use Phalcon\Db\Adapter\Pdo\Mysql as Database;
 use Phalcon\DI\FactoryDefault;
 use Phalcon\Http\Response\Cookies;
 use Phalcon\Mvc\View;
-use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 
 class Application extends \Phalcon\Mvc\Application
@@ -48,7 +47,7 @@ class Application extends \Phalcon\Mvc\Application
 		$this->setupConfig();
 		$this->registerServices();
 
-        die(var_dump('starting app'));
+        echo $this->handle()->getContent();
     }
 
 	public function registerServices()
@@ -59,10 +58,9 @@ class Application extends \Phalcon\Mvc\Application
 		 * Start the session the first time some component request the session service
 		 */
 		$di->set('session', function () {
-			session_save_path(APP_PATH.'storage/framework/sessions/');
+			session_save_path(APP_PATH.'storage/framework/sessions');
 			$session = new SessionAdapter(array('uniqueId' => 'envo-session'));
 			$session->start();
-
 			return $session;
 		});
 
@@ -87,11 +85,11 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('dispatcher', function() {
 			$eventManager = new \Phalcon\Events\Manager();
-			$eventManager->attach('dispatch:beforeException', new NotFound);
+			// $eventManager->attach('dispatch:beforeException', new NotFound);
 
 			$dispatcher = new \Phalcon\Mvc\Dispatcher();
 			$dispatcher->setEventsManager($eventManager);
-			$dispatcher->setDefaultNamespace("Core\Controllers\\");
+			$dispatcher->setDefaultNamespace("App\Core\Controller\\");
 			return $dispatcher;
 		});
 
@@ -99,9 +97,21 @@ class Application extends \Phalcon\Mvc\Application
 		 * Register the router
 		 */
 		$di->set('router', function() {
-			$router = new Router(false);
-			$router->setDefaultModule('Core');
-			return require APP_PATH . 'app/routes.php';
+			$router = new \Envo\Foundation\Router(false);
+			require APP_PATH . 'app/routes.php';
+			$router->api();
+
+			return $router;
+		});
+
+		/**
+		 * Register the VIEW component
+		 */
+		$di->set('view', function () {
+			$view = new View();
+			$view->setViewsDir(APP_PATH . 'app/Core/views/');
+			$view->registerEngines(array('php' => "Phalcon\Mvc\View\Engine\Php"));
+			return $view;
 		});
 
 		/**
@@ -110,7 +120,6 @@ class Application extends \Phalcon\Mvc\Application
 		$di->set('db', function () {
 			$databaseConfig = require(APP_PATH . 'config/database.php');
 			$connection = new Database($databaseConfig['connections'][$databaseConfig['default']]);
-
 			return $connection;
 		});
 

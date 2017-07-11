@@ -1,10 +1,12 @@
 <?php
 
+namespace Envo;
+
 use Phalcon\Mvc\User\Component;
-use Core\Model\User;
-use Core\Model\UserRepository;
-use Core\Model\RememberToken;
-use Core\Model\FailedLogin;
+use App\Core\Model\User;
+use App\Core\Model\UserRepository;
+use App\Core\Model\RememberToken;
+use App\Core\Model\FailedLogin;
 
 /**
  * Class Auth
@@ -56,6 +58,10 @@ class Auth extends Component
 		if( defined('APP_CLI') ) {
 			return null;
 		}
+        
+        if( ! class_exists(User::class) ) {
+            return null;
+        }
 
 		$instance = self::getInstance();
 		$session = $instance->session;
@@ -76,7 +82,7 @@ class Auth extends Component
 			}
 
 			if ( !$user ) {
-				$user = new \Core\Model\User;
+				$user = new User;
 				$user->loggedIn = self::$loggedIn = false;
 			} else {
 				$user->loggedIn = self::$loggedIn = true;
