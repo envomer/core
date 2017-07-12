@@ -270,7 +270,7 @@ if( ! function_exists('fire') )
  */
 if( ! function_exists('public_exception') )
 {
-	function public_exception($message, $code, $data)
+	function public_exception($message, $code, $data = null)
 	{
 		$exception = new \Envo\Exception\PublicException($message, $code);
 		$exception->setData($data);
@@ -279,14 +279,33 @@ if( ! function_exists('public_exception') )
 }
 
 /**
- * Trigger public exception
+ * Trigger private exception
  */
 if( ! function_exists('internal_exception') )
 {
-	function internal_exception($message, $code, $data)
+	function internal_exception($message, $code, $data = null)
 	{
 		$exception = new \Envo\Exception\InternalException($message, $code);
 		$exception->setData($data);
 		throw $exception;
+	}
+}
+
+/**
+ * Trigger public exception
+ */
+if( ! function_exists('uncaught_exception') )
+{
+	function uncaught_exception(\Exception $exception, $code = 500)
+	{
+		$internal = new \Envo\Exception\InternalException(
+			'app.uncaughtException',
+			$code,
+			$exception
+		);
+
+		$internal->setData($exception);
+
+		return $internal;
 	}
 }

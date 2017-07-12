@@ -282,13 +282,18 @@ class Handler
 		$this->hook('validate');
 
 		if( ! $this->api->model->save() ) {
-			public_exception(\_t('api.failedToCreateEntity'), 400, $this->api->model);
+			public_exception('api.failedToCreateEntity', 400, $this->api->model);
 		}
+		// $this->api->model->setJustCreated(true);
 		
 		$this->hook('postPersist');
 		$this->hook('postCreate');
 
-		return true;
+		return [
+			'data' => [
+				$this->api->getName() => $this->api->dto
+			]
+		];
 	}
 	
 	/**

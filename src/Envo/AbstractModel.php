@@ -3,15 +3,17 @@
 namespace Envo;
 
 use Envo\Model\EagerloadTrait;
+use Envo\Support\Arr;
+use Envo\Support\Validator;
 
 class AbstractModel extends \Phalcon\Mvc\Model
 {
 	use EagerloadTrait;
 
-	protected $fillable = [];
 	protected $softDeletes = false;
 	protected $allowUpdate = true;
 	protected $cachedRelations = [];
+	// private $_justCreated = false;
 
 	/**
 	* Get the table name
@@ -32,70 +34,11 @@ class AbstractModel extends \Phalcon\Mvc\Model
     public function getColumns($type = null)
     {
         if( ! $type ) return '';
-        if( isset($this->{$type . 'Columns'}) ) return $this->{$type . 'Columns'};
+        if( isset($this->{$type . 'Columns'}) ) {
+			return $this->{$type . 'Columns'};
+		}
         else return '';
     }
-
-	/**
-	* Override model values
-	*/
-	public function override(array $data, $merge = true, $fillableType = null)
-	{
-		$model = $this;
-		$sub = false;
-		$newSub = false;
-
-		if( isset($data['fill']) && $fillableType != 'save' ) {
-			$relation = $this->getRelations($data['fill']);
-			if( ! $relation ) return _t('app.invalid');
-
-			$relationName = $relation->getReferencedModel();
-			$fullModel = $this->load($data['fill']);
-			if( ! $fullModel ) return _t('app.invalid');
-
-			if( ! $fullModel->$data['fill'] ) {
-				$model = new $relationName;
-				$newSub = true;
-			}
-			else $model = $fullModel->$data['fill'];
-			$sub = true;
-		}
-
-		/**
-		 * store arrays as json encodes
-		 */
-		$fillables = $model->getFillable(null, $fillableType);
-		if( ! $fillables ) return _t('app.invalid'); // call event maybe?
-
-		foreach($fillables as $fillable) {
-			if( ! array_key_exists($fillable, $data) ) continue;
-
-			$value = isset($data[$fillable]) ? $data[$fillable] : null;
-			if( isset($data[$fillable]) && is_bool($data[$fillable]) ) $value = $data[$fillable] ? 1 : 0;
-
-			if( ! is_array($data[$fillable]) ) $model->$fillable = $value;
-			else {
-				$content = isset($model->$fillable) ? $model->$fillable : [];
-				if( $merge && isset($value) && is_array($this->$fillable) ) {
-					$content = array_merge($content, $value);
-				} else {
-					$content = $value;
-				}
-				$model->$fillable = json_encode($content, JSON_UNESCAPED_UNICODE);
-			}
-		}
-
-		if( $sub ) {
-			$model->{$relation->getReferencedFields()} = $this->{$relation->getFields()};
-			if( ! $model->save() ) {
-				if( $msgs = $entry->getMessages() ) return $msgs;
-		    	return false;
-			}
-			$this->$data['fill'] = $model;
-		}
-
-		return $this;
-	}
 
 	/**
 	 * Get the model relationships
@@ -125,26 +68,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public function runValidation($data, $rules = 'rules')
 	{
-		return new \Validator;
-	}
-
-	/**
-	 * Get the fillable attributes
-	 * 
-	 * @param  string $name
-	 * @return array
-	 */
-	public function getFillable($name = null, $type = null)
-	{
-		if( ! isset($this->fillable) ) return false;
-
-		// if type isset, then l
-		$fillables = $this->fillable;
-		if( $type && isset($fillables[$type]) ) $fillables = $fillables[$type];
-		
-		if( ! $name ) return $fillables;
-		if( in_array($name, $fillables) !== false ) return true;
-		return $fillables[$name];
+		return new Validator;
 	}
 
 	/**
@@ -162,28 +86,6 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		return true;
 	}
 
-	public static function withOld($args)
-	{
-		$with = $args;
-		if( isset($args['with']) ) {
-			$with = $args['with'];
-			// unset($args['with']);
-		}
-		// $with = (isset($args['with'])) ? $args['with'] : $args;
-		// die(var_dump($args));
-		$elements = self::find($args);
-
-		if( ! $elements ) return $elements;
-
-		$result = $elements;
-		foreach( $with as $withKey ) {
-			$result = \Lazyload::with($result, $withKey);
-		}
-		die(var_dump($result));
-		// $elements = \Lazyload::with()
-		die(var_dump($args));
-	}
-
 	public function allowUpdate($choice = null)
 	{
 		if( is_null($choice) ) return $this->allowUpdate;
@@ -194,7 +96,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		if( method_exists($this, 'toDTO') ) {
 			return $this->toDTO();
 		}
-		return \Arr::getPublicProperties($this);
+		return Arr::getPublicProperties($this);
 	}
 
 	public function ref($name, $fresh = false)
@@ -237,4 +139,14 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	{
 		return isset($this->id) ? $this->id : null;
 	}
+
+	// public function setJustCreated($value)
+	// {
+	// 	$this->_justCreated = $value;
+	// }
+
+	// public function justCreated()
+	// {
+	// 	return $this->_justCreated;
+	// }
 }

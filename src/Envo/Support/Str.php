@@ -504,16 +504,43 @@ class Str
 
     public static function base64url_encode($data)
     { 
-    return rtrim(strtr(base64_encode($data), '+/', '-_'), '='); 
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '='); 
     }
 
     public static function base64url_decode($data)
     { 
-    return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT)); 
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT)); 
     }
 
     public static function cleanDb($input)
     {
-    return htmlentities(trim($input));
+        return htmlentities(trim($input));
     }
+
+    public static function hash($value, $options = array())
+	{
+		$cost = isset($options['rounds']) ? $options['rounds'] : 10;
+		$hash = password_hash($value, PASSWORD_BCRYPT, ['cost' => $cost]);
+	    if ($hash === false) {
+	        throw new RuntimeException('Bcrypt hashing not supported.');
+	    }
+	    return $hash;
+	}
+
+    public static function uniqueId($length = 16)
+	{
+		$d = date ("d");
+		$m = date ("m");
+		$y = date ("Y");
+		$t = time();
+		$dmt = $d+$m+$y+$t;
+		$ran = rand(0,10000000);
+		$dmtran = $dmt+$ran;
+		$un = uniqid();
+		$dmtun = $dmt.$un;
+		$mdun = md5($dmtran.$un);
+		if( $length ) return substr($mdun, $length);
+
+		return $mdun;
+	}
 }

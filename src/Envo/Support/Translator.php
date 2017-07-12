@@ -102,6 +102,11 @@ class Translator
 	{
 		$locale = $locale ?: self::$locale;
 		$search = explode('.', $name);
+
+		if( strpos($search[0], ' ') !== false ) {
+			return $name;
+		}
+		
 		if( ! isset(self::$langs[$search[0]]) ) {
 			if( isset(self::$alias[$search[0]]) ) {
 				$search[0] = self::$alias[$search[0]];

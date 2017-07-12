@@ -12,6 +12,7 @@ class AbstractAPI
     public $dto = null;
     public $name = null;
     public $user = null;
+    public $repo = null;
 	
 	/**
 	 * @var RequestDTO $request
@@ -29,6 +30,7 @@ class AbstractAPI
 
         $this->buildModel();
         $this->buildDTO();
+        $this->buildRepo();
     }
 
     public function buildModel()
@@ -65,6 +67,21 @@ class AbstractAPI
             $this->dto = new $this->dto($data);
         }
     }
+
+    public function buildRepo()
+    {
+        if( ! $this->repo ) {
+            $this->repo = str_replace('\API\\', '\Repository\\', get_called_class()) . 'Repository';
+        }
+
+        if( is_string($this->repo) ) {
+            if( ! class_exists($this->repo) ) {
+                return $this->repo = new AbstractRepository($this->model);
+            }
+
+            $this->repo = new $this->repo($this->model);
+        }
+    }
 	
 	/**
 	 * @return null|string
@@ -89,7 +106,7 @@ class AbstractAPI
         $validator = Validator::make($this->dto, $validations);
 
         if( $validator->fails() ) {
-            public_exception(\_t('validation.failed'), 400, $validator);
+            public_exception('validation.failed', 400, $validator);
         }
 
         return true;

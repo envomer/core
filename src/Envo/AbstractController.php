@@ -3,7 +3,9 @@
 namespace Envo;
 
 use Envo\Exception\PublicException;
+use Envo\Support\Str;
 use Phalcon\Mvc\Controller;
+use Exception;
 
 class AbstractController extends Controller
 {
@@ -65,7 +67,9 @@ class AbstractController extends Controller
 	 */
 	public function json($msg, $sentence = null, $includeState = true)
 	{
+		/** TODO: refactor **/
 		$code = 200;
+		$loggedIn = $this->getUser() && $this->getUser()->loggedIn ? true : false;;
 		if( is_bool($msg) ) $msg = ['success' => $msg];
 		else if( is_string($msg) ) {
 			if( \_t('app.notfound') == $msg ) $code = 404;
@@ -73,7 +77,7 @@ class AbstractController extends Controller
 
 			$msg = [
 				'success' => false,
-				'msg' => $msg
+				'message' => $msg
 			];
 		}
 		else if( is_array($msg) && isset($msg[0]) && is_a($msg[0], 'Phalcon\Mvc\Model\Message') ) {
@@ -87,36 +91,42 @@ class AbstractController extends Controller
 		else if( is_array($msg) && ! isset($msg['success']) ) {
 			$msg['success'] = true;
 		}
-		else if( is_a($msg, AbstractException::class)) {
+		else if( is_a($msg, Exception::class)) {
 			$exception = $msg;
+			if( !($exception instanceof AbstractException) )  {
+				$exception = uncaught_exception($exception);
+			}
 			$publicException = ($exception instanceof PublicException);
 			$code = $exception->getCode();
+
+
 			$msg = [
-				'msg' => $publicException ? $exception->getMessage() : \_t('api.somethingWentWrong'),
+				'message' => $publicException ? $exception->getMessage() : \_t('api.somethingWentWrong'),
 				'success' => false,
 				'data' => $exception->data,
-				'reference' => $exception->reference
+				'reference' => $exception->reference,
+				'code' => ! $publicException ? 'api.somethingWentWrong' : $exception->messageCode
 			];
 
-			if( env('APP_DEBUG') ) {
+			if( env('APP_DEBUG') || ($loggedIn && $this->getUser()->isAdmin()) ) {
 				$msg['internal'] = [
 					'message' => $exception->getMessage(),
-					'data' => $exception->getInternalData()
+					'data' => $exception->getInternalData(),
+					'code' => $exception->messageCode
 				];
 			}
 		}
 
 		if( $sentence ) {
-			$msg['msg'] = $sentence;
+			$msg['message'] = $sentence;
 		}
 
-		$loggedIn = $this->getUser() && $this->getUser()->loggedIn ? true : false;;
 
-		if(is_array($msg)) {
-			$msg['logged_in'] = $loggedIn;
+		if(! $loggedIn && is_array($msg)) {
+			$msg['authenticated'] = $loggedIn;
 		}
-		else if( is_object($msg) ) {
-			$msg->logged_in = $loggedIn;
+		else if( ! $loggedIn && is_object($msg) ) {
+			$msg->authenticated = $loggedIn;
 		}
 
 	    //Set the content of the response
@@ -126,7 +136,7 @@ class AbstractController extends Controller
 
 	    if( ! $includeState ) {
 	    	unset($msg['success']);
-	    	unset($msg['logged_in']);
+	    	unset($msg['authenticated']);
 	    }
 
 		$msg->render_time = render_time();
