@@ -214,6 +214,12 @@ if( ! function_exists('abort_unless') )
  */
 if( ! function_exists('resolve') )
 {
+	/**
+	 * @param      $class
+	 * @param null $instance
+	 *
+	 * @return object
+	 */
 	function resolve($class, $instance = null)
 	{
 		$di = \Phalcon\DI::getDefault();
@@ -256,5 +262,31 @@ if( ! function_exists('fire') )
 	function fire($name, $data)
 	{
 		return resolve('eventsManager')->fire($name, $data);
+	}
+}
+
+/**
+ * Trigger public exception
+ */
+if( ! function_exists('public_exception') )
+{
+	function public_exception($message, $code, $data)
+	{
+		$exception = new \Envo\Exception\PublicException($message, $code);
+		$exception->setData($data);
+		throw $exception;
+	}
+}
+
+/**
+ * Trigger public exception
+ */
+if( ! function_exists('internal_exception') )
+{
+	function internal_exception($message, $code, $data)
+	{
+		$exception = new \Envo\Exception\InternalException($message, $code);
+		$exception->setData($data);
+		throw $exception;
 	}
 }

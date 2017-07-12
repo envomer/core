@@ -2,7 +2,6 @@
 
 namespace Envo;
 
-use Envo\Foundation\IP;
 use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\ApplicationTrait;
 
@@ -23,7 +22,7 @@ class Application extends \Phalcon\Mvc\Application
 
 	public $inMaintenance = null;
 
-	public function isMaintained($complete = false)
+	public function isMaintained()
 	{
 		if( $this->inMaintenance === null ) {
 			$this->inMaintenance = @file_get_contents(APP_PATH . 'storage/framework/down') ?: false;
@@ -59,7 +58,7 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		$di = new DI();
 		// $di = new FactoryDefault();
-		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG', false);
+		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG', false) && false;
 
 		/**
 		 * Start the session the first time some component request the session service
@@ -93,9 +92,9 @@ class Application extends \Phalcon\Mvc\Application
 
 		$di->set('eventsManager', function() use($debug) {
 			$eventManager = new \Phalcon\Events\Manager();
-			// if( ! $debug ) {
+			if( ! $debug ) {
 				$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
-			// }
+			}
 
 			return $eventManager;
 		});

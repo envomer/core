@@ -2,7 +2,10 @@
 
 namespace Envo;
 
-class AbstractController extends \Phalcon\Mvc\Controller
+use Envo\Exception\PublicException;
+use Phalcon\Mvc\Controller;
+
+class AbstractController extends Controller
 {
 	protected $user = null;
 
@@ -85,12 +88,22 @@ class AbstractController extends \Phalcon\Mvc\Controller
 			$msg['success'] = true;
 		}
 		else if( is_a($msg, AbstractException::class)) {
+			$exception = $msg;
+			$publicException = ($exception instanceof PublicException);
+			$code = $exception->getCode();
 			$msg = [
-				'msg' => is_a($msg, PublicException) ? $msg->message : 'Something went terribly wrong.',
-				'success' => $msg->success,
-				'data' => $msg->data,
-				'reference' => $msg->reference
+				'msg' => $publicException ? $exception->getMessage() : \_t('api.somethingWentWrong'),
+				'success' => false,
+				'data' => $exception->data,
+				'reference' => $exception->reference
 			];
+
+			if( env('APP_DEBUG') ) {
+				$msg['internal'] = [
+					'message' => $exception->getMessage(),
+					'data' => $exception->getInternalData()
+				];
+			}
 		}
 
 		if( $sentence ) {
@@ -99,8 +112,12 @@ class AbstractController extends \Phalcon\Mvc\Controller
 
 		$loggedIn = $this->getUser() && $this->getUser()->loggedIn ? true : false;;
 
-		if(is_array($msg)) $msg['loggedIn'] = $loggedIn;
-		else if( is_object($msg) ) $msg->loggedIn = $loggedIn;
+		if(is_array($msg)) {
+			$msg['logged_in'] = $loggedIn;
+		}
+		else if( is_object($msg) ) {
+			$msg->logged_in = $loggedIn;
+		}
 
 	    //Set the content of the response
 	    $this->view->disable();
@@ -109,7 +126,7 @@ class AbstractController extends \Phalcon\Mvc\Controller
 
 	    if( ! $includeState ) {
 	    	unset($msg['success']);
-	    	unset($msg['loggedIn']);
+	    	unset($msg['logged_in']);
 	    }
 
 		$msg->render_time = render_time();

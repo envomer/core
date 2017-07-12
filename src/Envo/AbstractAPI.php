@@ -3,6 +3,8 @@
 namespace Envo;
 
 use Envo\Exception\InternalException;
+use Envo\API\RequestDTO;
+use Envo\Support\Validator;
 
 class AbstractAPI
 {
@@ -10,7 +12,15 @@ class AbstractAPI
     public $dto = null;
     public $name = null;
     public $user = null;
-
+	
+	/**
+	 * @var RequestDTO $request
+	 */
+    public $request = null;
+	
+	/**
+	 * Build API class (DTO/mode/Repo)
+	 */
     public function build()
     {
         if( method_exists($this, 'init') ) {
@@ -46,17 +56,42 @@ class AbstractAPI
             if( ! class_exists($this->dto) ) {
                 throw new InternalException('DTO not found', 500);
             }
-            
-            $this->dto = new $this->dto;
+
+            $data = null;
+            if( $this->request && isset($this->request->parameters[$this->getName()]) ) {
+                $data = $this->request->parameters[$this->getName()];
+            }
+
+            $this->dto = new $this->dto($data);
         }
     }
-
+	
+	/**
+	 * @return null|string
+	 */
     public function getName()
     {
         if( $this->name ) {
             return $this->name;
         }
 
-        return $this->name = basename(str_replace('\\', '/', get_called_class()));
+        return $this->name = strtolower(basename(str_replace('\\', '/', get_called_class())));
+    }
+	
+	/**
+	 * @param $validations
+	 *
+	 * @return bool
+	 */
+    public function check($validations)
+    {
+    	/** @var Validator $validator */
+        $validator = Validator::make($this->dto, $validations);
+
+        if( $validator->fails() ) {
+            public_exception(\_t('validation.failed'), 400, $validator);
+        }
+
+        return true;
     }
 }

@@ -11,6 +11,8 @@ class Handler
     public $apis = [];
     public $name = null;
     public $api = null;
+	public $request;
+	public $user = null;
 
     public function add($name, $class)
     {
@@ -21,6 +23,8 @@ class Handler
         if( is_string($class) ) {
             $class = new $class;
         }
+
+		$class->name = $name;
 
         $this->apis[$name] = $class;
     }
@@ -34,6 +38,7 @@ class Handler
 
         $this->api = $this->apis[$name];
 
+		$this->api->request = $this->request;
         $this->api->build();
 
         return $this->api;
@@ -274,8 +279,10 @@ class Handler
 		$this->hook('prePersist');
 		$this->hook('preCreate');
 
+		$this->hook('validate');
+
 		if( ! $this->api->model->save() ) {
-			throw new PublicException(\_t('api.unableToCreateEntity'), 400);
+			public_exception(\_t('api.failedToCreateEntity'), 400, $this->api->model);
 		}
 		
 		$this->hook('postPersist');

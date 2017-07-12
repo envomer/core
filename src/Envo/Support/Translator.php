@@ -10,7 +10,7 @@ class Translator
 	const LANG_EN = 1;
 
 	protected static $langs = [];
-	protected static $locale = 'de';
+	protected static $locale = 'en';
 
 	protected static $languages = [
 		self::LANG_DE => 'de',
@@ -44,11 +44,21 @@ class Translator
 		if( $params && is_array($params) ) {
 			$i = 0;
 			foreach ($params as $k => $param) {
+
+				if(is_array($translation) ) {
+					return $translation;
+				}
+				
 				if( strpos($translation, ':' .$k) === false ) {
 					if( ! isset($matches) ) {
 						preg_match_all('/(?<!\w):\w+/',$translation,$matches);
 						$matches = $matches[0];
 					}
+
+					if( ! $matches ) {
+						return $translation;
+					}
+					
 					$pos = strpos($translation, $matches[$i]);
 					if ($pos !== false) {
 					    $translation = substr_replace($translation, $param, $pos, strlen($matches[$i]));

@@ -29,6 +29,8 @@ class Console
         $this->setup();
         $this->setupConfig();
 
+        define('APP_CLI', true);
+
         $app = new Application('envome', '0.0.1');
 
         $app->add((new \Phinx\Console\Command\Migrate())->setName('phinx:migrate'));
