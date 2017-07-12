@@ -33,7 +33,7 @@ class Handler
     {
         $name = $name ?: $this->name;
         if( ! $name || ! isset($this->apis[$name]) ) {
-            throw new InternalException('API name is not defined: ' . ($name));
+			internal_exception('api.nameNotDefined', 500);
         }
 
         $this->api = $this->apis[$name];
@@ -284,7 +284,6 @@ class Handler
 		if( ! $this->api->model->save() ) {
 			public_exception('api.failedToCreateEntity', 400, $this->api->model);
 		}
-		// $this->api->model->setJustCreated(true);
 		
 		$this->hook('postPersist');
 		$this->hook('postCreate');

@@ -48,4 +48,29 @@ class AbstractException extends Exception
         return $this->internalData;
     }
 
+    public function json()
+    {
+        $publicException = ($this instanceof PublicException);
+        $code = $this->getCode();
+
+        $response = [
+            'message' => $publicException ? $this->getMessage() : \_t('api.somethingWentWrong'),
+            'success' => false,
+            'data' => $this->data,
+            'reference' => $this->reference,
+            'code' => ! $publicException ? 'api.somethingWentWrong' : $this->messageCode
+        ];
+
+        if( env('APP_DEBUG') || ($loggedIn && $this->getUser()->isAdmin()) ) {
+            $response['internal'] = [
+                'message' => $this->getMessage(),
+                'data' => $this->getInternalData(),
+                'code' => $this->messageCode,
+                'trace' => $this->getTrace()
+            ];
+        }
+
+        return $response;
+    }
+
 }

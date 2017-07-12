@@ -2,6 +2,7 @@
 
 use Envo\Support\Translator;
 use Envo\Foundation\Config;
+use Envo\AbstractException;
 
 /**
  * Environment helper function.
@@ -298,10 +299,12 @@ if( ! function_exists('uncaught_exception') )
 {
 	function uncaught_exception(\Exception $exception, $code = 500)
 	{
+		if( $exception instanceof AbstractException ) {
+			return $exception;
+		}
+
 		$internal = new \Envo\Exception\InternalException(
-			'app.uncaughtException',
-			$code,
-			$exception
+			'app.uncaughtException', $code, $exception
 		);
 
 		$internal->setData($exception);

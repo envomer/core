@@ -3,6 +3,7 @@
 namespace Envo;
 
 use Envo\Exception\PublicException;
+use Envo\AbstractException;
 use Envo\Support\Str;
 use Phalcon\Mvc\Controller;
 use Exception;
@@ -70,57 +71,31 @@ class AbstractController extends Controller
 		/** TODO: refactor **/
 		$code = 200;
 		$loggedIn = $this->getUser() && $this->getUser()->loggedIn ? true : false;;
-		if( is_bool($msg) ) $msg = ['success' => $msg];
-		else if( is_string($msg) ) {
-			if( \_t('app.notfound') == $msg ) $code = 404;
-			else if( \_t('app.notallowed') == $msg ) $code = 403;
 
+		if( is_bool($msg) ) {
+			$msg = ['success' => $msg];
+		}
+		else if( is_string($msg) ) {
 			$msg = [
 				'success' => false,
 				'message' => $msg
 			];
 		}
-		else if( is_array($msg) && isset($msg[0]) && is_a($msg[0], 'Phalcon\Mvc\Model\Message') ) {
-			$errors = ['success' => false];
-			foreach ($msg as $mg) {
-				$errors['validation'][] = $mg->getMessage();
-			}
-			$msg = $errors;
-			$code = 400;
-		}
 		else if( is_array($msg) && ! isset($msg['success']) ) {
 			$msg['success'] = true;
 		}
-		else if( is_a($msg, Exception::class)) {
-			$exception = $msg;
-			if( !($exception instanceof AbstractException) )  {
-				$exception = uncaught_exception($exception);
+		else if( $msg instanceof Exception ) {
+			if( ! is_subclass_of($msg, AbstractException::class) )  {
+				$msg = uncaught_exception($msg);
 			}
-			$publicException = ($exception instanceof PublicException);
-			$code = $exception->getCode();
 
-
-			$msg = [
-				'message' => $publicException ? $exception->getMessage() : \_t('api.somethingWentWrong'),
-				'success' => false,
-				'data' => $exception->data,
-				'reference' => $exception->reference,
-				'code' => ! $publicException ? 'api.somethingWentWrong' : $exception->messageCode
-			];
-
-			if( env('APP_DEBUG') || ($loggedIn && $this->getUser()->isAdmin()) ) {
-				$msg['internal'] = [
-					'message' => $exception->getMessage(),
-					'data' => $exception->getInternalData(),
-					'code' => $exception->messageCode
-				];
-			}
+			$code = $msg->getCode();
+			$msg = $msg->json();
 		}
 
 		if( $sentence ) {
 			$msg['message'] = $sentence;
 		}
-
 
 		if(! $loggedIn && is_array($msg)) {
 			$msg['authenticated'] = $loggedIn;
@@ -129,11 +104,6 @@ class AbstractController extends Controller
 			$msg->authenticated = $loggedIn;
 		}
 
-	    //Set the content of the response
-	    $this->view->disable();
-	    $this->response->setStatusCode($code);
-	    $this->response->setContentType('application/json');
-
 	    if( ! $includeState ) {
 	    	unset($msg['success']);
 	    	unset($msg['authenticated']);
@@ -141,6 +111,11 @@ class AbstractController extends Controller
 
 		$msg->render_time = render_time();
 
+	    //Set the content of the response
+	    $this->view->disable();
+	    $this->response->setStatusCode($code);
+	    $this->response->setContentType('application/json');
+		
 	    //Return the response
 	    return $this->response->setJsonContent($msg)->send();
 	}
