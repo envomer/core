@@ -45,9 +45,9 @@ class Application extends \Phalcon\Mvc\Application
 	public function start()
 	{
 		$this->setup();
-
-		$this->isMaintained();
 		$this->setupConfig();
+		
+		$this->isMaintained();
 
 		$this->registerServices();
 

@@ -1,10 +1,10 @@
 <?php
 
-namespace Envo\Command;
+namespace Envo\Console\Command;
 
 use Envo\Console\Command;
 
-class UpTask extends Command
+class Up extends Command
 {
     /**
      * The console command name.

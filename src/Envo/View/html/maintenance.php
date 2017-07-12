@@ -35,8 +35,8 @@
     <div class="not-found">
         <i class="ex ex-sad ex-7x"></i>
         <h3>
-            Wir führen gerade ein <span>Update</span> durch.<br>
-            Dies kann einige Zeit dauern. Versuchen Sie es später nochmal.
+            We are performing an <span>update</span> right now.<br>
+            This could take a while. Come back later.
         </h3>
 
         <br><br>
@@ -45,9 +45,9 @@
 	<!--<div id="copy"><img src="/img/logo.png" alt="logo"></div>-->
 
 	<div class="footer">
-		<div class="part">Dauer: <b> ~<?php echo number_format($maintenance->retry/60, 2) ?> Std</b></div>
-		<div class="part">Fortschritt: <b><?php echo $maintenance->progress  ?>%</b></div>
-		<div class="part">- <b><?php echo getenv('APP_NAME') ?: 'envo' ?></b></div>
+		<div class="part">Duration: <b> ~<?php echo number_format($maintenance->retry/60, 2) ?> Hour</b></div>
+		<div class="part">Progress: <b><?php echo $maintenance->progress  ?>%</b></div>
+		<div class="part">- <b><?php echo env('APP_NAME', 'envo') ?></b></div>
 	</div>
 </body>
 </html>
