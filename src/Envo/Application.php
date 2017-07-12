@@ -11,6 +11,7 @@ use Phalcon\Db\Adapter\Pdo\Mysql as Database;
 use Phalcon\DI\FactoryDefault;
 use Phalcon\DI;
 use Phalcon\Http\Response\Cookies;
+use Phalcon\Http\Response;
 use Phalcon\Http\Request;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\Model\Manager;
@@ -80,6 +81,7 @@ class Application extends \Phalcon\Mvc\Application
 		});
 
 		$di->setShared('request', Request::class);
+		$di->setShared('response', Response::class);
 		$di->setShared('modelsManager', Manager::class);
 
 		/**
@@ -91,9 +93,9 @@ class Application extends \Phalcon\Mvc\Application
 
 		$di->set('eventsManager', function() use($debug) {
 			$eventManager = new \Phalcon\Events\Manager();
-			if( ! $debug ) {
+			// if( ! $debug ) {
 				$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
-			}
+			// }
 
 			return $eventManager;
 		});

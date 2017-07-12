@@ -28,7 +28,7 @@ class Console
     {
         $this->setup();
         $this->setupConfig();
-        
+
         $app = new Application('envome', '0.0.1');
 
         $app->add((new \Phinx\Console\Command\Migrate())->setName('phinx:migrate'));
@@ -39,6 +39,7 @@ class Console
 
         $app->add(new \Envo\Console\Command\Down);
         $app->add(new \Envo\Console\Command\Up);
+        $app->add(new \Envo\Console\Command\ClearStorage);
 
         $app->run();
     }

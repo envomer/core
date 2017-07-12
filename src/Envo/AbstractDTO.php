@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Foundation;
+namespace Envo;
 
 class AbstractDTO implements \JsonSerializable
 {

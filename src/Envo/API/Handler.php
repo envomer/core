@@ -3,6 +3,8 @@
 namespace Envo\API;
 
 use Envo\Exception\InternalException;
+use Envo\Exception\PublicException;
+use Envo\Support\Paginator;
 
 class Handler
 {
@@ -233,10 +235,10 @@ class Handler
 		    if(isset($attributes['offset'])) {
 				unset($attributes['offset']);
 			}
-	    	$countTotal = $this->api->count($attributes);
+	    	$countTotal = $this->api->model->count($attributes);
 	    }
 		
-	    $pages = new \Paginator($robots, $countTotal, (int)$page, (int)$per_page);
+	    $pages = new Paginator($robots, $countTotal, (int)$page, (int)$per_page);
 
 	    return $pages;
 	}
@@ -269,36 +271,15 @@ class Handler
 	 */
 	public function save($content)
 	{
-		// $validator = $this->api->runValidation($content, 'save');
-		// if( $validator->fails() ) return $validator;
+		$this->hook('prePersist');
+		$this->hook('preCreate');
 
-		// see if element already exist
-		$entry = $this->api->override($content, true, 'save');
-		if( ! $entry || is_string($entry) || is_array($entry) ) {
-			return $entry;
+		if( ! $this->api->model->save() ) {
+			throw new PublicException(\_t('api.unableToCreateEntity'), 400);
 		}
-
-		if( method_exists($entry, 'preSave') ) {
-			$response = $entry->preSave(\Auth::user(), $content);
-			if( is_a($response, AbstractInternalResponse::class) && ! $response->success ) {
-				return $response->message;
-			}
-
-			if( is_array($response) || is_string($response) || (is_bool($response) && ! $response) ) {
-				return $response;
-			}
-		}
-
-		if( ! $entry->save() ) {
-			if( $msgs = $entry->getMessages() ) {
-				return $msgs;
-			}
-		    return false;
-		}
-
-		if( method_exists($entry, 'postSave') ) {
-			return $entry->postSave(\Auth::user(), $content);
-		}
+		
+		$this->hook('postPersist');
+		$this->hook('postCreate');
 
 		return true;
 	}
@@ -465,6 +446,13 @@ class Handler
 		}
 
 		return $result;
+	}
+
+	public function hook($name)
+	{
+		if( method_exists($this->api, $name) ) {
+			$this->api->$name();
+		}
 	}
 
 }

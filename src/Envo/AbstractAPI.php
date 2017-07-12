@@ -7,7 +7,9 @@ use Envo\Exception\InternalException;
 class AbstractAPI
 {
     public $model = null;
+    public $dto = null;
     public $name = null;
+    public $user = null;
 
     public function build()
     {
@@ -15,6 +17,12 @@ class AbstractAPI
             $this->init();
         }
 
+        $this->buildModel();
+        $this->buildDTO();
+    }
+
+    public function buildModel()
+    {
         if( ! $this->model ) {
             $this->model = str_replace('\API\\', '\Model\\', get_called_class());
         }
@@ -25,6 +33,21 @@ class AbstractAPI
             }
             
             $this->model = new $this->model;
+        }
+    }
+
+    public function buildDTO()
+    {
+        if( ! $this->dto ) {
+            $this->dto = str_replace('\API\\', '\DTO\\', get_called_class()) . 'DTO';
+        }
+
+        if( is_string($this->dto) ) {
+            if( ! class_exists($this->dto) ) {
+                throw new InternalException('DTO not found', 500);
+            }
+            
+            $this->dto = new $this->dto;
         }
     }
 

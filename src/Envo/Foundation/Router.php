@@ -24,7 +24,11 @@ class Router extends \Phalcon\Mvc\Router
         $api = new \Phalcon\Mvc\Router\Group();
 
         $api->setPrefix('/api/v1');
-        $api->add('/:params', 'Errors::show404');
+        $api->add('/:params', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'notFound'
+        ]);
 
         $api->addGet('/model/{model}', [
             'namespace' => 'Envo\API',

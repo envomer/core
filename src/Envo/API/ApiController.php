@@ -5,6 +5,9 @@ use Envo\Auth;
 use Core\Service\ModelRepo;
 use Envo\AbstractController;
 
+use Envo\Exception\PublicException;
+use Envo\Exception\InternalException;
+
 class ApiController extends AbstractController
 {
     protected $api = null;
@@ -12,6 +15,7 @@ class ApiController extends AbstractController
     {
         /** TODO cache */
         $this->api = $api = new Handler();
+        $this->api->user = $this->getUser();
         $api->name = $model;
 
         require_once APP_PATH . 'app/api.php';
@@ -21,11 +25,7 @@ class ApiController extends AbstractController
             return $this->$method($model, $id);
         }
         catch(\Exception $e) {
-            if( env('APP_ENV') == 'local' ) {
-                envo_exception_handler($e);
-            }
-
-            return $this->json($e->getMessage());
+            return $this->json($e);
         }
     }
 
@@ -101,5 +101,10 @@ class ApiController extends AbstractController
         }
 
         return $this->json( $resp );
+    }
+
+    public function notFoundAction()
+    {
+        return $this->json(false, 'Not found');
     }
 }

@@ -4,18 +4,7 @@ namespace Envo;
 
 class AbstractController extends \Phalcon\Mvc\Controller
 {
-	protected $repo;
-	protected $modules = null;
 	protected $user = null;
-	protected $clientModules = null;
-
-	/**
-	 * Initialize repo
-	 */
-	public function initialize()
-	{
-		$this->user = $this->getUser();
-	}
 
 	public function setViewsDir($module = 'Core')
 	{
@@ -75,8 +64,7 @@ class AbstractController extends \Phalcon\Mvc\Controller
 	{
 		$code = 200;
 		if( is_bool($msg) ) $msg = ['success' => $msg];
-		else if( is_string($msg) )
-    	{
+		else if( is_string($msg) ) {
 			if( \_t('app.notfound') == $msg ) $code = 404;
 			else if( \_t('app.notallowed') == $msg ) $code = 403;
 
@@ -85,8 +73,7 @@ class AbstractController extends \Phalcon\Mvc\Controller
 				'msg' => $msg
 			];
 		}
-		else if( is_array($msg) && isset($msg[0]) && is_a($msg[0], 'Phalcon\Mvc\Model\Message') )
-		{
+		else if( is_array($msg) && isset($msg[0]) && is_a($msg[0], 'Phalcon\Mvc\Model\Message') ) {
 			$errors = ['success' => false];
 			foreach ($msg as $mg) {
 				$errors['validation'][] = $mg->getMessage();
@@ -97,11 +84,12 @@ class AbstractController extends \Phalcon\Mvc\Controller
 		else if( is_array($msg) && ! isset($msg['success']) ) {
 			$msg['success'] = true;
 		}
-		else if( is_a($msg, AbstractInternalResponse::class)) {
+		else if( is_a($msg, AbstractException::class)) {
 			$msg = [
-				'msg' => $msg->message,
+				'msg' => is_a($msg, PublicException) ? $msg->message : 'Something went terribly wrong.',
 				'success' => $msg->success,
-				'data' => $msg->data
+				'data' => $msg->data,
+				'reference' => $msg->reference
 			];
 		}
 
@@ -109,7 +97,7 @@ class AbstractController extends \Phalcon\Mvc\Controller
 			$msg['msg'] = $sentence;
 		}
 
-		$loggedIn = $this->getUser() ? true : false;;
+		$loggedIn = $this->getUser() && $this->getUser()->loggedIn ? true : false;;
 
 		if(is_array($msg)) $msg['loggedIn'] = $loggedIn;
 		else if( is_object($msg) ) $msg->loggedIn = $loggedIn;
@@ -123,6 +111,8 @@ class AbstractController extends \Phalcon\Mvc\Controller
 	    	unset($msg['success']);
 	    	unset($msg['loggedIn']);
 	    }
+
+		$msg->render_time = render_time();
 
 	    //Return the response
 	    return $this->response->setJsonContent($msg)->send();
