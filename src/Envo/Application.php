@@ -57,6 +57,7 @@ class Application extends \Phalcon\Mvc\Application
 	public function registerServices()
 	{
 		$di = new DI();
+		// $di = new FactoryDefault();
 		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG', false);
 
 		/**
@@ -133,7 +134,11 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('db', function () {
 			$databaseConfig = require(APP_PATH . 'config/database.php');
-			$connection = new Database($databaseConfig['connections'][$databaseConfig['default']]);
+			if( $databaseConfig['default'] === 'sqlite' ) {
+				$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($databaseConfig['connections'][$databaseConfig['default']]);
+			} else {
+				$connection = new Database($databaseConfig['connections'][$databaseConfig['default']]);
+			}
 			return $connection;
 		});
 
