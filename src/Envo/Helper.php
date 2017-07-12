@@ -154,14 +154,14 @@ if (! function_exists('session'))
     function session($key = null, $default = null)
     {
         if (is_null($key)) {
-            return app('session');
+            return resolve('session');
         }
 
         if (is_array($key)) {
-            return app('session')->put($key);
+            return resolve('session')->put($key);
         }
 
-        return app('session')->get($key, $default);
+        return resolve('session')->get($key, $default);
     }
 }
 
@@ -172,7 +172,7 @@ if( ! function_exists('user') )
 {
 	function user()
 	{
-		return \Auth::user();
+		return \Envo\Auth::user();
 	}
 }
 
