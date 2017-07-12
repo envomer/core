@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Library;
+namespace Envo\Support;
 
 class Str
 {

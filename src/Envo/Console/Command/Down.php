@@ -1,11 +1,11 @@
 <?php
 
-namespace Envo\Command;
+namespace Envo\Console\Command;
 
 use Envo\Console\Command;
-use Envo\Library\File;
+use Envo\Support\File;
 
-class DownTask extends Command
+class Down extends Command
 {
     /**
      * The console command signature.
@@ -46,7 +46,7 @@ class DownTask extends Command
     {
         return [
             'time' => time(),
-            'message' => $this->option('message'),
+            'message' => $this->option('message', 'We are performing some updates.'),
             'retry' => $this->getRetryTime(),
         ];
     }
@@ -58,7 +58,7 @@ class DownTask extends Command
      */
     protected function getRetryTime()
     {
-        $retry = $this->option('retry');
+        $retry = $this->option('retry', false);
 
         return is_numeric($retry) && $retry > 0 ? (int) $retry : null;
     }

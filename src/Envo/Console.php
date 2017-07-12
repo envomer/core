@@ -3,7 +3,7 @@
 namespace Envo;
 
 use Envo\Foundation\ApplicationTrait;
-use Envo\Library\Date;
+use Envo\Support\Date;
 use Phalcon\Commands\CommandsListener;
 use Phalcon\Loader;
 use Phalcon\Events\Manager as EventsManager;
@@ -33,6 +33,8 @@ class Console
         $app->add((new \Phinx\Console\Command\Rollback())->setName('phinx:rollback'));
         $app->add((new \Phinx\Console\Command\Status())->setName('phinx:status'));
         $app->add((new \Phinx\Console\Command\Create())->setName('phinx:create'));
+
+        $app->add(new \Envo\Console\Command\Down);
 
         $app->run();
     }

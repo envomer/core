@@ -1,6 +1,6 @@
 <?php
 
-use Envo\Library\Translator;
+use Envo\Support\Translator;
 use Envo\Foundation\Config;
 
 /**

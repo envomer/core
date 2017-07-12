@@ -2,8 +2,8 @@
 
 namespace Envo\Command;
 
-use Envo\Library\File;
-use Envo\Library\Str;
+use Envo\Support\File;
+use Envo\Support\Str;
 use Symfony\Component\Console\Helper\Table;
 use Symfony\Component\Console\Output\ConsoleOutput;
 

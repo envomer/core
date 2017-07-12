@@ -2,7 +2,7 @@
 
 namespace Envo\Command;
 
-use Envo\Library\Queue;
+use Envo\Support\Queue;
 
 class WorkerTask extends \Phalcon\Cli\Task
 {

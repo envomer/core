@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Library;
+namespace Envo\Support;
 
 use Core\Model\QueueJob;
 use Core\Model\QueueJobType;
