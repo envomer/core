@@ -13,7 +13,8 @@
     ],
     "minimum-stability": "dev",
     "require": {
-        "php": ">=7.0.0"
+        "php": ">=7.0.0",
+        "robmorgan/phinx": "dev-master"
     },
     "autoload": {
         "files": [
@@ -22,5 +23,6 @@
         "psr-4": {
             "Envo\\": "src/Envo"
         }
-    }
+    },
+    "bin": ["bin/envo"]
 }
