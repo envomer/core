@@ -22,6 +22,7 @@ class ApiController extends AbstractController
         $api->name = $model;
 
         require_once APP_PATH . 'app/api.php';
+
         $api->setApi();
 
         try {

@@ -33,7 +33,7 @@ class Handler
     {
         $name = $name ?: $this->name;
         if( ! $name || ! isset($this->apis[$name]) ) {
-			internal_exception('api.nameNotDefined', 500);
+			internal_exception('api.nameNotDefined', 404);
         }
 
         $this->api = $this->apis[$name];
