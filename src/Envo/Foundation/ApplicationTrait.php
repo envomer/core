@@ -4,6 +4,8 @@ namespace Envo\Foundation;
 
 use Phalcon\Config\Adapter\Ini;
 
+use Envo\Support\IP;
+
 trait ApplicationTrait
 {
     public function setup()

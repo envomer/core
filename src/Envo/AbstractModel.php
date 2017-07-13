@@ -2,7 +2,7 @@
 
 namespace Envo;
 
-use Envo\Model\EagerloadTrait;
+use Envo\Model\Eagerload\EagerloadTrait;
 use Envo\Support\Arr;
 use Envo\Support\Validator;
 

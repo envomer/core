@@ -33,17 +33,17 @@ class CreateEvents extends AbstractMigration
         ]);
 
         $table->addColumn('id', 'integer', ['signed' => false, 'identity' => true]);
-        $table->addColumn('user_id', 'integer', ['signed' => false]);
-        $table->addColumn('client_id', 'integer', ['signed' => false]);
+        $table->addColumn('user_id', 'integer', ['signed' => false, 'null' => true]);
+        $table->addColumn('client_id', 'integer', ['signed' => false, 'null' => true]);
 
-        $table->addColumn('message', 'string');
-        $table->addColumn('data', 'text');
+        $table->addColumn('message', 'string', ['null' => true]);
+        $table->addColumn('data', 'text', ['null' => true]);
 
-        $table->addColumn('event_type_id', 'integer', ['signed' => false]);
-        $table->addColumn('ip_id', 'integer', ['signed' => false]);
+        $table->addColumn('event_type_id', 'integer', ['signed' => false, 'null' => true]);
+        $table->addColumn('ip_id', 'integer', ['signed' => false, 'null' => true]);
 
-        $table->addColumn('model_id', 'integer', ['signed' => false]);
-        $table->addColumn('model_entry_id', 'integer', ['signed' => false]);
+        $table->addColumn('model_id', 'integer', ['signed' => false, 'null' => true]);
+        $table->addColumn('model_entry_id', 'integer', ['signed' => false, 'null' => true]);
 
         $table->addColumn('created_at', 'timestamp', ['null' => true]);
 

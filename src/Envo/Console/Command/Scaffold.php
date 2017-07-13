@@ -66,8 +66,8 @@ class Scaffold extends Migrate
         $paths = [
             'none',
             'user',
-            'event',
             'client',
+            'event',
         ];
 
         $helper = $this->getHelper('question');
@@ -82,13 +82,14 @@ class Scaffold extends Migrate
             'user' => [
                 ENVO_PATH . '../../migrations/20170712093749_create_users.php'
             ],
-            'event' => [
+            'client' => [
                 ENVO_PATH . '../../migrations/20170712182747_create_clients.php'
             ],
-            'client' => [
+            'event' => [
                 ENVO_PATH . '../../migrations/20170713083404_create_events.php',
                 ENVO_PATH . '../../migrations/20170713084109_create_event_types.php',
-                ENVO_PATH . '../../migrations/20170713084113_create_event_models.php'
+                ENVO_PATH . '../../migrations/20170713084113_create_event_models.php',
+                ENVO_PATH . '../../migrations/20170713084114_create_ips.php',
             ],
         ];
 

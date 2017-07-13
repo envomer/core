@@ -1,8 +1,16 @@
 <?php
 
-namespace Envo\Foundation;
+namespace Envo;
 
 use Envo\Notification\Notification;
+
+use Envo\Support\IP;
+use Envo\Support\File;
+use Envo\Support\Date;
+
+use Envo\Model\Event\Event;
+use Envo\Model\Event\EventType;
+use Envo\Model\Event\EventModel;
 
 class AbstractEvent
 {
@@ -23,34 +31,29 @@ class AbstractEvent
 			return $this->event = $message;
 		}
 
-		$event = new \Core\Model\Event;
-		$user = ! defined('APP_CLI') ? \Auth::user() : null;
+		$event = new Event;
+		$user = ! defined('APP_CLI') ? user() : null;
 		if( $user && $user->loggedIn ) {
 			$event->user_id = $user->id;
 			if( isset($user->client_id) )
 				$event->client_id = $user->client_id;
 		}
-		
-		if( ! defined('APP_CLI') && ($loginDomain = \LoginDomain::get(true)) ) {
-			$event->login_domain_id = $loginDomain->id;
-		}
 
 		$event->created_at = date('Y-m-d H:i:s');
-		$ip = \IP::getIpAddress();
+		$ip = resolve(IP::class)->getIpAddress();
 
-		if( $ip ) {
-			$userip = \Core\Model\UserIpRepository::getByIp($ip);
-			if( ! $userip ) {
-				$userip = new \Core\Model\UserIp;
-				$userip->ip = $ip;
-				$userip->created_at = date('Y-m-d H:i:s');
-				$userip->user_id = $user ? $user->id : null;
-				$userip->save();
-				// \Cache::delete('userip.ip.' . md5($ip));
-			}
-			$userip = $userip->id;
-			$event->ip_id = $userip;
-		}
+		// if( $ip ) {
+		// 	$userip = CoreIp::getByIp($ip);
+		// 	if( ! $userip ) {
+		// 		$userip = new UserIp;
+		// 		$userip->ip = $ip;
+		// 		$userip->created_at = date('Y-m-d H:i:s');
+		// 		$userip->user_id = $user ? $user->id : null;
+		// 		$userip->save();
+		// 	}
+		// 	$userip = $userip->id;
+		// 	$event->ip_id = $userip;
+		// }
 
 		$this->setMessage($event, $message);
 
@@ -65,7 +68,7 @@ class AbstractEvent
 		}
 
 		$filepath = APP_PATH . 'storage/logs/events-' . date('Y-m-d').'.log';
-		\File::append($filepath, "\n\r" . $event->toReadableString(get_called_class()));
+		File::append($filepath, "\n\r" . $event->toReadableString(get_called_class()));
 
 		return $event;
 	}
@@ -85,7 +88,9 @@ class AbstractEvent
 	public function setMessage($event, $message)
 	{
 		if( ! $message ) return false;
-		if( is_array($message) || is_object($message) ) $message = json_encode($message);
+		if( is_array($message) || is_object($message) ) {
+			$message = json_encode($message);
+		}
 
 		$event->message = $message;
 
@@ -106,15 +111,18 @@ class AbstractEvent
 
 	public function setModel($event, $model)
 	{
-		if( ! $model ) return false;
+		if( ! $model ) {
+			return false;
+		}
 
 		$modelClass = get_class($model);
 
-		$eventModel = \Core\Model\EventModel::findFirst(['class=?0', 'bind' => [$modelClass]]);
+		$eventModel = EventModel::findFirst(['class=?0', 'bind' => [$modelClass]]);
 
 		if( ! $eventModel ) {
-			$eventModel = new \Core\Model\EventModel();
+			$eventModel = new EventModel();
 			$eventModel->class = $modelClass;
+			$eventModel->created_at = Date::now();
 			$eventModel->save();
 		}
 
@@ -134,11 +142,12 @@ class AbstractEvent
 	{
 		$class = get_called_class();
 
-		$eventType = \Core\Model\EventType::findFirst(['class=?0', 'bind' => [$class]]);
+		$eventType = EventType::findFirst(['class=?0', 'bind' => [$class]]);
 
 		if( ! $eventType ) {
-			$eventType = new \Core\Model\EventType();
+			$eventType = new EventType();
 			$eventType->class = $class;
+			$eventType->created_at = Date::now();
 			$eventType->save();
 		}
 

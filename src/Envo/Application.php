@@ -116,6 +116,8 @@ class Application extends \Phalcon\Mvc\Application
 			$router = new \Envo\Foundation\Router(false);
 			require_once APP_PATH . 'app/routes.php';
 			$router->api();
+			$router->removeExtraSlashes(true);
+			$router->setUriSource(\Phalcon\Mvc\Router::URI_SOURCE_SERVER_REQUEST_URI);
 
 			return $router;
 		});

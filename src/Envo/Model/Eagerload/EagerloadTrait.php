@@ -1,8 +1,8 @@
 <?php
 
-namespace Envo\Model;
+namespace Envo\Model\Eagerload;
 
-use Envo\Model\Loader;
+use Envo\Model\Eagerload\Loader;
 
 trait EagerloadTrait
 {

@@ -31,6 +31,10 @@ class Console
 
         define('APP_CLI', true);
 
+        /**
+         * TODO rollback migration from scaffold. how??
+         */
+
         $app = new Application('envome', '0.1.0');
 
         $app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));

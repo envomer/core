@@ -1,6 +1,6 @@
 <?php 
 
-namespace Envo\Model;
+namespace Envo\Model\Eagerload;
 
 use Phalcon\Mvc\Model\Query\Builder;
 

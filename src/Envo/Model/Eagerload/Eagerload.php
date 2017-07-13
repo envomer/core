@@ -1,4 +1,6 @@
-<?php namespace Sb\Framework\Mvc\Model\EagerLoading;
+<?php 
+
+namespace Envo\Model\Eagerload;
 
 use Phalcon\Mvc\Model\Relation;
 use Phalcon\Mvc\Model\Resultset;
