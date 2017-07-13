@@ -31,17 +31,18 @@ class Console
 
         define('APP_CLI', true);
 
-        $app = new Application('envome', '0.0.1');
+        $app = new Application('envome', '0.1.0');
 
-        $app->add((new \Phinx\Console\Command\Migrate())->setName('phinx:migrate'));
-        $app->add((new \Phinx\Console\Command\Init())->setName('phinx:init'));
-        $app->add((new \Phinx\Console\Command\Rollback())->setName('phinx:rollback'));
-        $app->add((new \Phinx\Console\Command\Status())->setName('phinx:status'));
-        $app->add((new \Phinx\Console\Command\Create())->setName('phinx:create'));
+        $app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
+        $app->add((new \Phinx\Console\Command\Init())->setName('migration:init'));
+        $app->add((new \Phinx\Console\Command\Rollback())->setName('migration:rollback'));
+        $app->add((new \Phinx\Console\Command\Status())->setName('migration:status'));
+        $app->add((new \Phinx\Console\Command\Create())->setName('migration:create'));
 
         $app->add(new \Envo\Console\Command\Down);
         $app->add(new \Envo\Console\Command\Up);
         $app->add(new \Envo\Console\Command\ClearStorage);
+        $app->add(new \Envo\Console\Command\Scaffold);
 
         $app->run();
     }

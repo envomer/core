@@ -14,7 +14,7 @@ class AbstractController extends Controller
 
 	public function setViewsDir($module = 'Core')
 	{
-		$this->view->setViewsDir( APP_PATH . 'app/'. $module . '/views/' );
+		$this->view->setViewsDir( APP_PATH . 'app/'. $module . '/View/' );
 	}
 
 	public function getUser()
