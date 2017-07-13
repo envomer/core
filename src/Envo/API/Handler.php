@@ -44,6 +44,21 @@ class Handler
         return $this->api;
     }
 
+	public function requestValidate()
+	{
+		$request = $this->api->request;
+
+		$request->limit = (int) $request->limit ?: 50;
+		if( $request->limit < 0 || $request->limit > 500 ) {
+			$request->limit = 50;
+		}
+
+		$request->page = (int) $request->page ?: 1;
+		if( $request->page < 0 ) {
+			$request->page = 50;
+		}
+	}
+
     /**
 	 * Get all entries
 	 *
@@ -56,182 +71,29 @@ class Handler
 	public function getAll($page = 1, $input = null)
 	{
 		if( method_exists($this->api, 'getAll') ) {
-			return $this->api->getAll($this->user, $input);
+			return $this->api->getAll();
 		}
-		$per_page = isset($input['limit']) ? (int)$input['limit'] : 50;
+
+		$this->requestValidate();
+		$limit = $this->api->request->limit;
 
 	    $index = [];
 	    if( method_exists($this->api, 'index') ) {
-	    	$index = $this->api->index([],$this->user, $input);
+	    	$index = $this->api->index();
 	    }
+
 	    if( is_string($index) || ( is_bool($index) && ! $index )) {
             return $index;
         }
 
 	    $attributes = [];
-		$attributes['columns'] = isset($index['columns']) ? (is_string($index['columns']) ? $index['columns'] : implode(',', $index['columns'])) : null;
-	    $conditions = '';
-	    $bind = [];
+		$attributes['offset'] = $limits['offset'] = ($limit * ($page - 1));
+		$attributes['limit'] = $limits['limit'] = $limit;
 
-		if( $input ) {
-			// search equals
-			$indexEqual = isset($index['equal']) ? array_flip($index['equal']) : [];
-			if( isset($input['fi']) && is_array($input['fi']) && ($this->user->isMod() || (!$this->user->isMod() && $indexEqual)) ) {
-				foreach($input['fi'] as $key => $val) {
-					if( $val === '' ) continue;
-					if( $val === 'null' ) $val = null;
-					if( ! $this->user->isMod() && ! isset($indexEqual[$key]) ) continue;
-
-					if( strpos($val, ' ~ ') !== false && ($parts = explode(' ~ ', $val)) && count($parts) == 2 ) {
-						$conditions .= (($conditions) ? ' AND ' : '') . 'STR_TO_DATE('.$key.',\'%Y-%m-%d\') BETWEEN :'.$key.'1: AND :'.$key.'2:';
-						$bind[$key.'1'] = \Date::validate($parts[0]);
-						$bind[$key.'2'] = \Date::validate($parts[1]);
-					}
-					else if( ($date = \Date::validate($val)) ) {
-						$bind[$key] = $date;
-						$conditions .= (($conditions) ? ' AND ' : '') . 'STR_TO_DATE('.$key.',\'%Y-%m-%d\') = :' .$key . ':';
-					}
-					else {
-						$conditions .= (($conditions) ? ' AND ' : '') . $key . ' = :' .$key . ':';
-						$bind[$key] = $val;
-					}
-				}
-			}
-
-			//  search like
-			$indexLike = isset($index['like']) ? array_flip($index['like']) : [];
-			if( isset($input['si']) && ($this->user->isMod() || (!$this->user->isMod() && $indexLike)) ) {
-				if( is_array($input['si']) ) {
-					foreach($input['si'] as $key => $val) {
-						if( ! $this->user->isMod() && ! isset($indexLike[$key]) ) continue;
-						$conditions .= (($conditions) ? ' OR ' : '') . $key . ' LIKE :' .$key . ':';
-						$bind[$key] = $val;
-					}
-				} else {
-					$i = 0;
-					foreach($indexLike as $key => $k) {
-						$conditions .= (($conditions) ? ' OR ' : '') . $key . ' LIKE :search'.$i.':';
-						if( strpos($input['si'], '%') !== false ) {
-							$bind['search' . $i] = $input['si'];
-						} else {
-							$bind['search' . $i] = '%'. $input['si'] . '%';
-						}
-						$i++;
-					}
-				}
-			}
-			if( isset($input['per_page']) && $input['per_page'] > 0 && $input['per_page'] <= 500 ) {
-				$per_page = (int)$input['per_page'];
-			}
+		$robots = $this->api->model->find($attributes);
+		if( $robots ) {
+			$robots = $this->transform($robots->toArray());
 		}
-
-		$limits = [];
-		$attributes['offset'] = $limits['offset'] = ($per_page * ($page - 1));
-		$attributes['limit'] = $limits['limit'] = $per_page;
-
-		if( isset($index['conditions']) ) $attributes['conditions'] = $index['conditions'];
-		if( isset($index['bind']) ) $attributes['bind'] = $index['bind'];
-		if( isset($index['join']) ) $attributes['join'] = $index['join'];
-		if( isset($index['order']) ) $attributes['order'] = $index['order'];
-		if( $conditions ) $attributes['conditions'] = ((isset($index['conditions'])) ? $attributes['conditions'] . ' AND ' : '') . '(' . $conditions . ')';
-		if( $bind ) $attributes['bind'] = $bind;
-		if( isset($index['bind']) ) $attributes['bind'] = array_merge($attributes['bind'], $index['bind']);
-
-		if( $index ) {
-			$this->api->index($attributes, $this->user, $input);
-		}
-
-		if( isset($attributes['bind']) && ! isset($attributes['conditions']) && ! isset($index['query']) ) {
-			throw new InternalException("Set a condition", 500);
-		}
-
-		if( ! $attributes['columns'] ) {
-			unset($attributes['columns']);
-		}
-
-	    if( isset($index['with']) && is_string($index['with']) && $index['with'] ) {
-			$index['with'] = explode(',', $index['with']);
-		}
-
-	    if( isset($index['with']) && ! $index['with'] ) {
-			$index['with'] = array();
-		}
-
-		if( isset($input['with']) && $input['with'] ) {
-			// TODO: check if input are allowed
-			if( is_string($input['with']) ) {
-				$input['with'] = explode(',', $input['with']);
-			}
-			$index['with'] = array_merge($index['with'], $input['with']);
-		}
-
-	    // The data set to paginate
-	    if( (isset($index['with']) && $index['with']) || isset($index['query']) ) {
-    		/**
-    		 * Simpler get relations version
-    		 */
-	    	if( isset($index['query']) )  {
-	    		$bind = isset($index['bind']) ? $index['bind'] : null;
-				$queryBind = $bind;
-	    		if( strpos($index['query'], ':limit:') ) {
-					$queryBind['limit'] = $limits['limit'];
-				}
-	    		if( strpos($index['query'], ':offset:') ) {
-					$queryBind['offset'] = $limits['offset'];
-				}
-
-	    		$robots = $this->api->modelsManager->executeQuery($index['query'], $queryBind);
-	    		$counts = $this->api->modelsManager->executeQuery($index['count'], $bind);
-	    		$countTotal = 0;
-	    		if ( $counts && isset($counts[0]) ) {
-	    			$countTotal = $counts[0]->cnt;
-	    		}
-	    	}
-	    	else {
-	    		$robots = $this->api->find($attributes);
-	    	}
-
-			if( (isset($index['with']) && $index['with']) ) {
-				$robots = \Lazyload::fromResultset($robots, $index['with']);
-
-				/**
-				* Hot fix for displaying relations (json formatted)
-				* @var array
-				*/
-				$arr = [];
-				if( ! $robots ) $robots = array();
-				foreach($robots as $robot) {
-					$mod = $robot->toArray();
-					foreach ($index['with'] as $k => $val) {
-						if( is_object($val) ) {
-							$val = $k;
-						}
-						$result = $robot->$val;
-						if(!($result)) {
-							continue;
-						}
-						if( !is_array($result) ) {
-							$mod[$val] = $result->toArray();
-							continue;
-						}
-						foreach($result as $cit) {
-							$mod[$val][] = $cit->toArray();
-						}
-					}
-					$arr[] = $mod;
-				}
-
-				$robots = $arr;
-			}
-	    }
-		else {
-	    	$attributes['limit'] = $limits['limit'];
-	    	$attributes['offset'] = $limits['offset'];
-	    	$robots = $this->api->model->find($attributes);
-	    	if( $robots ) {
-				$robots = $robots->toArray();
-			}
-	    }
 
 	    if( !isset($countTotal) ) {
 		    if(isset($attributes['limit'])) {
@@ -243,7 +105,7 @@ class Handler
 	    	$countTotal = $this->api->model->count($attributes);
 	    }
 		
-	    $pages = new Paginator($robots, $countTotal, (int)$page, (int)$per_page);
+	    $pages = new Paginator($robots, $countTotal, (int)$page, (int)$limit);
 
 	    return $pages;
 	}
@@ -262,7 +124,9 @@ class Handler
 			return _t('app.notfound');
 		}
 
-		return $entry;
+		return [
+			'data' => $this->transform($entry->toArray())
+		];
 	}
 	
 	/**
@@ -418,8 +282,8 @@ class Handler
 	 */
 	public function find($entry_id, $isApi = true, $data = array())
 	{
-		$conditions = $this->identifier .' = :val:';
-		if( $this->api->isSoftDeletable() ) {
+		$conditions = $this->api->identifier .' = :val:';
+		if( $this->api->model->isSoftDeletable() ) {
 			$conditions .= ' AND deleted_at IS NULL';
 		}
 		$bind = ['val' => $entry_id];
@@ -427,27 +291,14 @@ class Handler
 
 		if( $isApi && method_exists($this->api, 'show') ) {
 			$show = $this->api->show($this->user, $data);
-			$dataWith = isset($data['with']) ? $data['with'] : array();
-			if( ! is_array($dataWith) ) {
-				$dataWith = explode(',', $dataWith);
-			}
-			if( array_key_exists('conditions', $show) && $show['conditions'] ) {
-				$conditions .= ' AND ' . $show['conditions'];
-			}
-			if( array_key_exists('bind', $show) && is_array($show['bind']) ) {
-				$bind = array_merge($bind, $show['bind']);
-			}
-			if( array_key_exists('with', $show) ) {
-				$with = array_merge($with, $show['with'], $dataWith);
-			}
 		}
 
 		$find = [
-				'conditions' => $conditions,
-				'bind' => $bind,
+			'conditions' => $conditions,
+			'bind' => $bind,
 		];
 		
-		$result = $this->api->findFirst($find);
+		$result = $this->api->model->findFirst($find);
 		if( $result && $with ) {
 			$result->load($with);
 		}
@@ -464,6 +315,23 @@ class Handler
 		if( method_exists($this->api, $name) ) {
 			$this->api->$name();
 		}
+	}
+
+	public function transform($data)
+	{
+		if( method_exists($this->api, 'transform') && ($transform = $this->api->transform()) && is_array($transform) ) {
+			$definition = array_flip($transform);
+
+			if( $this->api->request->method === 'show' ) {
+				return array_intersect_key($data, $definition);
+			}
+
+			return array_map(function($item) use($definition) {
+				return array_intersect_key($item, $definition);
+			}, $data);
+		}
+
+		return $data;
 	}
 
 }

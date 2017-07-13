@@ -308,6 +308,7 @@ if( ! function_exists('uncaught_exception') )
 		);
 
 		$internal->setData($exception);
+		$internal->trace = true;
 
 		return $internal;
 	}

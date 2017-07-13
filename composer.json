@@ -14,7 +14,8 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.0.0",
-        "robmorgan/phinx": "dev-master"
+        "robmorgan/phinx": "dev-master",
+        "symfony/console": "3.4.x-dev"
     },
     "autoload": {
         "files": [

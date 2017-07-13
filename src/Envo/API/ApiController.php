@@ -16,9 +16,10 @@ class ApiController extends AbstractController
         /** TODO cache */
         $this->api = $api = new Handler();
         $this->api->user = $this->getUser();
-        $this->api->request = new RequestDTO([
-            'parameters' => $this->get()
-        ]);
+
+        $parameters = $this->get();
+        $this->api->request = new RequestDTO($parameters);
+        $this->api->request->parameters = $parameters;
         $api->name = $model;
 
         require_once APP_PATH . 'app/api.php';

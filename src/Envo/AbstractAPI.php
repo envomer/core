@@ -13,6 +13,8 @@ class AbstractAPI
     public $name = null;
     public $user = null;
     public $repo = null;
+    
+    public $identifier = 'id';
 	
 	/**
 	 * @var RequestDTO $request

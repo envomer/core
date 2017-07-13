@@ -5,6 +5,9 @@ namespace Envo;
 use Envo\Support\Str;
 use Envo\Support\Validator;
 
+use Envo\Exception\PublicException;
+use Envo\Exception\InternalException;
+
 use Exception;
 
 class AbstractException extends Exception
@@ -14,6 +17,7 @@ class AbstractException extends Exception
     protected $internalData = [];
     public $messageCode = null;
     public $exception = [];
+    public $trace = false;
 
     public function __construct($messageCode = null, $code = 0, Exception $previous = null)
     {
@@ -52,6 +56,7 @@ class AbstractException extends Exception
     {
         $publicException = ($this instanceof PublicException);
         $code = $this->getCode();
+        $user = user();
 
         $response = [
             'message' => $publicException ? $this->getMessage() : \_t('api.somethingWentWrong'),
@@ -61,13 +66,16 @@ class AbstractException extends Exception
             'code' => ! $publicException ? 'api.somethingWentWrong' : $this->messageCode
         ];
 
-        if( env('APP_DEBUG') || ($loggedIn && $this->getUser()->isAdmin()) ) {
+        if( env('APP_DEBUG') || ($user && $user->loggedIn && $user->isAdmin()) ) {
             $response['internal'] = [
                 'message' => $this->getMessage(),
                 'data' => $this->getInternalData(),
                 'code' => $this->messageCode,
-                'trace' => $this->getTrace()
             ];
+
+            if( $this->trace ) {
+                $response['internal']['trace'] = $this->getTrace();
+            }
         }
 
         return $response;
