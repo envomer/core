@@ -58,12 +58,18 @@ class AbstractException extends Exception
         $code = $this->getCode();
         $user = user();
 
+        $messages = [
+            404 => 'api.notFound'
+        ];
+
+        $message = isset($messages[$code]) ? $messages[$code] : 'api.somethingWentWrong';
+
         $response = [
-            'message' => $publicException ? $this->getMessage() : \_t('api.somethingWentWrong'),
+            'message' => $publicException ? $this->getMessage() : \_t($message),
             'success' => false,
             'data' => $this->data,
             'reference' => $this->reference,
-            'code' => ! $publicException ? 'api.somethingWentWrong' : $this->messageCode
+            'code' => ! $publicException ? $message : $this->messageCode
         ];
 
         if( env('APP_DEBUG') || ($user && $user->loggedIn && $user->isAdmin()) ) {

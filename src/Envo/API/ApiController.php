@@ -24,9 +24,9 @@ class ApiController extends AbstractController
 
         require_once APP_PATH . 'app/api.php';
 
-        $api->setApi();
 
         try {
+            $api->setApi();
             return $this->$method($model, $id);
         }
         catch(\Exception $e) {
