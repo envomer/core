@@ -27,6 +27,7 @@ class ApiController extends AbstractController
 
         try {
             $api->setApi();
+            $api->authorize();
             return $this->$method($model, $id);
         }
         catch(\Exception $e) {

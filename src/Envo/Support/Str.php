@@ -539,7 +539,9 @@ class Str
 		$un = uniqid();
 		$dmtun = $dmt.$un;
 		$mdun = md5($dmtran.$un);
-		if( $length ) return substr($mdun, $length);
+		if( $length ) {
+            return substr($mdun, $length);
+        }
 
 		return $mdun;
 	}

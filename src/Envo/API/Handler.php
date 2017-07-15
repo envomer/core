@@ -44,6 +44,11 @@ class Handler
         return $this->api;
     }
 
+	/**
+	 * Validate the api request
+	 *
+	 * @return void
+	 */
 	public function requestValidate()
 	{
 		$request = $this->api->request;

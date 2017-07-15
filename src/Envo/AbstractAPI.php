@@ -20,6 +20,16 @@ class AbstractAPI
 	 * @var RequestDTO $request
 	 */
     public $request = null;
+
+    /**
+     * Check permission before a request is handled
+     *
+     * @return void
+     */
+    public function authorize()
+    {
+        return true;
+    }
 	
 	/**
 	 * Build API class (DTO/mode/Repo)
