@@ -95,33 +95,30 @@ class Handler
 
 		$this->requestValidate();
 		$limit = $this->api->request->limit;
+		
+		$builder = $this->api->model->getModelsManager()->createBuilder();
+		$builder->from(['e' => \get_class($this->api->model)]);
 
 	    $index = [];
 	    if( method_exists($this->api, 'index') ) {
-	    	$index = $this->api->index();
+	    	$index = $this->api->index($builder);
 	    }
 
-	    if( is_string($index) || ( is_bool($index) && ! $index )) {
-            return $index;
-        }
+		$builder->offset(($limit * ($page - 1)));
+		$builder->limit($limit);
 
-	    $attributes = [];
-		$attributes['offset'] = $limits['offset'] = ($limit * ($page - 1));
-		$attributes['limit'] = $limits['limit'] = $limit;
-
-		$robots = $this->api->model->find($attributes);
+		$query = $builder->getQuery();
+		$robots = $query->execute();
 		if( $robots ) {
 			$robots = $this->transform($robots->toArray());
 		}
 
 	    if( !isset($countTotal) ) {
-		    if(isset($attributes['limit'])) {
-				unset($attributes['limit']);
-			}
-		    if(isset($attributes['offset'])) {
-				unset($attributes['offset']);
-			}
-	    	$countTotal = $this->api->model->count($attributes);
+			$builder->columns('COUNT(*)');
+			$builder->limit(null);
+			$builder->offset(null);
+			$counter = $builder->getQuery()->execute();
+	    	$countTotal = $counter->getFirst()->{0};
 	    }
 		
 	    $pages = new Paginator($robots, $countTotal, (int)$page, (int)$limit);
@@ -251,13 +248,6 @@ class Handler
 				return $response;
 			}
 		}
-
-		if( isset($data['with']) ) {
-			$with = is_array($data['with']) ? $data['with'] : explode(',', $data['with']);
-			foreach($with as $item) {
-				$entry->$item->delete();
-			}
-		}
 		
 		if( ! $entry->allowUpdate() ) {
 			return true;
@@ -366,6 +356,13 @@ class Handler
 		return $data;
 	}
 
+	/**
+	 * Transform on item
+	 *
+	 * @param array|object $data
+	 * @param array $definition
+	 * @return void
+	 */
 	public function transformItem($data, $definition)
 	{
 		if( is_object($data) ) {
@@ -390,5 +387,4 @@ class Handler
 
 		return true;
 	}
-
 }

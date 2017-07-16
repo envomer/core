@@ -2,7 +2,9 @@
 
 namespace Envo\Model\Event;
 
-class EventModel extends \AbstractModel
+use Envo\AbstractModel;
+
+class EventModel extends AbstractModel
 {
-	protected $table = 'event_models';
+	protected $table = 'core_event_models';
 }

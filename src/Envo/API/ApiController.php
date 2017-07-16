@@ -13,6 +13,37 @@ class ApiController extends AbstractController
     protected $apiHandler = null;
 
     /**
+     * Authenticate user
+     *
+     * @return void
+     */
+    public function authenticateAction()
+    {
+        $email = $this->get('email');
+        $password = $this->get('password');
+
+        try {
+            $response = $this->auth->check(array(
+                'email' => $email,
+                'password' => $password,
+            ));
+        } catch (\Exception $exception) {
+            return $this->json($exception);
+        }
+
+        $user = user();
+        return $this->json([
+            'data' => [
+                'api_key' => $user->getApiKey(),
+                'identifier' => $user->getIdentifier(),
+                'username' => $user->username,
+                'email' => $user->email,
+                'created_at' => $user->created_at,
+            ]
+        ]);
+    }
+
+    /**
      * Handle all api requests
      *
      * @param [type] $method

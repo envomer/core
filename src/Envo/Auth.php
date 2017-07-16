@@ -8,6 +8,9 @@ use App\Core\Model\RememberToken;
 use App\Core\Model\FailedLogin;
 
 use Envo\Support\Translator;
+use Envo\Event\LoginFailed;
+use Envo\Event\UserWrongPassword;
+use Envo\Event\LoggedIn;
 
 use Phalcon\Mvc\User\Component;
 
@@ -87,12 +90,12 @@ class Auth extends Component
 				$user->loggedIn = $this->loggedIn = false;
 			} else {
 				$user->loggedIn = $this->loggedIn = true;
-				// new \Core\Events\UserSessionRestored(null, true, $user);
+				// new UserSessionRestored(null, true, $user);
 			}
 		}
 		else {
 			// TODO: cache user query
-			$user = UserRepository::getByUserId($auth['id']);
+			$user = User::findFirstByIdentifier($auth['id']);
 
 			if ( !$user ) {
 				$session->remove( self::TOKEN_NAME );
@@ -151,16 +154,16 @@ class Auth extends Component
 				}
 
 				if ( $user ) {
-					new \Core\Events\UserWrongPassword(null, true, $user );
+					new UserWrongPassword(null, true, $user );
 				}
-				else new \Core\Events\LoginFailed( [ 'user' => $email ] );
+				else new LoginFailed( [ 'user' => $email ] );
 
-				return $this->flashSession->error( \_t('validation.emailOrPasswordWrong') );
+				\public_exception('validation.emailOrPAsswordWrong', 400);
 			}
 		}
 		
 		if( ! $user ) {
-			return $this->flashSession->error( \_t('validation.emailOrPasswordWrong') );
+			\public_exception('validation.emailOrPAsswordWrong', 400);
 		}
 
 		// Check if the user was flagged
@@ -172,11 +175,11 @@ class Auth extends Component
 		}
 
 		$this->session->set( self::TOKEN_NAME, array(
-			'id'   => $user->user_id,
+			'id'   => $user->identifier,
 			'name' => $user->username,
 		));
 
-		$event = new \Core\Events\LoggedIn(null, false, $user );
+		$event = new LoggedIn(null, false, $user );
 		$event = $event->getEvent();
 		$event->user_id = $user->getId();
 		$event->client_id = $user->getClientId();

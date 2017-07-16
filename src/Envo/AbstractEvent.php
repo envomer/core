@@ -72,7 +72,7 @@ class AbstractEvent
 			$event->save();
 		}
 
-		$filepath = APP_PATH . 'storage/logs/events-' . date('Y-m-d').'.log';
+		$filepath = APP_PATH . 'storage/framework/logs/events/events-' . date('Y-m-d').'.log';
 		File::append($filepath, "\n\r" . $event->toReadableString(get_called_class()));
 
 		return $event;

@@ -73,6 +73,12 @@ class Router extends \Phalcon\Mvc\Router
             'method' => 'destroy'
         ]);
 
+        $api->addPost('/authenticate', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'authenticate',
+        ]);
+
         $this->mount($api);
     }
 }
