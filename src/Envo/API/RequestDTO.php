@@ -13,4 +13,6 @@ class RequestDTO extends AbstractDTO
     public $page;
 
     public $method;
+
+    public $id;
 }

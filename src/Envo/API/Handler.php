@@ -14,6 +14,13 @@ class Handler
 	public $request;
 	public $user = null;
 
+	/**
+	 * Add new api endpoint
+	 *
+	 * @param string $name
+	 * @param string|AbstractAPI $class
+	 * @return void
+	 */
     public function add($name, $class)
     {
         if( $this->name && $this->name !== $name ) {
@@ -29,6 +36,12 @@ class Handler
         $this->apis[$name] = $class;
     }
 
+	/**
+	 * Set api instance
+	 *
+	 * @param string $name
+	 * @return void
+	 */
     public function setApi($name = null)
     {
         $name = $name ?: $this->name;
@@ -39,6 +52,7 @@ class Handler
         $this->api = $this->apis[$name];
 
 		$this->api->request = $this->request;
+		$this->api->user = $this->user;
         $this->api->build();
 
         return $this->api;
@@ -148,7 +162,10 @@ class Handler
 		$this->hook('prePersist');
 		$this->hook('preCreate');
 
-		$this->hook('validate');
+		$validation = $this->hook('validate');
+		if( is_array($validation) ) {
+			$this->api->check($validation);
+		}
 
 		if( ! $this->api->model->save() ) {
 			public_exception('api.failedToCreateEntity', 400, $this->api->model);
@@ -158,9 +175,7 @@ class Handler
 		$this->hook('postCreate');
 
 		return [
-			'data' => [
-				$this->api->getName() => $this->api->dto
-			]
+			'data' => $this->transform($this->api->model)
 		];
 	}
 	
@@ -188,7 +203,7 @@ class Handler
 		}
 
 		if( method_exists($entry, 'preSave') ) {
-			$response = $entry->preSave(\Auth::user(), $content);
+			$response = $entry->preSave();
 			if( is_string($response) || (is_bool($response) && ! $response) ) {
 				return $response;
 			}
@@ -203,7 +218,7 @@ class Handler
 
 		if( method_exists($entry, 'postSave') ) {
 			// TODO: handle errors
-			return $entry->postSave(\Auth::user(), $content);
+			return $entry->postSave();
 		}
 
 		return true;
@@ -231,7 +246,7 @@ class Handler
 		}
 
 		if( method_exists($entry, 'preDelete') ) {
-			$response = $entry->preDelete(\Auth::user(), $data);
+			$response = $entry->preDelete();
 			if( is_string($response) || (is_bool($response) && ! $response) ) {
 				return $response;
 			}
@@ -278,7 +293,7 @@ class Handler
 	}
 	
 	/**
-	 * find model
+	 * Find model entity
 	 *
 	 * @param      $entry_id
 	 * @param bool $isApi
@@ -315,28 +330,65 @@ class Handler
 		return $result;
 	}
 
+	/**
+	 * Trigger hook
+	 *
+	 * @param [type] $name
+	 * @return void
+	 */
 	public function hook($name)
 	{
 		if( method_exists($this->api, $name) ) {
-			$this->api->$name();
+			return $this->api->$name();
 		}
 	}
 
+	/**
+	 * Transform api response
+	 *
+	 * @param [type] $data
+	 * @return void
+	 */
 	public function transform($data)
 	{
 		if( method_exists($this->api, 'transform') && ($transform = $this->api->transform()) && is_array($transform) ) {
 			$definition = array_flip($transform);
 
-			if( $this->api->request->method === 'show' ) {
-				return array_intersect_key($data, $definition);
+			if( $this->request->method === 'index' ) {
+				return array_map(function($item) use($definition) {
+					return $this->transformItem($item, $definition);
+				}, $data);
 			}
 
-			return array_map(function($item) use($definition) {
-				return array_intersect_key($item, $definition);
-			}, $data);
+			return $this->transformItem($data, $definition);
 		}
 
 		return $data;
+	}
+
+	public function transformItem($data, $definition)
+	{
+		if( is_object($data) ) {
+			$data = (array) $data;
+		}
+
+		if( is_array($data) ) {
+			return array_intersect_key($data, $definition);
+		}
+	}
+
+	/**
+	 * Authorize before handling request
+	 *
+	 * @return boolean
+	 */
+	public function isAuthorized()
+	{
+		if( $this->api && method_exists($this->api, 'authorize') ) {
+			return $this->api->authorize();
+		}
+
+		return true;
 	}
 
 }

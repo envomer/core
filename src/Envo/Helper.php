@@ -172,7 +172,7 @@ if( ! function_exists('user') )
 {
 	function user()
 	{
-		return \Envo\Auth::user();
+		return resolve('auth')->user();
 	}
 }
 
@@ -184,6 +184,25 @@ function envo_exception_handler($error)
 {
 	require_once ENVO_PATH . 'View/html/errors.php';
 	exit;
+}
+
+/**
+ * Turn all errors into exceptions
+ */
+function envo_error_handler($errno, $errstr, $errfile, $errline)
+{
+	if (!(error_reporting() & $errno)) {
+		// This error code is not included in error_reporting, so let it fall
+		// through to the standard PHP error handler
+		return false;
+	}
+	
+	$error = new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+
+	envo_exception_handler($error);
+
+	/* Don't execute PHP internal error handler */
+	return true;
 }
 
 /**

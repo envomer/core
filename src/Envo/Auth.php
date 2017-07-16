@@ -2,21 +2,24 @@
 
 namespace Envo;
 
-use Phalcon\Mvc\User\Component;
 use App\Core\Model\User;
 use App\Core\Model\UserRepository;
 use App\Core\Model\RememberToken;
 use App\Core\Model\FailedLogin;
+
+use Envo\Support\Translator;
+
+use Phalcon\Mvc\User\Component;
 
 /**
  * Class Auth
  */
 class Auth extends Component
 {
-	protected static $instance = null;
-	protected static $user = null;
-	protected static $client = null;
-	protected static $loggedIn = null;
+	protected $instance = null;
+	protected $user = null;
+	protected $client = null;
+	protected $loggedIn = null;
 
 	const TOKEN_NAME = 'auth-identity';
 	const COOKIE_REMEMBER = 'remember_rmu';
@@ -25,34 +28,34 @@ class Auth extends Component
 	/**
 	 * @return self|null
 	 */
-	public static function getInstance()
+	public function getInstance()
 	{
-		if ( self::$instance ) {
-			return self::$instance;
+		if ( $this->instance ) {
+			return $this->instance;
 		}
 
-		return self::$instance = new self();
+		return $this->instance = new self();
 	}
 
 	/**
 	 * Get current client
 	 */
-	public static function client()
+	public function client()
 	{
-		if( ! self::$client ) {
-			self::$client = self::user()->ref('client');
+		if( ! $this->client ) {
+			$this->client = self::user()->ref('client');
 		}
-		return self::$client;
+		return $this->client;
 	}
 
 	/**
 	 * Get current user
 	 *
 	 */
-	public static function user()
+	public function user()
 	{
-		if ( !is_null( self::$user ) ) {
-			return self::$user;
+		if ( !is_null( $this->user ) ) {
+			return $this->user;
 		}
 
 		if( defined('APP_CLI') ) {
@@ -63,29 +66,27 @@ class Auth extends Component
             return null;
         }
 
-		$instance = self::getInstance();
-		$session = $instance->session;
-		$auth = $session->get( self::TOKEN_NAME );
+		$auth = $this->session->get( self::TOKEN_NAME );
 
 		$user = null;
 		if ( ! $auth ) {
-			if( ! $user && $instance->usesApiKey() ) {
-				$user = $instance->getUserFromApiKey();
+			if ( ! $user && $this->hasRememberMe() ) {
+				$user = $this->loginWithRememberMe();
 			}
 
-			if ( ! $user && $instance->hasRememberMe() ) {
-				$user = $instance->loginWithRememberMe();
+			if( ! $user && $this->usesApiKey() ) {
+				$user = $this->getUserFromApiKey();
 			}
 
 			if( ! $user ) {
-				$user = $instance->loginWithAuthorizationHeaders();
+				$user = $this->loginWithAuthorizationHeaders();
 			}
 
 			if ( !$user ) {
 				$user = new User;
-				$user->loggedIn = self::$loggedIn = false;
+				$user->loggedIn = $this->loggedIn = false;
 			} else {
-				$user->loggedIn = self::$loggedIn = true;
+				$user->loggedIn = $this->loggedIn = true;
 				// new \Core\Events\UserSessionRestored(null, true, $user);
 			}
 		}
@@ -99,16 +100,17 @@ class Auth extends Component
 
 				return;
 			}
-			$user->loggedIn = self::$loggedIn = true;
+			$user->loggedIn = $this->loggedIn = true;
+			$user->setAccessMode(User::ACCESS_SESSION);
 			// $user->switched = $session->get( 'orig_user' );
 		}
 
-		if( $user->loggedIn ) {
-			\Translator::setLocale($user->getLanguage());
-		}
+		// if( $user->isLoggedIn() ) {
+			// Translator::setLocale($user->getLanguage());
+		// }
 
-		self::$user = $user;
-		return self::$user;
+		$this->user = $user;
+		return $this->user;
 	}
 
 	/**
@@ -116,13 +118,13 @@ class Auth extends Component
 	 *
 	 * @return \Core\Model\User|null
 	 */
-	public static function guest()
+	public function guest()
 	{
-		if ( !is_null( self::$loggedIn ) ) {
+		if ( !is_null( $this->loggedIn ) ) {
 			self::user();
 		}
 
-		return self::$loggedIn;
+		return $this->loggedIn;
 	}
 
 	/**
@@ -306,19 +308,19 @@ class Auth extends Component
 
 	public function usesApiKey()
 	{
-		return $this->request->get('api_key') && $this->request->get('app_secret');
+		return $this->request->get('api_key');
 	}
 
 	public function getUserFromApiKey()
 	{
 		$apiKey = $this->request->get('api_key');
-		$secret = $this->request->get('app_secret');
+		// $secret = $this->request->get('app_secret');
 
-		if( ! ($app = \Core\Model\AppRepository::getBySecret($secret)) ) {
-			return false;
-		}
+		// if( ! ($app = \Core\Model\AppRepository::getBySecret($secret)) ) {
+		// 	return false;
+		// }
 
-		$user = \Core\Model\UserRepository::getByApiKey($apiKey);
+		$user = User::findFirstByApiKey($apiKey);
 		if( ! $user ) {
 			return false;
 		}
