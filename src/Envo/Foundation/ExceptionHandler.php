@@ -84,7 +84,7 @@ class ExceptionHandler extends Plugin
 		// also log the error message into a log file
        	error_log($message . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/framework/logs/errors/'.date('Y-m-d') . '.log');
 
-		return $error;	
+		return $error;
 	}
 
 	/**

@@ -3,6 +3,7 @@
 use Envo\Support\Translator;
 use Envo\Foundation\Config;
 use Envo\AbstractException;
+use Envo\Exception\PublicException;
 
 /**
  * Environment helper function.
@@ -182,6 +183,11 @@ if( ! function_exists('user') )
  */
 function envo_exception_handler($error)
 {
+	if( $error instanceof PublicException ) {
+		http_response_code($error->getCode());
+	} else {
+		http_response_code(500);
+	}
 	require_once ENVO_PATH . 'View/html/errors.php';
 	exit;
 }

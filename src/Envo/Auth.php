@@ -73,12 +73,12 @@ class Auth extends Component
 
 		$user = null;
 		if ( ! $auth ) {
-			if ( ! $user && $this->hasRememberMe() ) {
-				$user = $this->loginWithRememberMe();
-			}
-
 			if( ! $user && $this->usesApiKey() ) {
 				$user = $this->getUserFromApiKey();
+			}
+			
+			if ( ! $user && $this->hasRememberMe() ) {
+				$user = $this->loginWithRememberMe();
 			}
 
 			if( ! $user ) {

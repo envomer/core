@@ -160,6 +160,6 @@ class ApiController extends AbstractController
      */
     public function notFoundAction()
     {
-        return $this->json(false, 'Not found');
+        \public_exception('api.notFound', 404);
     }
 }
