@@ -4,7 +4,6 @@ namespace Envo;
 
 use Envo\Model\AbstractUser;
 
-use App\Core\Model\User;
 use App\Core\Model\UserRepository;
 use App\Core\Model\RememberToken;
 use App\Core\Model\FailedLogin;
@@ -25,10 +24,16 @@ class Auth extends Component
 	protected $user = null;
 	protected $client = null;
 	protected $loggedIn = null;
+	protected $userClass = null;
 
 	const TOKEN_NAME = 'auth-identity';
 	const COOKIE_REMEMBER = 'remember_rmu';
 	const COOKIE_TOKEN = 'remember_rmt';
+
+	public function __construct()
+	{
+		$this->userClass = config('app.user', AbstractUser::class);
+	}
 
 	/**
 	 * @return self|null
@@ -66,7 +71,6 @@ class Auth extends Component
 		if( defined('APP_CLI') ) {
 			return null;
 		}
-		$userClass = config('app.user', AbstractUser::class);
 
 		$auth = $this->session->get( self::TOKEN_NAME );
 
@@ -85,7 +89,7 @@ class Auth extends Component
 			}
 
 			if ( !$user ) {
-				$user = new User;
+				$user = new $this->userClass;
 				$user->loggedIn = $this->loggedIn = false;
 			} else {
 				$user->loggedIn = $this->loggedIn = true;
@@ -94,7 +98,7 @@ class Auth extends Component
 		}
 		else {
 			// TODO: cache user query
-			$user = User::findFirstByIdentifier($auth['id']);
+			$user = $userClass::findFirstByIdentifier($auth['id']);
 
 			if ( !$user ) {
 				$session->remove( self::TOKEN_NAME );
@@ -103,7 +107,7 @@ class Auth extends Component
 				return;
 			}
 			$user->loggedIn = $this->loggedIn = true;
-			$user->setAccessMode(User::ACCESS_SESSION);
+			$user->setAccessMode($userClass::ACCESS_SESSION);
 			// $user->switched = $session->get( 'orig_user' );
 		}
 
@@ -140,10 +144,11 @@ class Auth extends Component
 	{
 		extract( $credentials );
 		// Check if the user exist
-		$user = User::findFirst( array(
+		$userClass = $this->userClass;
+		$user = $userClass::findFirst( array(
 			"(email = ?0 OR username = ?1)",
 			'bind' => [ $email, $email ],
-		) );
+		));
 
 		if( ! $user || ! env('IGNORE_PASSWORDS') ) {
 			// Check the password
@@ -157,12 +162,12 @@ class Auth extends Component
 				}
 				else new LoginFailed( [ 'user' => $email ] );
 
-				\public_exception('validation.emailOrPAsswordWrong', 400);
+				public_exception('validation.emailOrPAsswordWrong', 400);
 			}
 		}
 		
 		if( ! $user ) {
-			\public_exception('validation.emailOrPAsswordWrong', 400);
+			public_exception('validation.emailOrPAsswordWrong', 400);
 		}
 
 		// Check if the user was flagged
@@ -220,7 +225,7 @@ class Auth extends Component
 				sleep( 4 );
 				break;
 			default:
-				sleep( 6 );
+				sleep( 12 );
 				break;
 		}
 	}
@@ -305,14 +310,25 @@ class Auth extends Component
 			putenv('APP_TESTING=true');
 		}
 
-		return \Core\Model\UserRepository::getByApiKey($apiKey);
+		$userClass = $this->userClass;
+		return $userClass::findFirstByApiKey($apiKey);
 	}
 
+	/**
+	 * Check if user is using api key
+	 *
+	 * @return void
+	 */
 	public function usesApiKey()
 	{
 		return $this->request->get('api_key');
 	}
 
+	/**
+	 * Get user from api key
+	 *
+	 * @return void
+	 */
 	public function getUserFromApiKey()
 	{
 		$apiKey = $this->request->get('api_key');
@@ -322,11 +338,12 @@ class Auth extends Component
 		// 	return false;
 		// }
 
-		$user = User::findFirstByApiKey($apiKey);
+		$userClass = $this->userClass;
+		$user = $userClass::findFirstByApiKey($apiKey);
 		if( ! $user ) {
 			return false;
 		}
-		$user->setAccessMode(User::ACCESS_API_TOKEN);
+		$user->setAccessMode($userClass::ACCESS_API_TOKEN);
 
 		return $user;
 	}
@@ -396,12 +413,13 @@ class Auth extends Component
 	 */
 	public function loginUsingId($user)
 	{
+		$userClass = $this->userClass;
 		if( is_string($user) ) {
-			$user = User::findFirstByUserId( $user );
+			$user = $userClass::findFirstByIdentifier( $user );
 		}
 
 		if ( $user == false ) {
-			throw new Exception( 'The user does not exist' );
+			public_exception('auth.userNotFound');
 		}
 		$this->checkUserFlags( $user );
 		$this->session->set( self::TOKEN_NAME, array(
@@ -420,11 +438,12 @@ class Auth extends Component
 	 */
 	public function getUser()
 	{
+		$userClass = $this->userClass;
 		$identity = $this->session->get( self::TOKEN_NAME );
 		if ( isset($identity[ 'id' ]) ) {
-			$user = User::findFirstByUserId( $identity[ 'id' ] );
+			$user = $userClass::findFirstByIdentifier( $identity[ 'id' ] );
 			if ( $user == false ) {
-				throw new Exception( 'The user does not exist' );
+				public_exception('auth.userNotFound');
 			}
 
 			return $user;
@@ -432,5 +451,4 @@ class Auth extends Component
 
 		return false;
 	}
-
 }

@@ -263,7 +263,7 @@ if( ! function_exists('resolve') )
  */
 if( ! function_exists('config') )
 {
-	function config($name, $default)
+	function config($name, $default = null)
 	{
 		return resolve(Config::class)->get($name, $default);
 	}
