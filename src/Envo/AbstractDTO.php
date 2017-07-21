@@ -24,6 +24,10 @@ class AbstractDTO implements \JsonSerializable
 			$data = Arr::getPublicProperties($data);
 		}
 
+		if( ! is_array($data) ) {
+			return true;
+		}
+
 		foreach ($data as $k => $v) {
 			if (property_exists($this, $k)) {
                 $this->{$k} = $v;

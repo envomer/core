@@ -517,6 +517,13 @@ class Str
         return htmlentities(trim($input));
     }
 
+    /**
+     * Hash
+     *
+     * @param string $value
+     * @param array $options
+     * @return boolean
+     */
     public static function hash($value, $options = array())
 	{
 		$cost = isset($options['rounds']) ? $options['rounds'] : 10;
@@ -527,6 +534,12 @@ class Str
 	    return $hash;
 	}
 
+    /**
+     * Generate unique id
+     *
+     * @param integer $length
+     * @return string
+     */
     public static function uniqueId($length = 16)
 	{
 		$d = date ("d");
@@ -539,7 +552,9 @@ class Str
 		$un = uniqid();
 		$dmtun = $dmt.$un;
 		$mdun = md5($dmtran.$un);
-		if( $length ) return substr($mdun, $length);
+		if( $length ) {
+            return substr($mdun, $length);
+        }
 
 		return $mdun;
 	}

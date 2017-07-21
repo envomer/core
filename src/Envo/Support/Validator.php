@@ -559,6 +559,30 @@ class Validator
     }
 
     /**
+     * Validate that an attribute is an integer.
+     *
+     * @param  string  $attribute
+     * @param  mixed   $value
+     * @return bool
+     */
+    protected function validateInteger($attribute, $value)
+    {
+        return filter_var($value, FILTER_VALIDATE_INT) !== false;
+    }
+
+    /**
+     * Validate that an attribute is numeric.
+     *
+     * @param  string  $attribute
+     * @param  mixed   $value
+     * @return bool
+     */
+    protected function validateNumeric($attribute, $value)
+    {
+        return is_numeric($value);
+    }
+
+    /**
      * Get the size of an attribute.
      *
      * @param  string  $attribute

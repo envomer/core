@@ -44,11 +44,13 @@ class Application extends \Phalcon\Mvc\Application
 
 	public function start()
 	{
+		error_reporting(-1);
+		set_exception_handler('envo_exception_handler');
+		set_error_handler('envo_error_handler');
+
 		$this->setup();
 		$this->setupConfig();
-		
 		$this->isMaintained();
-
 		$this->registerServices();
 
 		echo $this->handle()->getContent();
@@ -87,7 +89,7 @@ class Application extends \Phalcon\Mvc\Application
 		 * Custom authentication component
 		 */
 		$di->setShared('auth', function () {
-			return Auth::getInstance();
+			return new Auth();
 		});
 
 		$di->set('eventsManager', function() use($debug) {

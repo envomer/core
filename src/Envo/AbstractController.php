@@ -22,7 +22,7 @@ class AbstractController extends Controller
 		if($this->user) {
 			return $this->user;
 		}
-		return $this->user = Auth::user();
+		return $this->user = user();
 	}
 
 	public function user()
@@ -109,7 +109,11 @@ class AbstractController extends Controller
 	    	unset($msg['authenticated']);
 	    }
 
-		$msg->render_time = render_time();
+		if( is_array($msg) ) {
+			$msg['render_time'] = \render_time();
+		} else {
+			$msg->render_time = render_time();
+		}
 
 	    //Set the content of the response
 	    $this->view->disable();

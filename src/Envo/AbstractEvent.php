@@ -24,11 +24,16 @@ class AbstractEvent
 
 	public function __construct($message = null, $save = true, $model = null, $data = null)
 	{
-		// in case an event is given as first pg_parameter_status()
+		// in case an event is given as first parameter()
 		// then just set the event instance without creating
 		// a new event instance
-		if( is_a($message, 'AbstractModel') ) {
+		if( is_a($message, 'AbstractEvent') ) {
 			return $this->event = $message;
+		}
+
+		if( is_a($message, 'AbstractModel') ) {
+			$model = $message;
+			$message = null;
 		}
 
 		$event = new Event;
@@ -67,7 +72,7 @@ class AbstractEvent
 			$event->save();
 		}
 
-		$filepath = APP_PATH . 'storage/logs/events-' . date('Y-m-d').'.log';
+		$filepath = APP_PATH . 'storage/framework/logs/events/events-' . date('Y-m-d').'.log';
 		File::append($filepath, "\n\r" . $event->toReadableString(get_called_class()));
 
 		return $event;

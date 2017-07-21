@@ -10,22 +10,65 @@ use Envo\Exception\InternalException;
 
 class ApiController extends AbstractController
 {
-    protected $api = null;
+    protected $apiHandler = null;
+
+    /**
+     * Authenticate user
+     *
+     * @return void
+     */
+    public function authenticateAction()
+    {
+        $email = $this->get('email');
+        $password = $this->get('password');
+
+        try {
+            $response = $this->auth->check(array(
+                'email' => $email,
+                'password' => $password,
+            ));
+        } catch (\Exception $exception) {
+            return $this->json($exception);
+        }
+
+        $user = user();
+        return $this->json([
+            'data' => [
+                'api_key' => $user->getApiKey(),
+                'identifier' => $user->getIdentifier(),
+                'username' => $user->username,
+                'email' => $user->email,
+                'created_at' => $user->created_at,
+            ]
+        ]);
+    }
+
+    /**
+     * Handle all api requests
+     *
+     * @param [type] $method
+     * @param [type] $model
+     * @param [type] $id
+     * @return void
+     */
     public function handleAction($method, $model = null, $id = null)
     {
         /** TODO cache */
-        $this->api = $api = new Handler();
-        $this->api->user = $this->getUser();
-        $this->api->request = new RequestDTO([
-            'parameters' => $this->get()
-        ]);
-        $api->name = $model;
+        $this->apiHandler = $api = new Handler();
+        $this->apiHandler->user = $this->getUser();
+
+        $parameters = $this->get();
+        $this->apiHandler->request = new RequestDTO($parameters);
+        $this->apiHandler->request->parameters = $parameters;
+        $this->apiHandler->name = $model;
 
         require_once APP_PATH . 'app/api.php';
 
-        $api->setApi();
-
         try {
+            $this->apiHandler->setApi();
+            if( ! $this->apiHandler->isAuthorized() ) {
+                \public_exception('app.unauthorized', 403);
+            }
             return $this->$method($model, $id);
         }
         catch(\Exception $e) {
@@ -41,7 +84,7 @@ class ApiController extends AbstractController
     public function index()
     {
         $page = $this->get('page', 1);
-        $msgs = $this->api->getAll($page, $this->get());
+        $msgs = $this->apiHandler->getAll($page, $this->get());
 
         return $this->json($msgs);
     }
@@ -55,7 +98,8 @@ class ApiController extends AbstractController
 	 */
     public function store($model)
     {
-        $resp = $this->api->save($this->get());
+        $resp = $this->apiHandler->save($this->get());
+
         return $this->json($resp);
     }
 	
@@ -69,7 +113,8 @@ class ApiController extends AbstractController
 	 */
     public function show($model, $id)
     {
-        $entries = $this->api->get($id, $this->get());
+        $entries = $this->apiHandler->get($id, $this->get());
+
         return $this->json( $entries );
     }
 
@@ -83,7 +128,8 @@ class ApiController extends AbstractController
 	 */
     public function update($model, $id)
     {
-        $resp = $this->api->update($id, $this->get());
+        $resp = $this->apiHandler->update($id, $this->get());
+
         return $this->json( $resp );
     }
 	
@@ -98,17 +144,22 @@ class ApiController extends AbstractController
     public function destroy($model, $id)
     {
         if( $this->get('restore') ) {
-            $resp = $this->api->restore($id);
+            $resp = $this->apiHandler->restore($id);
         }
         else {
-            $resp = $this->api->delete($id, $this->get('force'), $this->get());
+            $resp = $this->apiHandler->delete($id, $this->get('force'), $this->get());
         }
 
         return $this->json( $resp );
     }
 
+    /**
+     * Api endpoint not found
+     *
+     * @return void
+     */
     public function notFoundAction()
     {
-        return $this->json(false, 'Not found');
+        \public_exception('api.notFound', 404);
     }
 }

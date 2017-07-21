@@ -34,6 +34,9 @@ class Console
         /**
          * TODO rollback migration from scaffold. how??
          */
+        if( isset($this->argv[1]) && $this->argv[1] === 'migration:rollback' ) {
+            define('ENVO_INCLUDE_MIGRATIONS', true);
+        }
 
         $app = new Application('envome', '0.1.0');
 

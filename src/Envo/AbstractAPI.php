@@ -13,6 +13,8 @@ class AbstractAPI
     public $name = null;
     public $user = null;
     public $repo = null;
+    
+    public $identifier = 'id';
 	
 	/**
 	 * @var RequestDTO $request
@@ -41,7 +43,7 @@ class AbstractAPI
 
         if( is_string($this->model) ) {
             if( ! class_exists($this->model) ) {
-                throw new InternalException('Model not found', 500);
+                internal_exception('api.modelNotFound', 404);
             }
             
             $this->model = new $this->model;
@@ -56,7 +58,7 @@ class AbstractAPI
 
         if( is_string($this->dto) ) {
             if( ! class_exists($this->dto) ) {
-                throw new InternalException('DTO not found', 500);
+                internal_exception('api.dtoNotFound', 404);
             }
 
             $data = null;
