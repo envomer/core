@@ -238,9 +238,9 @@ if( ! function_exists('resolve') )
  */
 if( ! function_exists('config') )
 {
-	function config($name)
+	function config($name, $default)
 	{
-		return resolve(Config::class)->get($name);
+		return resolve(Config::class)->get($name, $default);
 	}
 }
 

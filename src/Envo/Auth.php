@@ -2,11 +2,14 @@
 
 namespace Envo;
 
-use Phalcon\Mvc\User\Component;
+use Envo\Model\AbstractUser;
+
 use App\Core\Model\User;
 use App\Core\Model\UserRepository;
 use App\Core\Model\RememberToken;
 use App\Core\Model\FailedLogin;
+
+use Phalcon\Mvc\User\Component;
 
 /**
  * Class Auth
@@ -58,10 +61,7 @@ class Auth extends Component
 		if( defined('APP_CLI') ) {
 			return null;
 		}
-        
-        if( ! class_exists(User::class) ) {
-            return null;
-        }
+		$userClass = config('app.user', AbstractUser::class);
 
 		$instance = self::getInstance();
 		$session = $instance->session;
@@ -107,8 +107,7 @@ class Auth extends Component
 			\Translator::setLocale($user->getLanguage());
 		}
 
-		self::$user = $user;
-		return self::$user;
+		return self::$user = $user;
 	}
 
 	/**
