@@ -2,10 +2,18 @@
 
 namespace Envo;
 
+use JsonSerializable;
+
 use Envo\Support\Arr;
 
-class AbstractDTO implements \JsonSerializable
+class AbstractDTO implements JsonSerializable
 {
+	/**
+	 * Contruct abstract DTO
+	 *
+	 * @param object $data
+	 * @param array $mapping
+	 */
 	public function __construct($data = null, $mapping = null)
 	{
 		if( ! $data ) {
@@ -39,16 +47,31 @@ class AbstractDTO implements \JsonSerializable
 		}
 	}
 
+	/**
+	 * Json encode object
+	 *
+	 * @return string
+	 */
 	public function __toString()
 	{
 		return json_encode($this);
 	}
 
+	/**
+	 * Serialize object
+	 *
+	 * @return array
+	 */
 	public function jsonSerialize()
 	{
 		return Arr::getPublicProperties($this);
 	}
 
+	/**
+	 * Return array
+	 *
+	 * @return void
+	 */
 	public function toArray()
 	{
 		return (array) $this;

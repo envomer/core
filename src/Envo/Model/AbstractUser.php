@@ -50,7 +50,7 @@ class AbstractUser extends AbstractModel
      *
      * @var string
      */
-    public $identifier;
+    public $identifier = null;
 
     /**
      * Username
@@ -99,16 +99,6 @@ class AbstractUser extends AbstractModel
     public function getLanguage()
     {
         return $this->language;
-    }
-
-    /**
-     * Get id
-     *
-     * @return integer
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**

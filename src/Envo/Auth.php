@@ -97,6 +97,7 @@ class Auth extends Component
 		}
 		else {
 			// TODO: cache user query
+			$userClass = $this->userClass;
 			$user = $userClass::findFirstByIdentifier($auth['id']);
 
 			if ( !$user ) {
@@ -354,7 +355,7 @@ class Auth extends Component
 	 *
 	 * @return bool
 	 */
-	public function checkUserFlags(User $user)
+	public function checkUserFlags(AbstractUser $user)
 	{
 		return true;
 		// if ($user->active != 'Y') {

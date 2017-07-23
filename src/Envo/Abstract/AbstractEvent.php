@@ -7,6 +7,7 @@ use Envo\Notification\Notification;
 use Envo\Support\IP;
 use Envo\Support\File;
 use Envo\Support\Date;
+use Envo\AbstractModel;
 
 use Envo\Model\Event\Event;
 use Envo\Model\Event\EventType;
@@ -31,11 +32,11 @@ class AbstractEvent
 		// in case an event is given as first parameter()
 		// then just set the event instance without creating
 		// a new event instance
-		if( is_a($message, 'AbstractEvent') ) {
+		if( is_a($message, AbstractEvent::class) ) {
 			return $this->event = $message;
 		}
 
-		if( is_a($message, 'AbstractModel') ) {
+		if( is_a($message, AbstractModel::class) ) {
 			$model = $message;
 			$message = null;
 		}
