@@ -60,7 +60,6 @@ class Auth extends Component
 
 	/**
 	 * Get current user
-	 *
 	 */
 	public function user()
 	{

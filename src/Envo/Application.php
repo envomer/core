@@ -107,7 +107,7 @@ class Application extends \Phalcon\Mvc\Application
 		$di->setShared('dispatcher', function() {
 			$dispatcher = new \Phalcon\Mvc\Dispatcher();
 			$dispatcher->setEventsManager($this->get('eventsManager'));
-			$dispatcher->setDefaultNamespace("App\Core\Controller\\");
+			$dispatcher->setDefaultNamespace("Core\Controller\\");
 			return $dispatcher;
 		});
 
