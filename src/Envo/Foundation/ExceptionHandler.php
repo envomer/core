@@ -3,10 +3,13 @@
 namespace Envo\Foundation;
 
 use Exception;
+
+use Envo\AbstractException;
+use Envo\AbstractEvent;
+
 use Phalcon\Events\Event;
 use Phalcon\Mvc\User\Plugin;
 use Phalcon\Dispatcher;
-use Phalcon\Mvc\Dispatcher\Exception as DispatcherException;
 use Phalcon\Mvc\Dispatcher as MvcDispatcher;
 
 /**
@@ -14,7 +17,7 @@ use Phalcon\Mvc\Dispatcher as MvcDispatcher;
  *
  * Handles not-found controller/actions
  */
-class ExceptionHandler extends Plugin
+class ExceptionHandler
 {
 	/**
 	 * Handle all exceptions types here
@@ -22,28 +25,15 @@ class ExceptionHandler extends Plugin
 	public static function handleError(Exception $exception)
 	{
 		$e = $exception;
-
-	    $error = array(
-			'controller' => 'errors',
-			'action'     => 'show500',
-	      	'namespace' => 'Core\Controllers',
-	      	'exception' => $e
-		);
-		$code = 500;
+		$code = $exception->getCode();
 
 		$message = $e->getMessage(). "\n"
 			 . " Class=" . get_class($e) . "\n"
              . " File=". $e->getFile(). "\n"
              . " Line=". $e->getLine(). "\n";
-            //  . $e->getTraceAsString() . "\n";
 
-		if( $exception->getCode() == 403 ) {
-			$code = 403;
-			$error['action'] = 'show403';
-		}
-		else if( $exception->getCode() == 404 ) {
+		if( $exception->getCode() == 404 ) {
 			$code = 404;
-			$error['action'] = 'show404';
 			$message = null;
 		}
 
@@ -51,21 +41,23 @@ class ExceptionHandler extends Plugin
 			$message = json_encode($exception->json());
 		}
 
-		$error['code'] = $code;
-       
 		$requestMethod = null;
 		if( isset($_SERVER['REQUEST_METHOD']) ) {
 			$requestMethod = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'];
 		}
 		
 		/**
-		 * 2002: Means the database is down. so don't record event in database
-		 * otherwise store message in database
-		 *
-		 * 1049: Means the database couldn't be found
+		 * 2002: Means database is down. so don't record event in database
+		 * 1049: Means database couldn't be found
 		 */
 		if( config('app.events.enabled', false) && ! is_a($e, 'PDOException') &&  $e->getCode() != 2002 && $e->getCode() != 1049 && ! env('APP_TESTING') ) {
-			$event = new \Envo\Event\Exception($code .' '. $requestMethod. ' ', true, null, $message);
+			$event = new \Envo\Event\Exception($code .' '. $requestMethod. ' ', false, null, $message);
+
+			if( $exception instanceof AbstractException ) {
+				$event->getEvent()->reference = $exception->reference;
+			}
+			
+			$event->save();
 			$event->notify();
 		}
 
@@ -75,9 +67,7 @@ class ExceptionHandler extends Plugin
 		}
 
 		// also log the error message into a log file
-       	error_log($message . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/framework/logs/errors/'.date('Y-m-d') . '.log');
-
-		return $error;
+       	error_log($message . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W') . '.log');
 	}
 
 	/**

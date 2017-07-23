@@ -18,7 +18,7 @@ class Exception extends AbstractEvent
 		} else {
 			$user = $this->event->ip_id ? $this->event->ip->ip : 'unbekannt';
 		}
-		return $user . ' hat eine exception verursacht';
+		return $user . ' caused an exception';
 	}
 
     /**

@@ -25,7 +25,7 @@ class AbstractEvent
 	public function __construct($message = null, $save = true, $model = null, $data = null)
 	{
 		if( ! config('app.events.enabled', false) ) {
-			return false;
+			return $this;
 		}
 
 		// in case an event is given as first parameter()
@@ -44,8 +44,9 @@ class AbstractEvent
 		$user = ! defined('APP_CLI') ? user() : null;
 		if( $user && $user->loggedIn ) {
 			$event->user_id = $user->id;
-			if( isset($user->client_id) )
+			if( isset($user->client_id) ) {
 				$event->client_id = $user->client_id;
+			}
 		}
 
 		$event->created_at = date('Y-m-d H:i:s');
@@ -91,6 +92,7 @@ class AbstractEvent
 			$class = get_called_class();
 			$instance = new $class(null, false);
 		}
+
 		return $instance;
 	}
 
@@ -237,6 +239,11 @@ class AbstractEvent
 		return $notification->send($this, $users, $data);
 	}
 
+	/**
+	 * Get event name
+	 *
+	 * @return string
+	 */
 	public function getName()
 	{
 		return get_called_class();
@@ -260,5 +267,10 @@ class AbstractEvent
 	public function via()
 	{
 		return null;
-	}	
+	}
+
+	public function save()
+	{
+		return $this->event ? $this->event->save() : null;
+	}
 }

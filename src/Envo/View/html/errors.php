@@ -57,16 +57,22 @@
 	<div style="text-align:left; max-width: 900px; margin: 50px auto 50px; border-left: 4px solid #E75A5C; padding: 20px; font-size: 8pt; background: #f5f5f5">
 		<?php
 
- 			$message = "Runtime: " . (microtime(true) - APP_START) . " msec\n\n"
- 			 . $error->getMessage(). "\n"
+ 			$message = "Runtime: " . (microtime(true) - APP_START) . " msec\n";
+ 			$message .= "Memory peak usage: " . (memory_get_peak_usage(true)/1024/1024) . " MiB\n";
+ 			$message .= "Memory usage: " . (memory_get_usage(true)/1024/1024) . " MiB\n";
+
+			$message .= "\n";
+			$message .= $error->getMessage(). "\n"
 			 . " Class: " . get_class($error) . "\n"
 	         . " File:  ". $error->getFile(). "\n"
 	         . " Line:  ". $error->getLine(). "\n";
 
-			 echo '<h2>'. $error->getMessage() .'</h2>';
-	         echo '<pre style="word-wrap:break-word">' .  $message . "\n";
+			echo '<h2>'. $error->getMessage() .'</h2>';
+	        echo '<pre style="word-wrap:break-word">' .  $message . "\n";
 
-             echo $error->getTraceAsString();
+            echo $error->getTraceAsString();
+
+			var_dump($_SERVER);
 
             //  foreach($error->getTrace() as $trace) {
             //      echo isset($trace['class']) ? $trace['class'] : '';

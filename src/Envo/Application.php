@@ -22,7 +22,12 @@ class Application extends \Phalcon\Mvc\Application
 
 	public $inMaintenance = null;
 
-	public function isMaintained()
+	/**
+	 * Check if app is maintenance
+	 *
+	 * @return boolean
+	 */
+	public function isInMaintenance()
 	{
 		if( $this->inMaintenance === null ) {
 			$this->inMaintenance = @file_get_contents(APP_PATH . 'storage/framework/down') ?: false;
@@ -40,8 +45,15 @@ class Application extends \Phalcon\Mvc\Application
 			require ENVO_PATH . 'View/html/maintenance.php';
 			die;
 		}
+
+		return false;
 	}
 
+	/**
+	 * Start app
+	 *
+	 * @return void
+	 */
 	public function start()
 	{
 		error_reporting(-1);
@@ -50,12 +62,17 @@ class Application extends \Phalcon\Mvc\Application
 
 		$this->setup();
 		$this->setupConfig();
-		$this->isMaintained();
+		$this->isInMaintenance();
 		$this->registerServices();
 
 		echo $this->handle()->getContent();
 	}
 
+	/**
+	 * Register services
+	 *
+	 * @return DI
+	 */
 	public function registerServices()
 	{
 		$di = new DI();
@@ -81,16 +98,25 @@ class Application extends \Phalcon\Mvc\Application
 			return $cookies;
 		});
 
+		/**
+		 * Set request
+		 */
 		$di->setShared('request', Request::class);
+
+		/**
+		 * Set response
+		 */
 		$di->setShared('response', Response::class);
+
+		/**
+		 * Set models manager
+		 */
 		$di->setShared('modelsManager', Manager::class);
 
 		/**
 		 * Custom authentication component
 		 */
-		$di->setShared('auth', function () {
-			return new Auth();
-		});
+		$di->setShared('auth', Auth::class);
 
 		$di->set('eventsManager', function() use($debug) {
 			$eventManager = new \Phalcon\Events\Manager();
@@ -181,5 +207,7 @@ class Application extends \Phalcon\Mvc\Application
 		}
 
 		$this->setDI($di);
+
+		return $di;
 	}
 }

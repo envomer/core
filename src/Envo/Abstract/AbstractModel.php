@@ -14,6 +14,8 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	protected $allowUpdate = true;
 	protected $cachedRelations = [];
 
+	public $reference = null;
+
 	/**
 	* Get the table name
 	*
@@ -63,6 +65,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 			}
 			$arr[$options['alias']] = $relation;
 		}
+		
 		return ($name) ? null : $arr;
 	}
 
