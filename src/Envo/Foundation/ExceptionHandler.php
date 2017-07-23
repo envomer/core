@@ -58,7 +58,7 @@ class ExceptionHandler
 			}
 			
 			$event->save();
-			$event->notify();
+			// $event->notify();
 		}
 
 		// send a Notification every 5 minutes if the error repeats itself

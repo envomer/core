@@ -2,7 +2,7 @@
 
 namespace Envo;
 
-use Envo\Model\Migration\Table;
+use Envo\Database\Migration\Table;
 
 use Phinx\Migration\AbstractMigration as PhinxAbstractMigration;
 

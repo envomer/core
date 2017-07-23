@@ -38,6 +38,8 @@ class Column extends PhinxColumn
                 $this->setSigned(TRUE);
                 break;
         }
+
+        return $this;
     }
 
     /**
