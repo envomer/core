@@ -47,15 +47,8 @@ class ExceptionHandler extends Plugin
 			$message = null;
 		}
 
-		if ($exception instanceof DispatcherException) {
-			switch ($exception->getCode()) {
-				case Dispatcher::EXCEPTION_HANDLER_NOT_FOUND:
-				case Dispatcher::EXCEPTION_ACTION_NOT_FOUND:
-					$code = 404;
-        			$error['action'] = 'show404';
-					break;
-				default:
-			}
+		if( method_exists($exception, 'json') ) {
+			$message = json_encode($exception->json());
 		}
 
 		$error['code'] = $code;
@@ -71,8 +64,8 @@ class ExceptionHandler extends Plugin
 		 *
 		 * 1049: Means the database couldn't be found
 		 */
-		if( config('app.events') && ! is_a($e, 'PDOException') &&  $e->getCode() != 2002 && $e->getCode() != 1049 && ! env('APP_TESTING') ) {
-			$event = new \Core\Events\Exception($code .' '. $requestMethod. ' ', true, null, ['message' => $message]);
+		if( config('app.events.enabled', false) && ! is_a($e, 'PDOException') &&  $e->getCode() != 2002 && $e->getCode() != 1049 && ! env('APP_TESTING') ) {
+			$event = new \Envo\Event\Exception($code .' '. $requestMethod. ' ', true, null, $message);
 			$event->notify();
 		}
 

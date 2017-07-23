@@ -2,32 +2,44 @@
 
 namespace Envo;
 
-use Envo\Exception\PublicException;
-use Envo\AbstractException;
-use Envo\Support\Str;
-use Phalcon\Mvc\Controller;
 use Exception;
+
+use Envo\AbstractException;
+use Envo\Exception\PublicException;
+use Envo\Foundation\ExceptionHandler;
+use Envo\Model\AbstractUser;
+use Envo\Support\Str;
+
+use Phalcon\Mvc\Controller;
 
 class AbstractController extends Controller
 {
 	protected $user = null;
 
+	/**
+	 * Set views directory
+	 *
+	 * @param string $module
+	 * 
+	 * @return boolean
+	 */
 	public function setViewsDir($module = 'Core')
 	{
 		$this->view->setViewsDir( APP_PATH . 'app/'. $module . '/View/' );
 	}
 
-	public function getUser()
+	/**
+	 * Get user
+	 *
+	 * @return AbstractUser
+	 */
+	public function user()
 	{
 		if($this->user) {
 			return $this->user;
 		}
-		return $this->user = user();
-	}
 
-	public function user()
-	{
-		return $this->getUser();
+		return $this->user = user();
 	}
 	
 	/**
@@ -54,12 +66,15 @@ class AbstractController extends Controller
 				$params = array_merge($params, $post_vars);
 			}
 		}
+
 		if( is_null($name) ) {
 			return $params;
 		}
+
 		if(isset($params[$name])) {
 			return $params[$name];
 		}
+
 		return $default;
 	}
 
@@ -70,7 +85,7 @@ class AbstractController extends Controller
 	{
 		/** TODO: refactor **/
 		$code = 200;
-		$loggedIn = $this->getUser() && $this->getUser()->loggedIn ? true : false;;
+		$loggedIn = $this->user() && $this->user()->loggedIn ? true : false;;
 
 		if( is_bool($msg) ) {
 			$msg = ['success' => $msg];
@@ -85,6 +100,7 @@ class AbstractController extends Controller
 			$msg['success'] = true;
 		}
 		else if( $msg instanceof Exception ) {
+			ExceptionHandler::handleError($msg);
 			if( ! is_subclass_of($msg, AbstractException::class) )  {
 				$msg = uncaught_exception($msg);
 			}
@@ -124,6 +140,11 @@ class AbstractController extends Controller
 	    return $this->response->setJsonContent($msg)->send();
 	}
 
+	/**
+	 * Empty json response
+	 *
+	 * @return void
+	 */
 	public function emptyApiJson()
 	{
 		return $this->json([
@@ -137,7 +158,12 @@ class AbstractController extends Controller
 			'current' => 1
 		]);
 	}
-
+	
+	/**
+	 * Abort unless user is admin
+	 *
+	 * @return boolean
+	 */
 	public function mustBeAdmin()
 	{
 		if( $this->user->isAdmin() ) {
@@ -147,6 +173,11 @@ class AbstractController extends Controller
 		$this->abort();
 	}
 
+	/**
+	 * Abort unless user is logged in
+	 *
+	 * @return boolean
+	 */
 	public function mustBeLoggedIn()
 	{
 		if( $this->user && $this->user->loggedIn ) {
@@ -156,8 +187,15 @@ class AbstractController extends Controller
 		$this->abort(404);
 	}
 
-	public function abort($code = 403, $msg = 'Unauthorized')
+	/**
+	 * Abort
+	 *
+	 * @param integer $code
+	 * @param string $msg
+	 * @return void
+	 */
+	public function abort($code = 403, $msgCode = 'app.unauthorized')
 	{
-		throw new \Exception($msg, $code);
+		public_exception($msgCode, $code);
 	}
 }

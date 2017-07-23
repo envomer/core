@@ -36,6 +36,7 @@ class CreateEvents extends AbstractMigration
         $table->addColumn('user_id', 'integer', ['signed' => false, 'null' => true]);
         $table->addColumn('client_id', 'integer', ['signed' => false, 'null' => true]);
 
+        $table->addColumn('reference', 'string', ['null' => true]);
         $table->addColumn('message', 'string', ['null' => true]);
         $table->addColumn('data', 'text', ['null' => true]);
 

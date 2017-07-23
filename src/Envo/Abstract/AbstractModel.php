@@ -13,7 +13,6 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	protected $softDeletes = false;
 	protected $allowUpdate = true;
 	protected $cachedRelations = [];
-	// private $_justCreated = false;
 
 	/**
 	* Get the table name
@@ -33,11 +32,15 @@ class AbstractModel extends \Phalcon\Mvc\Model
     */
     public function getColumns($type = null)
     {
-        if( ! $type ) return '';
+        if( ! $type ) {
+			return '';
+		}
+
         if( isset($this->{$type . 'Columns'}) ) {
 			return $this->{$type . 'Columns'};
 		}
-        else return '';
+        
+		return '';
     }
 
 	/**
@@ -52,8 +55,12 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		$arr = [];
 		foreach ($relations as $key => $relation) {
 			$options = $relation->getOptions();
-			if( ! isset($options['alias']) ) continue;
-			if( $name && $name == $options['alias'] ) return $relation;
+			if( ! isset($options['alias']) ) {
+				continue;
+			}
+			if( $name && $name == $options['alias'] ) {
+				return $relation;
+			}
 			$arr[$options['alias']] = $relation;
 		}
 		return ($name) ? null : $arr;
@@ -81,24 +88,52 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		return $this->softDeletes;
 	}
 
+	/**
+	 * Is deleteable
+	 *
+	 * @return boolean
+	 */
 	public function isDeletable()
 	{
 		return true;
 	}
 
+	/**
+	 * Whether the model can be updated
+	 *
+	 * @param bool|null $choice
+	 * @return bool
+	 */
 	public function allowUpdate($choice = null)
 	{
-		if( is_null($choice) ) return $this->allowUpdate;
+		if( is_null($choice) ) {
+			return $this->allowUpdate;
+		}
+
 		return $this->allowUpdate = $choice;
 	}
 
-	public function jsonSerialize() {
+	/**
+	 * Json serialize model
+	 *
+	 * @return array
+	 */
+	public function jsonSerialize()
+	{
 		if( method_exists($this, 'toDTO') ) {
 			return $this->toDTO();
 		}
+		
 		return Arr::getPublicProperties($this);
 	}
 
+	/**
+	 * Reference model relation
+	 *
+	 * @param string $name
+	 * @param boolean $fresh
+	 * @return void
+	 */
 	public function ref($name, $fresh = false)
 	{
 		if( is_bool($fresh) && $fresh ) {
@@ -116,6 +151,11 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		return $this->cachedRelations[$name];
 	}
 
+	/**
+	 * Get model repository
+	 *
+	 * @return AbstractRepository
+	 */
 	public static function repo()
 	{
 		$repoName = get_called_class() . 'Repository';
@@ -123,6 +163,11 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		return resolve($repoName);
 	}
 
+	/**
+	 * Get model service
+	 *
+	 * @return AbstractService
+	 */
 	public static function service()
 	{
 		$repoName = get_called_class() . 'Service';
@@ -135,18 +180,13 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		return resolve($repoName);
 	}
 
+	/**
+	 * Get id
+	 *
+	 * @return integer|null
+	 */
 	public function getId()
 	{
 		return isset($this->id) ? $this->id : null;
 	}
-
-	// public function setJustCreated($value)
-	// {
-	// 	$this->_justCreated = $value;
-	// }
-
-	// public function justCreated()
-	// {
-	// 	return $this->_justCreated;
-	// }
 }

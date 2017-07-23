@@ -24,6 +24,10 @@ class AbstractEvent
 
 	public function __construct($message = null, $save = true, $model = null, $data = null)
 	{
+		if( ! config('app.events.enabled', false) ) {
+			return false;
+		}
+
 		// in case an event is given as first parameter()
 		// then just set the event instance without creating
 		// a new event instance
@@ -90,9 +94,19 @@ class AbstractEvent
 		return $instance;
 	}
 
+	/**
+	 * Set message
+	 *
+	 * @param AbstractEvent $event
+	 * @param string $message
+	 * @return AbstractEvent
+	 */
 	public function setMessage($event, $message)
 	{
-		if( ! $message ) return false;
+		if( ! $message ) {
+			return false;
+		}
+
 		if( is_array($message) || is_object($message) ) {
 			$message = json_encode($message);
 		}
@@ -102,9 +116,19 @@ class AbstractEvent
 		return $event;
 	}
 
+	/**
+	 * Set data
+	 *
+	 * @param AbstractEvent $event
+	 * @param string $data
+	 * @return AbstractEvent
+	 */
 	public function setData($event, $data)
 	{
-		if( ! $data ) return false;
+		if( ! $data ) {
+			return false;
+		}
+
 		if( is_array($data) || is_object($data) ) {
 			$data = json_encode($data);
 		}
@@ -114,6 +138,13 @@ class AbstractEvent
 		return $event;
 	}
 
+	/**
+	 * Set model
+	 *
+	 * @param AbstractEvent $event
+	 * @param AbstractModel $model
+	 * @return AbstractEvent
+	 */
 	public function setModel($event, $model)
 	{
 		if( ! $model ) {
@@ -161,22 +192,45 @@ class AbstractEvent
 		return $event;
 	}
 
+	/**
+	 * Set event
+	 *
+	 * @param AbstractEvent $event
+	 * @return self
+	 */
 	public function setEvent($event)
 	{
 		$this->event = $event;
 		return $this;
 	}
 
+	/**
+	 * Get description
+	 *
+	 * @return string|null
+	 */
 	public function getDescription()
 	{
 		return null;
 	}
 
+	/**
+	 * Get event
+	 *
+	 * @return AbstractEvent
+	 */
 	public function getEvent()
 	{
 		return $this->event;
 	}
 
+	/**
+	 * Notify users
+	 *
+	 * @param AbstractUser[] $users
+	 * @param string $data
+	 * @return bool
+	 */
 	public function notify($users = null, $data = null)
 	{
 		$notification = new Notification();

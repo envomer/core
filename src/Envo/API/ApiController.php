@@ -2,7 +2,6 @@
 namespace Envo\API;
 
 use Envo\Auth;
-use Core\Service\ModelRepo;
 use Envo\AbstractController;
 
 use Envo\Exception\PublicException;
@@ -55,7 +54,7 @@ class ApiController extends AbstractController
     {
         /** TODO cache */
         $this->apiHandler = $api = new Handler();
-        $this->apiHandler->user = $this->getUser();
+        $this->apiHandler->user = $this->user();
 
         $parameters = $this->get();
         $this->apiHandler->request = new RequestDTO($parameters);
@@ -67,7 +66,7 @@ class ApiController extends AbstractController
         try {
             $this->apiHandler->setApi();
             if( ! $this->apiHandler->isAuthorized() ) {
-                \public_exception('app.unauthorized', 403);
+                public_exception('app.unauthorized', 403);
             }
             return $this->$method($model, $id);
         }
@@ -160,6 +159,6 @@ class ApiController extends AbstractController
      */
     public function notFoundAction()
     {
-        \public_exception('api.notFound', 404);
+        public_exception('api.notFound', 404);
     }
 }

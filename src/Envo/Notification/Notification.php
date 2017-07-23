@@ -1,18 +1,16 @@
 <?php
 
-namespace Core\Service;
+namespace Envo\Notification;
 
-use Envo\Foundation\AbstractEvent;
+use Envo\AbstractEvent;
 
-class NotificationService extends \AbstractService
+class Notification
 {
     public $pusher = null;
     public $redis = null;
     
     public function send(AbstractEvent $event, $users = null, $data  = null)
     {
-        parent::autoloader();
-
         if( ! $users ) {
             $users = $event->to();
         }
@@ -78,7 +76,8 @@ class NotificationService extends \AbstractService
         }
         
         $channel = 'private-user' . $user->getApiKey();
-        return $response = $this->pusher->trigger($channel, 'event', $eventData);
+
+        return $this->pusher->trigger($channel, 'event', $eventData);
     }
 
     public function pusherInit()

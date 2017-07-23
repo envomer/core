@@ -3,6 +3,7 @@
 namespace Envo\Console\Command;
 
 use Envo\Support\File;
+use Envo\Support\Arr;
 
 use Phinx\Console\Command\Migrate;
 use Phinx\Util\Util;
@@ -47,6 +48,14 @@ class Scaffold extends Migrate
         parent::execute($input, $output);
     }
 
+    /**
+     * Prepare files
+     *
+     * @param [type] $files
+     * @param [type] $input
+     * @param [type] $output
+     * @return void
+     */
     public function prepareFiles($files, $input, $output)
     {
         foreach($files as $filePath) {
@@ -61,6 +70,13 @@ class Scaffold extends Migrate
         return $versions;
     }
 
+    /**
+     * Ask which migration
+     *
+     * @param [type] $input
+     * @param [type] $output
+     * @return void
+     */
     public function askWhichMigration($input, $output)
     {
         $paths = [
@@ -68,6 +84,7 @@ class Scaffold extends Migrate
             'user',
             'client',
             'event',
+            'all'
         ];
 
         $helper = $this->getHelper('question');
@@ -76,6 +93,12 @@ class Scaffold extends Migrate
         return $helper->ask($input, $output, $question);
     }
 
+    /**
+     * Get files
+     *
+     * @param [type] $group
+     * @return void
+     */
     public function getFiles($group)
     {
         $files = [
@@ -83,7 +106,8 @@ class Scaffold extends Migrate
                 ENVO_PATH . '../../migrations/20170712093749_create_users.php'
             ],
             'client' => [
-                ENVO_PATH . '../../migrations/20170712182747_create_clients.php'
+                ENVO_PATH . '../../migrations/20170712182747_create_clients.php',
+                ENVO_PATH . '../../migrations/20170712093750_create_user_client.php',
             ],
             'event' => [
                 ENVO_PATH . '../../migrations/20170713083404_create_events.php',
@@ -92,6 +116,10 @@ class Scaffold extends Migrate
                 ENVO_PATH . '../../migrations/20170713084114_create_ips.php',
             ],
         ];
+
+        if( $group === 'all' ) {
+            return Arr::flatten($files);
+        }
 
         return $files[$group];
     }

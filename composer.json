@@ -22,7 +22,7 @@
             "src/Envo/Helper.php"
         ],
         "psr-4": {
-            "Envo\\": "src/Envo"
+            "Envo\\": ["src/Envo", "src/Envo/Abstract"]
         }
     },
     "bin": ["bin/envo"]

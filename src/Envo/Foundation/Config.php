@@ -21,7 +21,7 @@ class Config
 	{
 		$search = explode('.', $name);
 		if( ! isset(self::$configs[$search[0]]) ) {
-			self::$configs[$search[0]] = require APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
+			self::$configs[$search[0]] = require_once APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
 		}
 
 		if( count($search) == 1 ) {
