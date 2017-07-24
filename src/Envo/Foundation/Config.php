@@ -2,6 +2,8 @@
 
 namespace Envo\Foundation;
 
+use Envo\Support\Arr;
+
 class Config
 {
 	protected static $configs = [];
@@ -15,7 +17,7 @@ class Config
 	 * @param string $name
 	 * @param mixed $default
 	 * 
-	 * @return mixed
+	 * @return string|array|integer
 	 */
 	public static function get($name, $default = null)
 	{
@@ -32,7 +34,9 @@ class Config
 			return $default;
 		}
 
-		return self::$configs[$search[0]][$search[1]];
+		$key = substr($name, strlen($search[0]) + 1);
+
+		return Arr::get(self::$configs[$search[0]], $key, $default);
 	}
 
 	/**
