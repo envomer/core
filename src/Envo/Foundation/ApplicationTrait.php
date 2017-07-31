@@ -22,20 +22,25 @@ trait ApplicationTrait
 			throw new \Exception("Configuration file not set. Contact support team.", 500);
 		}
 
-        ini_set('error_log', APP_PATH . 'storage/logs/errors/'.date('Y-m-d').'.log');
+        ini_set('error_log', APP_PATH . 'storage/frameworks/logs/errors/'.date('Y-m.W').'.log');
 
 		(new IP())->isBlocked();
     }
 
 	public function setupConfig()
 	{
-		$config = new Ini(APP_PATH . '.env');
+		// $config = new Ini(APP_PATH . '.env');
+		$config = parse_ini_file(APP_PATH . '.env');
 		
 		if( getenv('APP_ENV') == 'testing' ) {
 			unset($config['APP_ENV']);
 		}
 		
 		foreach($config as $key => $conf) {
+			if( is_array($conf) ) {
+				continue;
+			}
+			// var_dump($key, $conf);
 			putenv($key.'='.$conf);
 		}
 	}

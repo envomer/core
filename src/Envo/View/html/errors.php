@@ -64,6 +64,7 @@
 			$message .= "\n";
 			$message .= $error->getMessage(). "\n"
 			 . " Class: " . get_class($error) . "\n"
+			 . " Date:  ". date('Y-m-d H:i:s') . "\n"
 	         . " File:  ". $error->getFile(). "\n"
 	         . " Line:  ". $error->getLine(). "\n";
 

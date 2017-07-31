@@ -28,9 +28,10 @@ class ExceptionHandler
 		$code = $exception->getCode();
 
 		$message = $e->getMessage(). "\n"
-			 . " Class=" . get_class($e) . "\n"
-             . " File=". $e->getFile(). "\n"
-             . " Line=". $e->getLine(). "\n";
+			 . " Class:" . get_class($e) . "\n"
+             . " File:". $e->getFile(). "\n"
+             . " Date:". date('Y-m-d H:i:s') . "\n"
+             . " Line:". $e->getLine(). "\n";
 
 		if( $exception->getCode() == 404 ) {
 			$code = 404;
