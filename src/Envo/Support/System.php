@@ -2,7 +2,7 @@
 
 namespace Envo\Support;
 
-use Envo\Foundation;
+use Envo\Foundation\Config;
 
 /**
  * System class
@@ -20,10 +20,10 @@ class System
 	{
 		//ENTER THE RELEVANT INFO BELOW
 		$config = Config::database();
-		$url = env('APP_URL');
+		$url = env('APP_URL', 'localhost');
 		$url = parse_url($url);
 		$host = str_replace('.', '2', $url['host']);
-		$path = APP_PATH . 'storage/db/' . ($filename = ($host) .'-mdb-' . date('YmdHis') .'.sql');
+		$path = APP_PATH . 'storage/framework/backup/' . ($filename = ($host) .'-mdb-' . date('YmdHis') .'.sql');
 
 		//DO NOT EDIT BELOW THIS LINE
 		//Export the database and output the status to the page
@@ -101,6 +101,7 @@ class System
 		// lets, throw an exception, and ask the user to provide the path instead, manually.
 		$message = "Path to \"mysqldump\" binary could not be detected!\n";
 		$message .= "Please, specify it inside the configuration file provided!";
+		
 		throw new RuntimeException($message);
 	}
 
@@ -122,7 +123,8 @@ class System
 		if( ! $throw ) {
             return null;
         }
-		throw new \Exception("Plugin not found", 500);
+
+		internal_exception('app.pluginNotFound', 404);
 	}
 
 	/**
@@ -130,8 +132,6 @@ class System
 	 */
 	public static function log($branch = 'HEAD')
 	{
-		\AbstractService::autoloader();
-
 		$output = self::runCommand(['git', 'log', $branch]);
 		$currentVersion = self::runCommand(['git', 'rev-list', $branch]);
 		$version = count(explode("\n", $currentVersion)) - 2;
@@ -139,6 +139,7 @@ class System
         $lines = explode("\n", $output);
         $commit = new \Illuminate\Support\Collection();
         $changelog = new \Illuminate\Support\Collection();
+
         foreach ($lines as $key => $line) {
             if (strpos($line, 'commit') === 0 || $key + 1 == count($lines)) {
                 if (!$commit->isEmpty()) {
@@ -150,15 +151,19 @@ class System
                     $commit = collect();
                 }
                 $commit->put('hash', substr($line, strlen('commit') + 1));
-            } else if (strpos($line, 'Author') === 0) {
+            }
+			else if (strpos($line, 'Author') === 0) {
                 preg_match_all("/(?:[a-z0-9!#$%&'*+=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\])/", $line, $emails);
                 if($emails) $commit->put('email', $emails[0][0]);
                 $commit->put('author', trim(str_replace([$commit->get('email'), '<', '>'], '', substr($line, strlen('Author:') + 1))));
-            } else if (strpos($line, 'Date') === 0) {
+            }
+			else if (strpos($line, 'Date') === 0) {
                 $commit->put('date', \Carbon\Carbon::createFromFormat('D M d H:i:s Y O', substr($line, strlen('Date:') + 3))->format('Y-m-d H:i:s'));
-            } elseif (strpos($line, 'Merge') === 0) {
+            }
+			elseif (strpos($line, 'Merge') === 0) {
                 $commit->put('merge', explode(' ', substr($line, strlen('Merge:') + 1)));
-            } elseif (!empty($line)) {
+            }
+			elseif (!empty($line)) {
                 if ($commit->has('message')) {
                     $commit->put('message', $commit->get('message') . "\n" . trim($line));
                 } else {
@@ -175,13 +180,13 @@ class System
 	 */
 	public static function runCommand(array $arguments)
 	{
-		AbstractService::autoloader();
 		$process = new \Symfony\Component\Process\ProcessBuilder($arguments);
 		$process = $process->getProcess()->setWorkingDirectory(APP_PATH);
         $process->run();
         if (!$process->isSuccessful()) {
             throw new \Exception($process);
         }
+
         return $process->getOutput();
 	}
 

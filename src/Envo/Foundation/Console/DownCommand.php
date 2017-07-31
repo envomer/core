@@ -1,11 +1,11 @@
 <?php
 
-namespace Envo\Console\Command;
+namespace Envo\Foundation\Console;
 
 use Envo\Console\Command;
 use Envo\Support\File;
 
-class Down extends Command
+class DownCommand extends Command
 {
     /**
      * The console command signature.
@@ -27,7 +27,7 @@ class Down extends Command
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         File::put(
             APP_PATH.'storage/framework/down',

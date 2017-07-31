@@ -1,10 +1,10 @@
 <?php
 
-namespace Envo\Console\Command;
+namespace Envo\Foundation\Console;
 
 use Envo\Console\Command;
 
-class Up extends Command
+class UpCommand extends Command
 {
     /**
      * The console command name.
@@ -25,7 +25,7 @@ class Up extends Command
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         @unlink(APP_PATH.'storage/framework/down');
 

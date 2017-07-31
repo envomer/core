@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Console\Command;
+namespace Envo\Foundation\Console;
 
 use Envo\Support\File;
 use Envo\Support\Arr;
@@ -15,13 +15,13 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\ChoiceQuestion;
 use Symfony\Component\Console\Question\ConfirmationQuestion;
 
-class Scaffold extends Migrate
+class ScaffoldCommand extends Migrate
 {
     protected function configure()
     {
         parent::configure();
 
-        $this->setName('migration:scaffold');
+        $this->setName('scaffold');
         $this->setDescription('Scaffold database migrations such as user, events,...'); 
     }
 

@@ -1,6 +1,6 @@
 <?php 
 
-namespace Envo\Model\Event;
+namespace Envo\Event\Model;
 
 use Envo\AbstractModel;
 

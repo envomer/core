@@ -1,10 +1,10 @@
 <?php
 
-namespace Envo\Console\Command;
+namespace Envo\Foundation\Console;
 
 use Envo\Console\Command;
 
-class ClearStorage extends Command
+class ClearStorageCommand extends Command
 {
 	/**
 	 * The name and signature of the console command.
@@ -35,7 +35,7 @@ class ClearStorage extends Command
 	 *
 	 * @return mixed
 	 */
-	public function fire()
+	public function handle()
 	{
 		$this->info('Clearing storage folders...');
 

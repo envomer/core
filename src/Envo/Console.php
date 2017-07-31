@@ -13,7 +13,7 @@ use Phalcon\Cli\Console as ConsoleApp;
 use Phalcon\Db\Adapter\Pdo\Mysql as Database;
 use Symfony\Component\Console\Application;
 
-class Console
+class Console extends \Phalcon\Cli\Console
 {
     use ApplicationTrait;
 
@@ -24,10 +24,15 @@ class Console
         $this->argv = $argv;
     }
 
+    /**
+     * Start the console
+     */
     public function start()
     {
         $this->setup();
         $this->setupConfig();
+        // $this->registerServices();
+        $this->setDi(new \Phalcon\DI\FactoryDefault);
 
         define('APP_CLI', true);
 
@@ -38,18 +43,20 @@ class Console
             define('ENVO_INCLUDE_MIGRATIONS', true);
         }
 
-        $app = new Application('envome', '0.1.0');
+        $app = new Application('envome', '0.1.1');
 
         $app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
-        $app->add((new \Phinx\Console\Command\Init())->setName('migration:init'));
-        $app->add((new \Phinx\Console\Command\Rollback())->setName('migration:rollback'));
-        $app->add((new \Phinx\Console\Command\Status())->setName('migration:status'));
-        $app->add((new \Phinx\Console\Command\Create())->setName('migration:create'));
+        $app->add((new \Phinx\Console\Command\Init())->setName('migrate:init'));
+        $app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
+        $app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
+        $app->add((new \Phinx\Console\Command\Create())->setName('make:migration'));
 
-        $app->add(new \Envo\Console\Command\Down);
-        $app->add(new \Envo\Console\Command\Up);
-        $app->add(new \Envo\Console\Command\ClearStorage);
-        $app->add(new \Envo\Console\Command\Scaffold);
+        $app->add(new \Envo\Foundation\Console\DownCommand);
+        $app->add(new \Envo\Foundation\Console\UpCommand);
+        $app->add(new \Envo\Foundation\Console\ClearStorageCommand);
+        $app->add(new \Envo\Foundation\Console\ScaffoldCommand);
+        $app->add(new \Envo\Queue\Console\WorkCommand);
+        $app->add(new \Envo\Foundation\Console\BackupGeneratorCommand);
 
         $app->run();
     }

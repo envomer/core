@@ -54,7 +54,7 @@ if( ! function_exists('public_path') )
 }
 
 /**
- * needed to fetch the headers when using api
+ * Needed to fetch the headers when using api
  */
 if( ! function_exists('apache_request_headers') )
 {
@@ -212,17 +212,6 @@ function envo_error_handler($errno, $errstr, $errfile, $errline)
 }
 
 /**
- * Abort
- */
-if( ! function_exists('abort') )
-{
-	function abort($code = 403, $message = null)
-	{
-		\App::abort($code, $message);
-	}
-}
-
-/**
  * Abort unless
  */
 if( ! function_exists('abort_unless') )
@@ -300,6 +289,7 @@ if( ! function_exists('public_exception') )
 	{
 		$exception = new \Envo\Exception\PublicException($message, $code);
 		$exception->setData($data);
+
 		throw $exception;
 	}
 }
@@ -313,6 +303,7 @@ if( ! function_exists('internal_exception') )
 	{
 		$exception = new \Envo\Exception\InternalException($message, $code);
 		$exception->setData($data);
+
 		throw $exception;
 	}
 }

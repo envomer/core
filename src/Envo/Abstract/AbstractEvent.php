@@ -9,9 +9,9 @@ use Envo\Support\File;
 use Envo\Support\Date;
 use Envo\AbstractModel;
 
-use Envo\Model\Event\Event;
-use Envo\Model\Event\EventType;
-use Envo\Model\Event\EventModel;
+use Envo\Event\Model\Event;
+use Envo\Event\Model\EventType;
+use Envo\Event\Model\EventModel;
 
 class AbstractEvent
 {

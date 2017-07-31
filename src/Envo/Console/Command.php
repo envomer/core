@@ -34,13 +34,16 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
     protected function configureUsingFluentDefinition()
     {
         list($name, $arguments, $options) = Parser::parse($this->signature);
+
         parent::__construct($this->name = $name);
+        
         // After parsing the signature we will spin through the arguments and options
         // and set them on this command. These will already be changed into proper
         // instances of these "InputArgument" and "InputOption" Symfony classes.
         foreach ($arguments as $argument) {
             $this->getDefinition()->addArgument($argument);
         }
+        
         foreach ($options as $option) {
             $this->getDefinition()->addOption($option);
         }
@@ -57,6 +60,7 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
     public function line($string, $style = null, $verbosity = null)
     {
         $styled = $style ? "<$style>$string</$style>" : $string;
+
         $this->output->writeln($styled, $verbosity);
     }
 
@@ -65,7 +69,7 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
         $this->output = $output;
         $this->input = $input;
 
-        $this->fire();
+        $this->handle();
     }
 
     public function option($name, $default = null)
@@ -155,5 +159,5 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
         $this->output->writeln('');
     }
 
-    abstract function fire();
+    abstract function handle();
 }

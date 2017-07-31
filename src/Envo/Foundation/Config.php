@@ -6,8 +6,9 @@ use Envo\Support\Arr;
 
 class Config
 {
-	protected static $configs = [];
 	const CONFIG_PATH = 'config/';
+	
+	protected static $configs = [];
 
 	/**
 	 * Get configuation item using dot notation
