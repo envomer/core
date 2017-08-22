@@ -76,13 +76,13 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
     {
         if( $default !== null ) {
             try {
-                return $this->input->getArgument($name);
+                return $this->input->getOption($name);
             } catch (InvalidArgumentException $e) {
                 return $default;
             }
         }
 
-        return $this->input->getArgument($name);
+        return $this->input->getOption($name);
     }
 
     /**
@@ -157,6 +157,29 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
         $this->comment('*     '.$string.'     *');
         $this->comment(str_repeat('*', strlen($string) + 12));
         $this->output->writeln('');
+    }
+
+    /**
+     * Get the value of a command argument.
+     *
+     * @param  string  $key
+     * @return string|array
+     */
+    public function argument($key = null)
+    {
+        if (is_null($key)) {
+            return $this->input->getArguments();
+        }
+        return $this->input->getArgument($key);
+    }
+    /**
+     * Get all of the arguments passed to the command.
+     *
+     * @return array
+     */
+    public function arguments()
+    {
+        return $this->argument();
     }
 
     abstract function handle();

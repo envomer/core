@@ -11,7 +11,8 @@ class ClearStorageCommand extends Command
 	 *
 	 * @var string
 	 */
-	protected $signature = 'storage:clear {--logs}';
+	protected $signature = 'storage:clear
+							{--logs : Clear logs}';
 
 	/**
 	 * The console command description.

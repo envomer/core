@@ -9,7 +9,7 @@ use Envo\Support\System;
 
 class BackupGeneratorCommand extends Command
 {
-    protected $name = 'make:backup';
+    protected $name = 'backup';
 
     public function handle()
 	{
