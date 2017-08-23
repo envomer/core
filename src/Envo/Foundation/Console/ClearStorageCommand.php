@@ -12,7 +12,8 @@ class ClearStorageCommand extends Command
 	 * @var string
 	 */
 	protected $signature = 'storage:clear
-							{--logs : Clear logs}';
+							{--errors : Clear errors}
+							{--events : Clear events}';
 
 	/**
 	 * The console command description.
@@ -40,9 +41,14 @@ class ClearStorageCommand extends Command
 	{
 		$this->info('Clearing storage folders...');
 
-		if( $this->option('logs', false) ) {
-			$this->unlinkFolder('logs', '*.log');
-			$this->line('Cleared logs.');
+		if( $this->option('errors', false) ) {
+			$this->unlinkFolder('framework/logs/errors', '*.log');
+			$this->line('Cleared errors.');
+		}
+
+		if( $this->option('events', false) ) {
+			$this->unlinkFolder('framework/logs/events', '*.log');
+			$this->line('Cleared events.');
 		}
 
 		$this->unlinkFolder('framework/cache');
