@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Model\Migration;
+namespace Envo\Database\Migration;
 
 use Phinx\Db\Table\Column as PhinxColumn;
 
