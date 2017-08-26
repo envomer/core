@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Model\Migration;
+namespace Envo\Database\Migration;
 
 use Phinx\Db\Adapter\MysqlAdapter;
 use Phinx\Db\Table as PhinxTable;
