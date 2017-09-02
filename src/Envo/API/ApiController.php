@@ -53,7 +53,7 @@ class ApiController extends AbstractController
     public function handleAction($method, $model = null, $id = null)
     {
         /** TODO cache */
-        $this->apiHandler = $api = new Handler();
+        $this->apiHandler = $this->di->get('apiHandler');
         $this->apiHandler->user = $this->user();
 
         $parameters = $this->get();
@@ -61,7 +61,7 @@ class ApiController extends AbstractController
         $this->apiHandler->request->parameters = $parameters;
         $this->apiHandler->name = $model;
 
-        require_once APP_PATH . 'app/api.php';
+        $router = $this->router;
 
         try {
             $this->apiHandler->setApi();

@@ -27,12 +27,6 @@ class Handler
             return false;
         }
 
-        if( is_string($class) ) {
-            $class = new $class;
-        }
-
-		$class->name = $name;
-
         $this->apis[$name] = $class;
     }
 
@@ -50,6 +44,12 @@ class Handler
         }
 
         $this->api = $this->apis[$name];
+
+        if( is_string($this->api) ) {
+        	$class = $this->api;
+            $this->api = new $class;
+            $this->api->name = $name;
+        }
 
 		$this->api->request = $this->request;
 		$this->api->user = $this->user;

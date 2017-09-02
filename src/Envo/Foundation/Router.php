@@ -5,6 +5,7 @@ namespace Envo\Foundation;
 class Router extends \Phalcon\Mvc\Router
 {
     private static $router;
+    private $apiHandler = null;
 
     public static function getInstance()
     {
@@ -79,6 +80,16 @@ class Router extends \Phalcon\Mvc\Router
             'action' => 'authenticate',
         ]);
 
-        $this->mount($api);
+        return $api;
+    }
+
+    public function addApi($name, $class)
+    {
+        $this->apiHandler->add($name, $class);
+    }
+
+    public function setHandler($handler)
+    {
+        $this->apiHandler = $handler;
     }
 }

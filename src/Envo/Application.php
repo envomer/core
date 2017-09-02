@@ -137,13 +137,20 @@ class Application extends \Phalcon\Mvc\Application
 			return $dispatcher;
 		});
 
+		$di->setShared('apiHandler', function() {
+			return new \Envo\API\Handler();
+		});
+
 		/**
 		 * Register the router
 		 */
-		$di->setShared('router', function() {
+		$di->setShared('router', function() use($di) {
 			$router = new \Envo\Foundation\Router(false);
+			$api = $router->api();
+			$router->setHandler($di->get('apiHandler'));
 			require_once APP_PATH . 'app/routes.php';
-			$router->api();
+			$router->mount($api);
+
 			$router->removeExtraSlashes(true);
 			$router->setUriSource(\Phalcon\Mvc\Router::URI_SOURCE_SERVER_REQUEST_URI);
 
