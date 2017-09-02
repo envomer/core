@@ -285,9 +285,9 @@ if( ! function_exists('fire') )
  */
 if( ! function_exists('public_exception') )
 {
-	function public_exception($message, $code, $data = null)
+	function public_exception($messageCode, $code, $data = null)
 	{
-		$exception = new \Envo\Exception\PublicException($message, $code);
+		$exception = new \Envo\Exception\PublicException($messageCode, $code);
 		$exception->setData($data);
 
 		throw $exception;
@@ -299,9 +299,9 @@ if( ! function_exists('public_exception') )
  */
 if( ! function_exists('internal_exception') )
 {
-	function internal_exception($message, $code, $data = null)
+	function internal_exception($messageCode, $code, $data = null)
 	{
-		$exception = new \Envo\Exception\InternalException($message, $code);
+		$exception = new \Envo\Exception\InternalException($messageCode, $code);
 		$exception->setData($data);
 
 		throw $exception;
