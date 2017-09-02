@@ -188,6 +188,21 @@ function envo_exception_handler($error)
 	} else {
 		http_response_code(500);
 	}
+
+	//TODO: sure about this??
+	if( $error instanceof AbstractException ) {
+		try {
+			$router = resolve('router');
+			if( $router && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/v1') === 0  ) {
+				header('Content-Type: application/json');
+				echo json_encode($error->json());
+				exit;
+			}
+		} catch(\Exception $e) {
+
+		}
+	}
+
 	require_once ENVO_PATH . 'View/html/errors.php';
 	exit;
 }
