@@ -382,7 +382,7 @@ class Table extends PhinxTable
      */
     public function dateTime($column)
     {
-        return $this->addColumnNew('dateTime', $column);
+        return $this->addColumnNew('datetime', $column);
     }
 
     /**
@@ -428,7 +428,7 @@ class Table extends PhinxTable
     {
         return $this->addColumnNew('timestamp', $column, array(
             'null' => true,
-            'default' => '0000-00-00 00:00:00'
+            // 'default' => '0000-00-00 00:00:00'
         ));
     }
 

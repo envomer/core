@@ -557,5 +557,11 @@ class Str
         }
 
 		return $mdun;
-	}
+    }
+    
+    public static function identifier()
+    {
+        $time = time();
+        return Str::quickRandom(31 - strlen((string)$time)) . '.' . $time;
+    }
 }

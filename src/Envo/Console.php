@@ -50,6 +50,8 @@ class Console extends \Phalcon\Cli\Console
         $app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
         $app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
         $app->add((new \Phinx\Console\Command\Create())->setName('make:migration'));
+        $app->add((new \Phinx\Console\Command\SeedCreate())->setName('make:seeder'));
+        $app->add((new \Phinx\Console\Command\SeedRun())->setName('seed'));
 
         $app->add(new \Envo\Foundation\Console\DownCommand);
         $app->add(new \Envo\Foundation\Console\UpCommand);
