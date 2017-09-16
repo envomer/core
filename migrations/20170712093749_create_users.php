@@ -37,7 +37,7 @@ class CreateUsers extends AbstractMigration
         $users->addColumn('username', 'string', ['limit' => 64]);
         $users->addColumn('email', 'string', ['limit' => 160]);
         $users->addColumn('password', 'string', ['limit' => 64]);
-        $users->addColumn('client_id', 'integer', ['signed' => false, 'null' => true]);
+        $users->addColumn('team_id', 'integer', ['signed' => false, 'null' => true]);
 
         $users->addColumn('activated_at', 'timestamp', ['null' => true]);
         $users->addColumn('created_at', 'timestamp', ['null' => true]);

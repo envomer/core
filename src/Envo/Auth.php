@@ -22,7 +22,7 @@ class Auth extends Component
 {
 	protected $instance = null;
 	protected $user = null;
-	protected $client = null;
+	protected $team = null;
 	protected $loggedIn = null;
 	protected $userClass = null;
 
@@ -48,14 +48,14 @@ class Auth extends Component
 	}
 
 	/**
-	 * Get current client
+	 * Get current team
 	 */
-	public function client()
+	public function team()
 	{
-		if( ! $this->client ) {
-			$this->client = self::user()->ref('client');
+		if( ! $this->team ) {
+			$this->team = self::user()->ref('team');
 		}
-		return $this->client;
+		return $this->team;
 	}
 
 	/**
@@ -186,7 +186,7 @@ class Auth extends Component
 		$event = new LoggedIn(null, false, $user );
 		$event = $event->getEvent();
 		$event->user_id = $user->getId();
-		$event->client_id = $user->getClientId();
+		$event->team_id = $user->getteamId();
 		$event->save();
 
 		return true;

@@ -45,8 +45,8 @@ class AbstractEvent
 		$user = ! defined('APP_CLI') ? user() : null;
 		if( $user && $user->loggedIn ) {
 			$event->user_id = $user->id;
-			if( isset($user->client_id) ) {
-				$event->client_id = $user->client_id;
+			if( isset($user->team_id) ) {
+				$event->team_id = $user->team_id;
 			}
 		}
 

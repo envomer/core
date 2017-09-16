@@ -21,8 +21,8 @@ class Event extends AbstractModel
 
 	public function index($attributes, $user)
 	{
-		$where = 'client_id = :client_id:';
-		$bind = array('client_id' => $user->client_id);
+		$where = 'team_id = :team_id:';
+		$bind = array('team_id' => $user->team_id);
 		
 		if( $user->isAdmin() ) {
 			$where = '';
@@ -40,7 +40,7 @@ class Event extends AbstractModel
 				'model'
 			),
 			'order' => 'id DESC',
-			'equals' => array('user_id', 'client_id'),
+			'equals' => array('user_id', 'team_id'),
 			'like' => array('message', 'data', 'id')
 		];
 	}

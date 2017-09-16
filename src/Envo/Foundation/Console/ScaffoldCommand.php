@@ -82,7 +82,7 @@ class ScaffoldCommand extends Migrate
         $paths = [
             'none',
             'user',
-            'client',
+            'team',
             'event',
             'all'
         ];
@@ -105,9 +105,9 @@ class ScaffoldCommand extends Migrate
             'user' => [
                 ENVO_PATH . '../../migrations/20170712093749_create_users.php'
             ],
-            'client' => [
-                ENVO_PATH . '../../migrations/20170712182747_create_clients.php',
-                ENVO_PATH . '../../migrations/20170712093750_create_user_client.php',
+            'team' => [
+                ENVO_PATH . '../../migrations/20170712182747_create_teams.php',
+                ENVO_PATH . '../../migrations/20170712093750_create_user_team.php',
             ],
             'event' => [
                 ENVO_PATH . '../../migrations/20170713083404_create_events.php',

@@ -43,8 +43,8 @@ class Exception extends AbstractEvent
 			'level' => 90,
 
 			// 'users' => [] // user ids
-			// 'clients' => [] // user ids
-			// 'client' => true, // the client the user is in...'true' OR 'permission' int
+			// 'teams' => [] // user ids
+			// 'team' => true, // the team the user is in...'true' OR 'permission' int
 			// 'self' => true // just the creator
 		];
 	}

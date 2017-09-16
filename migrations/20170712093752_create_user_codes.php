@@ -10,7 +10,7 @@ class CreateUserClient extends AbstractMigration
             $table->increments('id');
 
             $table->integer('user_id')->unsigned()->index();
-            $table->integer('client_id')->unsigned()->nullable()->index();
+            $table->integer('team_id')->unsigned()->nullable()->index();
             $table->string('code', 64)->nullable();
             $table->boolean('status')->nullable();
             $table->integer('ip_id')->unsigned()->nullable();

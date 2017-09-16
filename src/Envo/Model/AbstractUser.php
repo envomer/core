@@ -102,13 +102,13 @@ class AbstractUser extends AbstractModel
     }
 
     /**
-     * Get client id
+     * Get team id
      *
      * @return void
      */
-    public function getClientId()
+    public function getteamId()
     {
-        return $this->client_id;
+        return $this->team_id;
     }
 
     /**
