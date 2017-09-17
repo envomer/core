@@ -108,9 +108,9 @@ class Handler
 		$builder->limit($limit);
 
 		$query = $builder->getQuery();
-		$robots = $query->execute();
-		if( $robots ) {
-			$robots = $this->transform($robots->toArray());
+		$data = $query->execute();
+		if( $data ) {
+			$data = $this->transform($data->toArray());
 		}
 
 	    if( !isset($countTotal) ) {
@@ -121,7 +121,7 @@ class Handler
 	    	$countTotal = $counter->getFirst()->{0};
 	    }
 		
-	    $pages = new Paginator($robots, $countTotal, (int)$page, (int)$limit);
+	    $pages = new Paginator($data, $countTotal, (int)$page, (int)$limit);
 
 	    return $pages;
 	}
@@ -341,7 +341,11 @@ class Handler
 	 */
 	public function transform($data)
 	{
-		if( method_exists($this->api, 'transform') && ($transform = $this->api->transform()) && is_array($transform) ) {
+		if( 
+			method_exists($this->api, 'transform') 
+			&& ($transform = $this->api->transform($data)) 
+			&& is_array($transform) 
+		) {
 			$definition = array_flip($transform);
 
 			if( $this->request->method === 'index' ) {

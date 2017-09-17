@@ -10,6 +10,11 @@ class CreateUserTeam extends AbstractMigration
             $table->increments('id');
             $table->integer('user_id')->unsigned()->index();
             $table->integer('team_id')->unsigned()->index();
+
+            // simple rights system (1: owner, 2: read, 3: write, admin: 9)
+            $table->smallInteger('rights')->nullable();
+
+            // for a better permission system, create a permission/role system
         });
     }
 

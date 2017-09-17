@@ -59,6 +59,7 @@ class Console extends \Phalcon\Cli\Console
         $app->add(new \Envo\Foundation\Console\ScaffoldCommand);
         $app->add(new \Envo\Queue\Console\WorkCommand);
         $app->add(new \Envo\Foundation\Console\BackupGeneratorCommand);
+        $app->add(new \Envo\Database\Console\MigrationReset);
 
         $app->run();
     }

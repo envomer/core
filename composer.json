@@ -15,7 +15,7 @@
     "require": {
         "php": ">=7.0.0",
         "robmorgan/phinx": "v0.8.1",
-        "symfony/console": "3.4.x-dev"
+        "symfony/console": "~3.3"
     },
     "autoload": {
         "files": [
