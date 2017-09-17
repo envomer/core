@@ -109,8 +109,13 @@ class Handler
 
 		$query = $builder->getQuery();
 		$data = $query->execute();
+		
+		$config = $this->getApiConfig();
+		
 		if( $data ) {
-			$data = $this->transform($data->toArray());
+			$data = $this->transform(
+				$this->api->getConfig('index.transformation') == 'object' ? $data : $data->toArray()
+			);
 		}
 
 	    if( !isset($countTotal) ) {
@@ -341,21 +346,42 @@ class Handler
 	 */
 	public function transform($data)
 	{
+		$definition = null;
+
+		if( method_exists($this->api, 'transformDefinition') ) {
+			$definition = $this->api->transformDefinition($data);
+		}
+
 		if( 
-			method_exists($this->api, 'transform') 
-			&& ($transform = $this->api->transform($data)) 
-			&& is_array($transform) 
+			($apiTransformation = method_exists($this->api, 'transformItem')) || 
+			$this->request->method == 'index'
 		) {
-			$definition = array_flip($transform);
+			$context = $apiTransformation ? $this->api : $this;
 
-			if( $this->request->method === 'index' ) {
-				return array_map(function($item) use($definition) {
-					return $this->transformItem($item, $definition);
-				}, $data);
-			}
-
+			return array_map(function($item) use($definition, $context) {
+				return $context->transformItem($item, $definition);
+			}, $data);
+		}
+		else if( $definition ) {
 			return $this->transformItem($data, $definition);
 		}
+
+		// if( 
+		// 	method_exists($this->api, 'transform') 
+		// 	&& ($transform = $this->api->transform($data)) 
+		// 	&& is_array($transform) 
+		// ) {
+		// 	$definition = array_flip($transform);
+			
+		// 	return $this->transformItem($data, $definition);
+		// }
+
+		// if( $this->request->method === 'index' || method_exists($this->api, 'transformItem') ) {
+		// 	return array_map(function($item) use($definition) {
+		// 		return $this->transformItem($item, $definition);
+		// 	}, $data);
+		// }
+			
 
 		return $data;
 	}
@@ -390,5 +416,19 @@ class Handler
 		}
 
 		return true;
+	}
+
+	/**
+	 * Get configuration of api
+	 *
+	 * @return array
+	 */
+	public function getApiConfig()
+	{
+		if( method_exists($this->api, 'config') ) {
+			return $this->api->config();
+		}
+
+		return [];
 	}
 }

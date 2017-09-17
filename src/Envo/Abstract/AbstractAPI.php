@@ -13,6 +13,8 @@ class AbstractAPI
     public $name = null;
     public $user = null;
     public $repo = null;
+
+    public $config = null;
     
     public $identifier = 'id';
 	
@@ -112,5 +114,21 @@ class AbstractAPI
         }
 
         return true;
+    }
+
+    /**
+     * Get config
+     *
+     * @param string $key
+     * @param mixed $default
+     * @return mixed
+     */
+    public function getConfig($key, $default = null)
+    {        
+        if( $this->config && array_key_exists($key, $this->config) ) {
+            return $this->config[$key];
+        }
+
+        return $default;
     }
 }
