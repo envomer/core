@@ -62,7 +62,13 @@ class AbstractException extends Exception
         $user = user();
 
         $messages = [
-            404 => 'api.notFound'
+            400 => 'api.badRequest',
+            401 => 'api.unauthorized',
+            403 => 'api.forbidden',
+            404 => 'api.notFound',
+            405 => 'api.methodNotAllowed',
+            409 => 'api.conflict',
+            500 => 'api.internalServerError',
         ];
 
         $message = isset($messages[$code]) ? $messages[$code] : 'api.somethingWentWrong';
