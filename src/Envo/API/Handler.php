@@ -40,7 +40,9 @@ class Handler
     {
         $name = $name ?: $this->name;
         if( ! $name || ! isset($this->apis[$name]) ) {
-			internal_exception('api.nameNotDefined', 404);
+			internal_exception('api.nameNotDefined', 404, [
+				'name' => $name
+			]);
         }
 
         $this->api = $this->apis[$name];
@@ -138,19 +140,26 @@ class Handler
 	/**
 	 * Get database entry
 	 *
-	 * @param $entry_id
+	 * @param $entityId
 	 *
 	 * @return string|array
 	 */
-	public function get($entry_id, $data = array())
+	public function get($entityId, $data = array())
 	{
-		$entry = $this->find($entry_id, true, $data);
-		if ( ! $entry ) {
+		if( method_exists($this->api, 'get') ) {
+			return $this->api->get();
+		}
+
+		$entity = $this->find($entityId, true, $data);
+		if ( ! $entity ) {
 			return _t('app.notfound');
 		}
 
 		return [
-			'data' => $this->transform($entry->toArray())
+			'data' => $this->transform(
+				// $entity->toArray()
+				$this->api->getConfig('show.transformation') == 'object' ? $entity : $entity->toArray()
+			)
 		];
 	}
 	
@@ -190,14 +199,14 @@ class Handler
 	 * @todo recheck and run thorough tests.
 	 * this method is a huge security risk
 	 *
-	 * @param $entry_id
+	 * @param $entityId
 	 * @param $content
 	 *
 	 * @return bool
 	 */
-	public function update($entry_id, $content)
+	public function update($entityId, $content)
 	{
-		$entry = $this->find($entry_id, false);
+		$entry = $this->find($entityId, false);
 		if( ! $entry ) {
 			return _t('app.notfound');
 		}
@@ -233,20 +242,20 @@ class Handler
 	/**
 	 * Delete entry
 	 *
-	 * @param      $entry_id
+	 * @param      $entityId
 	 * @param bool $force
 	 * @param null $data
 	 *
 	 * @return bool
 	 */
-	public function delete($entry_id, $force = false, $data = null)
+	public function delete($entityId, $force = false, $data = null)
 	{
 		/**
 		 * TODO: disallow unauthorized users
 		 * Make sure all models have a show method with a condition set
 		 * SECURITY BREACH
 		 */
-		$entry = $this->find($entry_id, false, $data);
+		$entry = $this->find($entityId, false, $data);
 		if( ! $entry || ! $entry->isDeletable() ) {
 			return _t('app.notfound');
 		}
@@ -277,13 +286,13 @@ class Handler
 	/**
 	 * Restore an entry
 	 *
-	 * @param $entry_id
+	 * @param $entityId
 	 *
 	 * @return bool
 	 */
-	public function restore($entry_id)
+	public function restore($entityId)
 	{
-		$entry = $this->api->onlyTrashed()->where($this->identifier, $entry_id)->first();
+		$entry = $this->api->onlyTrashed()->where($this->identifier, $entityId)->first();
 		if( ! $entry ) {
 			return _t('app.notfound');
 		}
@@ -294,39 +303,31 @@ class Handler
 	/**
 	 * Find model entity
 	 *
-	 * @param      $entry_id
+	 * @param      $entityId
 	 * @param bool $isApi
 	 *
 	 * @return \AbstractModel
 	 */
-	public function find($entry_id, $isApi = true, $data = array())
+	public function find($entityId, $isApi = true, $data = array())
 	{
-		$conditions = $this->api->identifier .' = :val:';
+		$builder = $this->api->model->getModelsManager()->createBuilder();
+		$builder->from(['e' => \get_class($this->api->model)]);
+
+		if( method_exists($this->api, 'show') ) {
+			$this->api->show($builder);
+		}
+		else {
+			$builder->where('e.'.$this->api->identifier . ' = :val:', [
+				'val' => $entityId
+			]);
+		}
+
 		if( $this->api->model->isSoftDeletable() ) {
-			$conditions .= ' AND deleted_at IS NULL';
-		}
-		$bind = ['val' => $entry_id];
-		$with = [];
-
-		if( $isApi && method_exists($this->api, 'show') ) {
-			$show = $this->api->show($this->user, $data);
+			$builder->andWhere('e.deleted_at IS NULL');
 		}
 
-		$find = [
-			'conditions' => $conditions,
-			'bind' => $bind,
-		];
-		
-		$result = $this->api->model->findFirst($find);
-		if( $result && $with ) {
-			$result->load($with);
-		}
-
-		if( $result && method_exists($result, 'onShow') ) {
-			$result->onShow();
-		}
-
-		return $result;
+		$query = $builder->getQuery();
+		return $query->getSingleResult();
 	}
 
 	/**
@@ -362,34 +363,18 @@ class Handler
 
 		$apiTransformation = method_exists($this->api, 'transformItem');
 		$context = $apiTransformation ? $this->api : $this;
+		$definition = $definition ? array_flip($definition) : null;
 
 		if( 
-			$apiTransformation || $definition
+			$this->request->method == 'index' && ($apiTransformation || $definition)
 		) {
 			return array_map(function($item) use($definition, $context) {
 				return $context->transformItem($item, $definition);
 			}, $data);
 		}
-		else if( $definition ) {
-			return $this->transformItem($data, $definition);
+		else if( $apiTransformation || $definition ) {
+			return $context->transformItem($data, $definition);
 		}
-
-		// if( 
-		// 	method_exists($this->api, 'transform') 
-		// 	&& ($transform = $this->api->transform($data)) 
-		// 	&& is_array($transform) 
-		// ) {
-		// 	$definition = array_flip($transform);
-			
-		// 	return $this->transformItem($data, $definition);
-		// }
-
-		// if( $this->request->method === 'index' || method_exists($this->api, 'transformItem') ) {
-		// 	return array_map(function($item) use($definition) {
-		// 		return $this->transformItem($item, $definition);
-		// 	}, $data);
-		// }
-			
 
 		return $data;
 	}

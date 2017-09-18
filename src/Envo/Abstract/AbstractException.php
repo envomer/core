@@ -45,6 +45,9 @@ class AbstractException extends Exception
                 'code' => $data->getCode(),
             ];
         }
+        else {
+            $this->internalData = $data;
+        }
     }
 
     public function getInternalData()
@@ -74,7 +77,7 @@ class AbstractException extends Exception
 
         if( env('APP_DEBUG') || ($user && $user->loggedIn && $user->isAdmin()) ) {
             $response['internal'] = [
-                'message' => $this->getMessage(),
+                // 'message' => $this->getMessage(),
                 'data' => $this->getInternalData(),
                 'code' => $this->messageCode,
             ];

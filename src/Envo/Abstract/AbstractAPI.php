@@ -60,7 +60,8 @@ class AbstractAPI
 
         if( is_string($this->dto) ) {
             if( ! class_exists($this->dto) ) {
-                internal_exception('api.dtoNotFound', 404);
+                return false;
+                // internal_exception('api.dtoNotFound', 404);
             }
 
             $data = null;

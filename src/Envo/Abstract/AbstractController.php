@@ -184,7 +184,7 @@ class AbstractController extends Controller
 	 */
 	public function mustBeLoggedIn()
 	{
-		if( $this->user && $this->user->loggedIn ) {
+		if( $this->user() && $this->user->loggedIn ) {
 			return true;
 		}
 

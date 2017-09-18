@@ -192,4 +192,18 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	{
 		return isset($this->id) ? $this->id : null;
 	}
+
+	/**
+	 * Create builder
+	 *
+	 * @param string $alias
+	 * @return void
+	 */
+	public function createBuilder($alias = 'e')
+	{
+		$builder = $this->getModelsManager()->createBuilder();
+		$builder->from([$alias => \get_class($this)]);
+
+		return $builder;
+	}
 }
