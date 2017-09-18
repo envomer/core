@@ -101,7 +101,7 @@ class Handler
 
 	    $index = [];
 	    if( method_exists($this->api, 'index') ) {
-	    	$index = $this->api->index($builder);
+	    	$manipulator = $this->api->index($builder);
 	    }
 
 		$builder->offset(($limit * ($page - 1)));
@@ -109,6 +109,10 @@ class Handler
 
 		$query = $builder->getQuery();
 		$data = $query->execute();
+
+		if( $manipulator ) {
+			$data = $manipulator($data);
+		}
 		
 		$config = $this->getApiConfig();
 		
@@ -348,16 +352,20 @@ class Handler
 	{
 		$definition = null;
 
+		if( method_exists($this->api, 'transform') ) {
+			$data = $this->api->transform($data);
+		}
+
 		if( method_exists($this->api, 'transformDefinition') ) {
 			$definition = $this->api->transformDefinition($data);
 		}
 
-		if( 
-			($apiTransformation = method_exists($this->api, 'transformItem')) || 
-			$this->request->method == 'index'
-		) {
-			$context = $apiTransformation ? $this->api : $this;
+		$apiTransformation = method_exists($this->api, 'transformItem');
+		$context = $apiTransformation ? $this->api : $this;
 
+		if( 
+			$apiTransformation || $definition
+		) {
 			return array_map(function($item) use($definition, $context) {
 				return $context->transformItem($item, $definition);
 			}, $data);

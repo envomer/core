@@ -4,6 +4,7 @@ namespace Envo;
 
 use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\ApplicationTrait;
+use Envo\Support\Str;
 
 use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Db\Adapter\Pdo\Mysql as Database;
@@ -76,8 +77,8 @@ class Application extends \Phalcon\Mvc\Application
 	public function registerServices()
 	{
 		$di = new DI();
-		// $di = new FactoryDefault();
-		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG', false) && false;
+		$instance = $this;
+		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG', false);
 
 		/**
 		 * Start the session the first time some component request the session service
@@ -170,13 +171,20 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set the database configuration
 		 */
-		$di->setShared('db', function () {
+		$di->setShared('db', function () use($debug, $instance) {
 			$databaseConfig = require(APP_PATH . 'config/database.php');
+
+			
 			if( $databaseConfig['default'] === 'sqlite' ) {
 				$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($databaseConfig['connections'][$databaseConfig['default']]);
 			} else {
 				$connection = new Database($databaseConfig['connections'][$databaseConfig['default']]);
 			}
+
+			if( $debug ) {
+				$connection->setEventsManager($instance->dbDebug($this));
+			}
+
 			return $connection;
 		});
 
@@ -208,6 +216,7 @@ class Application extends \Phalcon\Mvc\Application
 		if( $debug ) {
 			$di->set('url', \Phalcon\Mvc\Url::class);
 			$di->set('escaper', \Phalcon\Escaper::class);
+			$di->set('profiler', \Phalcon\Db\Profiler::class, true);
 			
 			$debug = new \Phalcon\Debug();
 			$debug->listen();
@@ -216,5 +225,38 @@ class Application extends \Phalcon\Mvc\Application
 		$this->setDI($di);
 
 		return $di;
+	}
+
+	public function dbDebug($di)
+	{
+		// log the mysql queries if APP_DEBUG is set to true
+		// $logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/logs/db-'.date('Y-m-d').'.log');
+		$profiler = $di->getProfiler();
+	  	$eventsManager = new \Phalcon\Events\Manager();
+		// Listen all the database events
+		$eventsManager->attach('db', function($event, $connection) use ($profiler) {
+			if ($event->getType() == 'beforeQuery') {
+				// $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
+				$profiler->startProfile($connection->getSQLStatement());
+				if(isset($_GET['cc2'])) {
+					$ignoreClasses = ['Phalcon\\', 'Application'];
+					$path = '';
+					foreach(debug_backtrace() as $trace) {
+						if( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ) continue;
+						$path .= (isset($trace['class']) ? $trace['class'] : '') . '::' .$trace['function'].';';
+					}
+					var_dump($connection->getSQLStatement(), $connection->getSQLVariables());
+					echo "Execution Time: {$profiler->getTotalElapsedSeconds()}. <br> PATH: {$path}\n\r";
+					echo '<br><br>-----------------------------------------------------------------------<br><br>';
+				} else {
+					// $logger->log($connection->getSQLStatement() . " [Execution Time: {$profiler->getTotalElapsedSeconds()}. PATH: {$path}]\n\r", Phalcon\Logger::DEBUG);
+				}
+			}
+			if ($event->getType() == 'afterQuery') {
+				$profiler->stopProfile();
+			}
+		});
+
+		return $eventsManager;
 	}
 }

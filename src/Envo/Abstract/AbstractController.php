@@ -131,6 +131,10 @@ class AbstractController extends Controller
 			$msg->render_time = render_time();
 		}
 
+		if( array_key_exists('cc2', $_GET) ) {
+			die(var_dump($msg));
+		}
+
 	    //Set the content of the response
 	    $this->view->disable();
 	    $this->response->setStatusCode($code);

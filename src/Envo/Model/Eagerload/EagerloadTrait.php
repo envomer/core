@@ -109,4 +109,9 @@ trait EagerloadTrait
     public function load(...$arguments) {
         return Loader::fromModel($this, ...$arguments);
     }
+
+    public function fromResultset($data, $definition)
+    {
+        return Loader::fromResultset($data, $definition);
+    }
 }
