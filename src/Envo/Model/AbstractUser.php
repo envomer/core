@@ -106,7 +106,7 @@ class AbstractUser extends AbstractModel
      *
      * @return void
      */
-    public function getteamId()
+    public function getTeamId()
     {
         return $this->team_id;
     }
