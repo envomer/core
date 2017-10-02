@@ -559,9 +559,15 @@ class Str
 		return $mdun;
     }
     
-    public static function identifier()
+    /**
+     * Minimum length is 'time' + 1 char
+     *
+     * @param integer $length
+     * @return void
+     */
+    public static function identifier($length = 32)
     {
         $time = time();
-        return Str::quickRandom(31 - strlen((string)$time)) . '.' . $time;
+        return Str::quickRandom(($length - 1) - strlen((string)$time)) . '.' . $time;
     }
 }

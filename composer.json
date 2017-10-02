@@ -15,7 +15,9 @@
     "require": {
         "php": ">=7.0.0",
         "robmorgan/phinx": "v0.8.1",
-        "symfony/console": "~3.3"
+        "symfony/console": "~3.3",
+        "xi/sms": "^0.3.0",
+        "sendgrid/sendgrid": "~5.0.9"
     },
     "autoload": {
         "files": [
