@@ -6,90 +6,73 @@ use Envo\AbstractEvent;
 
 class Notification
 {
-    public $pusher = null;
-    public $redis = null;
+    const PUSHOVER = 'Pushover';
+    const SMS = 'Sms';
+    const MAIL = 'Mail';
+
+    public $body;
+    public $subject;
+    public $recipients;
+    public $from;
+    public $cc;
+    public $bcc;
+    public $providers;
+
+    public function __construct($providers = null)
+    {
+        if( $this->providers !== null ) {
+            // $this->providers = $providers;
+        }
+    }
     
-    public function send(AbstractEvent $event, $users = null, $data  = null)
+    public function setProvider() {}
+    public function setBody() {}
+    public function setSubject() {}
+    public function setRecipients() {}
+    public function setFrom() {}
+
+    public function setBCC() {}
+    public function setCC() {}
+
+    final public function send()
     {
-        if( ! $users ) {
-            $users = $event->to();
-        }
-
-        if( ! $users ) {
-            return false;
-        }
-
-		return $this->sendToUsers($event, $users);
+        $handler = new Handler($this);
+        $handler->send();
     }
 
-    public function sendToUsers($event, $to)
+    final public function queue($seconds = 60)
     {
-		$notificationType = env('NOTIFICATION');
-		
-		if( ! $notificationType ) {
-			return false;
-		}
-
-		if( $notificationType == 'pusher' ) {
-            // return $this->pusherSend($user, $to);
-		}
-		else if( $notificationType == 'socketio' && env('REDIS_HOST') && env('REDIS_PORT') && env('REDIS_ACTIVE') ) {
-			return $this->redisSend($event, $to);
-		}
-
-		return false;
+        $handler = new Handler($this);
+        $handler->queue($seconds);
     }
 
-    public function redisSend($event, $to)
+    public function getBody()
     {
-        if( $this->redis === false ) {
-            return false;
-        }
-
-        if( ! $this->redis && ! $this->redisInit() ) {
-            return false;
-        }
-
-        $data = array(
-            'event' => $event->userFriendly(),
-            'to' => $to
-            // 'user' => $user->getApiKey()
-        );
-
-        return $this->redis->publish('user', json_encode($data));
+        return $this->body;
     }
 
-    public function redisInit()
+    public function getSubject()
     {
-        $redis = new \Redis();
-        if( ! @$redis->connect(env('REDIS_HOST'), env('REDIS_PORT')) ) {
-            return $this->redis = false;
-        }
-
-        return $this->redis = $redis;
+        return $this->subject;
     }
 
-    public function pusherSend($user, $data)
+    public function getFrom()
     {
-        if( ! $this->pusher ) {
-            $this->pusher = $this->pusherInit();
-        }
-        
-        $channel = 'private-user' . $user->getApiKey();
-
-        return $this->pusher->trigger($channel, 'event', $eventData);
+        return $this->from;
     }
 
-    public function pusherInit()
+    public function getRecipients()
     {
-        $app_id = env('PUSHER_ID');
-        $app_key = env('PUSHER_KEY');
-        $app_secret = env('PUSHER_SECRET');
+        return $this->recipients;
+    }
 
-        $options = array(
-            'cluster' => 'eu',
-            'encrypted' => true
-        );
-        return $this->pusher = new \Pusher($app_key, $app_secret, $app_id, $options);
+    public function getBcc()
+    {
+        return $this->bcc;
+    }
+
+    public function getProviders()
+    {
+        return $this->providers;
     }
 }
