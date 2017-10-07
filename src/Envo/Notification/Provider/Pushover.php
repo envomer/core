@@ -11,6 +11,27 @@ class Pushover implements ProviderInterface
     
     protected $user;
 
+    public $url;
+
+    public $urlTitle;
+
+    public $priority;
+
+    /**
+     * Sound
+     * 
+     * Possible values:
+     * pushover, bike, bugle, cashregister, classical, cosmic, falling, gamelan
+     * incoming, intermission, magic, mechanical, pianobar, siren, spacealarm, tugboat
+     * alien, climb, persistent, echo, updown, none
+     *
+     * @var string
+     */
+    public $sound = 'pushover';
+
+    /**
+     * Pushover construct
+     */
     public function __construct()
     {
         $this->validate();
@@ -30,7 +51,11 @@ class Pushover implements ProviderInterface
                 'token' => $this->token,
                 'user' => $this->user,
                 'message' => $notification->getBody(),
-                'title' => $notification->getSubject()
+                'title' => $notification->getSubject(),
+                'priority' => $this->priority,
+                'url' => $this->url,
+                'url_title' => $this->urlTitle,
+                'sound' => $this->sound
             ),
             CURLOPT_SAFE_UPLOAD => true,
             CURLOPT_RETURNTRANSFER => true,
@@ -38,7 +63,7 @@ class Pushover implements ProviderInterface
         $response = curl_exec($ch);
         curl_close($ch);
 
-        die(var_dump($ch, $response));
+        die(var_dump($response));
 
         // TODO: return response..
     }

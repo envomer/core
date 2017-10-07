@@ -9,6 +9,7 @@ class Notification
     const PUSHOVER = 'Pushover';
     const SMS = 'Sms';
     const MAIL = 'Mail';
+    const SLACK = 'Slack';
 
     public $body;
     public $subject;
@@ -17,11 +18,12 @@ class Notification
     public $cc;
     public $bcc;
     public $providers;
+    public $url; // must be array [url, title]
 
     public function __construct($providers = null)
     {
-        if( $this->providers !== null ) {
-            // $this->providers = $providers;
+        if( $providers !== null ) {
+            $this->providers = $providers;
         }
     }
     
