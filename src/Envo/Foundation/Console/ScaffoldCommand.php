@@ -84,6 +84,7 @@ class ScaffoldCommand extends Migrate
             'user',
             'team',
             'event',
+            'mail',
             'all'
         ];
 
@@ -114,6 +115,9 @@ class ScaffoldCommand extends Migrate
                 ENVO_PATH . '../../migrations/20170713084109_create_event_types.php',
                 ENVO_PATH . '../../migrations/20170713084113_create_event_models.php',
                 ENVO_PATH . '../../migrations/20170713084114_create_ips.php',
+            ],
+            'mail' => [
+                ENVO_PATH . '../../migrations/20170713093749_create_mails.php',
             ],
         ];
 

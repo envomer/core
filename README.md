@@ -7,6 +7,7 @@
 ## TODO
 - Give the user more access to notification providers
 (Pushover for example has some params such url that can be of use at some point)
+- Add api to services defined in core package
 
 
 ## API
