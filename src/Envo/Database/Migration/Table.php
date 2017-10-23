@@ -397,6 +397,16 @@ class Table extends PhinxTable
     }
 
     /**
+     * Add creation and update timestamps to the table.
+     *
+     * @return void
+     */
+    public function softDeletes()
+    {
+        $this->timestamp('deleted_at');
+    }
+
+    /**
      * Create a new time column on the table.
      *
      * @param  string $column

@@ -107,7 +107,7 @@ class Mail
         $mail->setFrom($from);
         $mail->setSubject($subject);
         $mail->addContent($content);
-        $mail->addCustomArg('newsletterid', $newsletterId);
+        $mail->addCustomArg('newsletterid', $newsletterId); ///???? what is that?
         
         if( $this->testing ) {
             $mail_settings = new \SendGrid\MailSettings();
@@ -138,8 +138,7 @@ class Mail
 
         if( $subscriberIds ) {
             $subscribers = NewsletterSentRepository::getAllById($subscriberIds);
-        }
-        else {
+        } else {
             $subscribers = NewsletterSentRepository::getAllByNewsletterId($newsletter->id, $subscriberLimit);
         }
 

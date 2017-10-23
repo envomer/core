@@ -85,6 +85,7 @@ class ScaffoldCommand extends Migrate
             'team',
             'event',
             'mail',
+            'permissions',
             'all'
         ];
 
@@ -118,6 +119,12 @@ class ScaffoldCommand extends Migrate
             ],
             'mail' => [
                 ENVO_PATH . '../../migrations/20170713093749_create_mails.php',
+            ],
+            'permissions' => [
+                ENVO_PATH . '../../migrations/20170712093753_create_permission_roles.php',
+                ENVO_PATH . '../../migrations/20170712093754_create_permission_rules.php',
+                ENVO_PATH . '../../migrations/20170712093755_create_permissions.php',
+                ENVO_PATH . '../../migrations/20170712093756_create_user_roles.php',
             ],
         ];
 
