@@ -81,12 +81,12 @@ class ScaffoldCommand extends Migrate
     {
         $paths = [
             'none',
+            'ALL',
             'user',
             'team',
             'event',
             'mail',
             'permissions',
-            'all'
         ];
 
         $helper = $this->getHelper('question');
@@ -128,7 +128,7 @@ class ScaffoldCommand extends Migrate
             ],
         ];
 
-        if( $group === 'all' ) {
+        if( $group === 'ALL' ) {
             return Arr::flatten($files);
         }
 

@@ -2,7 +2,7 @@
 
 use Envo\AbstractMigration;
 
-class CreateUserClient extends AbstractMigration
+class CreateUserCodes extends AbstractMigration
 {
     public function up()
     {

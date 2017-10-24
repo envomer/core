@@ -10,6 +10,7 @@ class CreatePermissions extends AbstractMigration
             $table->increments('id');
             
             $table->string('key');
+            $table->string('name');
             $table->tinyInteger('status');
 
             $table->softDeletes();
