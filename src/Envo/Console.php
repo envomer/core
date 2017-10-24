@@ -36,19 +36,16 @@ class Console extends \Phalcon\Cli\Console
 
         define('APP_CLI', true);
 
-        /**
-         * TODO rollback migration from scaffold. how??
-         */
         if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate:') === 0  ) {
             define('ENVO_INCLUDE_MIGRATIONS', true);
         }
 
-        $app = new Application('envome', '0.1.1');
+        $app = new Application('envome', '0.2.0');
 
         $app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
         $app->add((new \Phinx\Console\Command\Init())->setName('migrate:init'));
-        // $app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
-        // $app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
+        $app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
+        $app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
         $app->add((new \Phinx\Console\Command\Create())->setName('make:migration'));
         $app->add((new \Phinx\Console\Command\SeedCreate())->setName('make:seeder'));
         $app->add((new \Phinx\Console\Command\SeedRun())->setName('seed'));
@@ -60,8 +57,8 @@ class Console extends \Phalcon\Cli\Console
         $app->add(new \Envo\Queue\Console\WorkCommand);
         $app->add(new \Envo\Foundation\Console\BackupGeneratorCommand);
         $app->add(new \Envo\Database\Console\MigrationReset);
-        $app->add(new \Envo\Database\Console\MigrationRollback);
-        $app->add(new \Envo\Database\Console\MigrationStatus);
+        // $app->add(new \Envo\Database\Console\MigrationRollback);
+        // $app->add(new \Envo\Database\Console\MigrationStatus);
 
         $app->run();
     }

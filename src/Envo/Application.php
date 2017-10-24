@@ -3,6 +3,7 @@
 namespace Envo;
 
 use Envo\Foundation\ExceptionHandler;
+use Envo\Foundation\Permission;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Support\Str;
 
@@ -108,6 +109,13 @@ class Application extends \Phalcon\Mvc\Application
 		 * Set response
 		 */
 		$di->setShared('response', Response::class);
+		
+		/**
+		 * Set permission
+		 */
+		if(config('app.permission.enabled')) {
+			$di->setShared('permission', Permission::class);
+		}
 
 		/**
 		 * Set models manager

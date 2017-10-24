@@ -130,4 +130,13 @@ class AbstractUser extends AbstractModel
     {
         return $this->api_key;
     }
+
+    public function can($permissionKey)
+    {
+        if($this->level !== null && $this->level === 9) {
+            return true;
+        }
+        
+        return $this->di->get('permission')->can($this, $name);
+    }
 }

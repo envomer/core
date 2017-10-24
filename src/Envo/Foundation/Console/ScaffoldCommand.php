@@ -21,7 +21,7 @@ class ScaffoldCommand extends Migrate
     {
         parent::configure();
 
-        $this->setName('scaffold');
+        $this->setName('migrate:scaffold');
         $this->setDescription('Scaffold database migrations such as user, events,...'); 
     }
 
