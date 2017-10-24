@@ -136,7 +136,26 @@ class AbstractUser extends AbstractModel
         if($this->level !== null && $this->level === 9) {
             return true;
         }
-        
+
         return $this->di->get('permission')->can($this, $name);
     }
+
+    public function getPermissions()
+	{
+		if( isset($this->cachedRelations['permissions']) ) {
+			return $this->cachedRelations['permissions'];
+		}
+
+		return $this->cachedRelations['permissions'] = Permission::repo()->getByUserId($this->getId()) ?: [];
+	}
+
+	public function getPermissionPublicKey()
+	{
+		return $this->di->get('permission')->getPublicKey($this);
+	}
+
+	public function getPermissionKeys()
+	{
+		return $this->di->get('permission')->getKeysByUser($this);
+	}
 }

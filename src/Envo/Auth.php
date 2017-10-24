@@ -185,7 +185,7 @@ class Auth extends Component
 
 		$event = new LoggedIn(null, false, $user );
 		$event = $event->getEvent();
-		$event->user_id = $user->getId();
+		$event->identifier = $user->getId();
 		$event->team_id = $user->getteamId();
 		$event->save();
 
@@ -201,7 +201,7 @@ class Auth extends Component
 	public function registerUserThrottling($userId)
 	{
 		$failedLogin            = new FailedLogin();
-		$failedLogin->user_id   = $userId;
+		$failedLogin->identifier   = $userId;
 		$failedLogin->ip        = $this->request->getClientAddress();
 		$failedLogin->attempted = time();
 		$failedLogin->save();
@@ -244,7 +244,7 @@ class Auth extends Component
 		}
 		$expire = time() + (86400 * 365);
 
-		$this->cookies->set(self::COOKIE_REMEMBER, $user->user_id, $expire );
+		$this->cookies->set(self::COOKIE_REMEMBER, $user->identifier, $expire );
 		$this->cookies->set(self::COOKIE_TOKEN, $user->remember_token, $expire );
 	}
 
@@ -272,10 +272,10 @@ class Auth extends Component
 			if( $user && isset($user->remember_token) && $user->remember_token == $token ) {
 				// $this->checkUserFlags( $user );
 				// $this->session->set( self::TOKEN_NAME, array(
-				// 	'id'   => $user->user_id,
+				// 	'id'   => $user->identifier,
 				// 	'name' => $user->username,
 				// ));
-				$this->loginUsingId($user);
+				$this->loginUsingIdentifier($user);
 
 				return $user;
 			}
@@ -411,7 +411,7 @@ class Auth extends Component
 	 *
 	 * @throws Exception
 	 */
-	public function loginUsingId($user)
+	public function loginUsingIdentifier($user)
 	{
 		$userClass = $this->userClass;
 		if( is_string($user) ) {
@@ -423,7 +423,33 @@ class Auth extends Component
 		}
 		$this->checkUserFlags( $user );
 		$this->session->set( self::TOKEN_NAME, array(
-			'id'   => $user->user_id,
+			'id'   => $user->identifier,
+			'name' => $user->username,
+		));
+
+		return $user;
+	}
+
+	/**
+	 * Auths the user by his/her id
+	 *
+	 * @param int $id
+	 *
+	 * @throws Exception
+	 */
+	public function loginUsingId($user)
+	{
+		$userClass = $this->userClass;
+		if( is_numeric($user) ) {
+			$user = $userClass::findFirstById( $user );
+		}
+
+		if ( $user == false ) {
+			public_exception('auth.userNotFound');
+		}
+		$this->checkUserFlags( $user );
+		$this->session->set( self::TOKEN_NAME, array(
+			'id'   => $user->identifier,
 			'name' => $user->username,
 		));
 
