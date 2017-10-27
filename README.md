@@ -1,14 +1,17 @@
 # Framework
 
 ## Features:
-- IP checker/blocker/throttle
-- maintenance mode
+- IP checker/blocker/throttle (done?)
+- Maintenance mode (done)
+- Migration status
 
 ## TODO
 - Give the user more access to notification providers (Pushover for example has some params such url that can be of use at some point)
 - Add api to services defined in core package
 - Add these methods to repo (https://github.com/micheleangioni/phalcon-repositories) (https://laravel.com/docs/5.5/eloquent#retrieving-models)
-
+- Add backup config file with the option to encrypt compression
+- Add docker @CM
+- Add api docs (extract documention from api class) @CM
 
 ## API
 
@@ -62,4 +65,23 @@ notify(new WelcomeMail(), [Notification::SMS, Notification::EMAIL, NOTIFICATION:
 ## Console
 ```bash
 php envo
+```
+
+## Model\Repository
+
+Folder structure
+```
+- Console
+- Model
+- - Repository
+- Service
+```
+
+Call repo method
+```php
+$result = Model::repo()->where('name', $name)->get();
+
+$result = Model::repo()->getIn(string $whereInKey, array $whereIn = [])->orderBy(['description' => 'asc', 'name' => 'desc'])->limit(20)->get();
+$result = Model::repo()->getIn(string $whereInKey, array $whereIn = [])->orderBy('name', 'desc')->limit(20)->get();
+$result = Model::repo()->getByPage(int 7)->limit(20)->with(['team.members', 'events''])->get();
 ```
