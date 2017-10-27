@@ -5,9 +5,9 @@
 - maintenance mode
 
 ## TODO
-- Give the user more access to notification providers
-(Pushover for example has some params such url that can be of use at some point)
+- Give the user more access to notification providers (Pushover for example has some params such url that can be of use at some point)
 - Add api to services defined in core package
+- Add these methods to repo (https://github.com/micheleangioni/phalcon-repositories) (https://laravel.com/docs/5.5/eloquent#retrieving-models)
 
 
 ## API
