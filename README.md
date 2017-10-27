@@ -12,6 +12,7 @@
 - Add backup config file with the option to encrypt compression
 - Add docker @CM
 - Add api docs (extract documention from api class) @CM
+- Add debugbar (https://github.com/snowair/phalcon-debugbar)
 
 ## API
 
