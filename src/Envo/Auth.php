@@ -7,7 +7,7 @@ use Envo\Model\AbstractUser;
 use App\Core\Model\UserRepository;
 use App\Core\Model\RememberToken;
 use App\Core\Model\FailedLogin;
-
+use Envo\Model\Team;
 use Envo\Support\Translator;
 use Envo\Event\LoginFailed;
 use Envo\Event\UserWrongPassword;
@@ -25,6 +25,7 @@ class Auth extends Component
 	protected $team = null;
 	protected $loggedIn = null;
 	protected $userClass = null;
+	protected $teamClass = null;
 
 	const TOKEN_NAME = 'auth-identity';
 	const COOKIE_REMEMBER = 'remember_rmu';
@@ -33,6 +34,7 @@ class Auth extends Component
 	public function __construct()
 	{
 		$this->userClass = config('app.user', AbstractUser::class);
+		$this->teamClass = config('app.team', Team::class);
 	}
 
 	/**
@@ -63,7 +65,7 @@ class Auth extends Component
 	 */
 	public function user()
 	{
-		if ( !is_null( $this->user ) ) {
+		if ( null !== $this->user ) {
 			return $this->user;
 		}
 
@@ -126,8 +128,8 @@ class Auth extends Component
 	 */
 	public function guest()
 	{
-		if ( !is_null( $this->loggedIn ) ) {
-			self::user();
+		if ( null !== $this->loggedIn ) {
+			$this->user();
 		}
 
 		return $this->loggedIn;
@@ -153,7 +155,7 @@ class Auth extends Component
 		if( ! $user || ! env('IGNORE_PASSWORDS') ) {
 			// Check the password
 			if ( !$user || password_verify( $password, $user->password) === false ) {
-				if( env('APP_ENV') != 'local' ) {
+				if( env('APP_ENV') !== 'local' ) {
 					$this->registerUserThrottling( $user ? $user->id : 0 );
 				}
 

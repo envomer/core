@@ -109,7 +109,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public function allowUpdate($choice = null)
 	{
-		if( is_null($choice) ) {
+		if( null === $choice ) {
 			return $this->allowUpdate;
 		}
 
@@ -161,7 +161,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function repo()
 	{
-		$repoName = get_called_class() . 'Repository';
+		$repoName = static::class . 'Repository';
 
 		return resolve($repoName);
 	}
@@ -173,7 +173,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function service()
 	{
-		$repoName = get_called_class() . 'Service';
+		$repoName = static::class . 'Service';
 		$repoName = str_replace('\\Model\\', '\\Service\\', $repoName);
 
 		if( ! class_exists($repoName) ) {
