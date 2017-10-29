@@ -2,9 +2,7 @@
 
 namespace Envo\Event\Model;
 
-use Envo\AbstractEvent;
 use Envo\AbstractModel;
-
 use Envo\Support\IP;
 
 class Event extends AbstractModel
@@ -83,7 +81,7 @@ class Event extends AbstractModel
 	public function getModelObject()
 	{
 		if( ! $this->model_id ) return null;
-		$model = $this->model;
+		$model = $this->ref('model');
 		$class = $model->class;
 		return $class::findFirstById($this->model_entry_id);
 	}

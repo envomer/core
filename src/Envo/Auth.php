@@ -156,18 +156,17 @@ class Auth extends Component
 	 * @param $password
 	 *
 	 * @return bool
-	 * @internal param array $credentials
-	 *
 	 */
 	public function check($email, $password)
 	{
 		// Check if the user exist
 		$userClass = $this->userClass;
+		/** @var User $user */
 		$user = $userClass::repo()->where('email = ?0 OR username = ?1',[ $email, $email ])->getOne();
 
 		if(
 			(! $user || ! env('IGNORE_PASSWORDS'))
-			&& (!$user || password_verify( $password, $user->password) === false)
+			&& (!$user || password_verify($password, $user->getPassword()) === false)
 		) {
 			if(env('APP_ENV') !== 'local') {
 				$this->registerUserThrottling($user);
@@ -201,7 +200,7 @@ class Auth extends Component
 
 		$event = new LoggedIn(null, false, $user );
 		$event = $event->getEvent();
-		$event->identifier = $user->getId();
+		$event->user_id = $user->getId();
 		$event->team_id = $user->getTeamId();
 		$event->save();
 

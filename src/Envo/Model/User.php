@@ -81,6 +81,8 @@ class User extends AbstractLegalEntity
 	 * @var int
 	 */
     protected $status;
+    
+    protected $password;
 
     /**
      * Is admin flag
@@ -237,6 +239,14 @@ class User extends AbstractLegalEntity
 	public function getStatus()
 	{
 		return $this->status;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getPassword()
+	{
+		return $this->password;
 	}
 	
 	/**

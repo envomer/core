@@ -91,7 +91,6 @@ class Application extends \Phalcon\Mvc\Application
 	public function registerServices()
 	{
 		$di = new DI();
-		$instance = $this;
 		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG');
 
 		/**
