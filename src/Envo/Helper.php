@@ -1,7 +1,6 @@
 <?php
 
 use Envo\Support\Translator;
-use Envo\Foundation\Config;
 use Envo\AbstractException;
 use Envo\Exception\PublicException;
 
@@ -27,6 +26,7 @@ if( ! function_exists('_t') )
 		if( $amount ) {
 			return resolve(Translator::class)->choice($val, $amount, $lang);
 		}
+		
 		return resolve(Translator::class)->lang($val, $params, $lang);
 	}
 }
@@ -248,7 +248,7 @@ if( ! function_exists('resolve') )
 	 * @param      $class
 	 * @param null $instance
 	 *
-	 * @return object
+	 * @return mixed
 	 */
 	function resolve($class, $instance = null)
 	{

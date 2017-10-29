@@ -4,7 +4,7 @@ namespace Envo\Model;
 
 use Envo\Support\Translator;
 
-class AbstractUser extends AbstractLegalEntity
+class User extends AbstractLegalEntity
 {
     const ACCESS_API_TOKEN = 1;
     const ACCESS_SESSION = 2;
@@ -24,7 +24,7 @@ class AbstractUser extends AbstractLegalEntity
     protected $accessMode = null;
 
     /**
-     * Are softdeletes allowed?
+     * Are soft deletes allowed?
      *
      * @var boolean
      */
@@ -57,6 +57,21 @@ class AbstractUser extends AbstractLegalEntity
      * @var string
      */
     public $username;
+	
+	/**
+	 * @var int
+	 */
+    protected $team_id;
+	
+	/**
+	 * @var string
+	 */
+    protected $api_key;
+	
+	/**
+	 * @var int
+	 */
+    protected $level;
 
     /**
      * Is admin flag
@@ -65,7 +80,7 @@ class AbstractUser extends AbstractLegalEntity
      */
     public function isAdmin()
     {
-        return false;
+        return $this->level === 9;
     }
 
     /**
@@ -103,7 +118,7 @@ class AbstractUser extends AbstractLegalEntity
     /**
      * Get team id
      *
-     * @return void
+     * @return int
      */
     public function getTeamId()
     {
@@ -113,7 +128,7 @@ class AbstractUser extends AbstractLegalEntity
     /**
      * Get identifier
      *
-     * @return void
+     * @return string
      */
     public function getIdentifier()
     {
@@ -123,36 +138,51 @@ class AbstractUser extends AbstractLegalEntity
     /**
      * Get api key
      *
-     * @return void
+     * @return string
      */
     public function getApiKey()
     {
         return $this->api_key;
     }
-
+	
+	/**
+	 * @param $permissionKey
+	 *
+	 * @return bool
+	 */
     public function can($permissionKey)
     {
         if($this->level !== null && $this->level === 9) {
             return true;
         }
 
-        return $this->di->get('permission')->can($this, $name);
+        return $this->di->get('permission')->can($this, $permissionKey);
     }
-
+	
+	/**
+	 * @return array
+	 */
     public function getPermissions()
 	{
 		if( isset($this->cachedRelations['permissions']) ) {
 			return $this->cachedRelations['permissions'];
 		}
 
-		return $this->cachedRelations['permissions'] = $this->di->get('permission')->getByUserId($this->getId()) ?: [];
+		$permissions = $this->di->get('permission')->getByUserId($this->getId()) ?: [];
+		return $this->cachedRelations['permissions'] = $permissions;
 	}
-
+	
+	/**
+	 * @return string
+	 */
 	public function getPermissionPublicKey()
 	{
 		return $this->di->get('permission')->getPublicKey($this);
 	}
-
+	
+	/**
+	 * @return array
+	 */
 	public function getPermissionKeys()
 	{
 		return $this->di->get('permission')->getKeysByUser($this);

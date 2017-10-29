@@ -7,7 +7,7 @@ use Exception;
 use Envo\AbstractException;
 use Envo\Exception\PublicException;
 use Envo\Foundation\ExceptionHandler;
-use Envo\Model\AbstractUser;
+use Envo\Model\User;
 use Envo\Support\Str;
 
 use Phalcon\Mvc\Controller;
@@ -31,7 +31,7 @@ class AbstractController extends Controller
 	/**
 	 * Get user
 	 *
-	 * @return AbstractUser
+	 * @return User
 	 */
 	public function user()
 	{

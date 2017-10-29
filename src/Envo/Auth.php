@@ -2,7 +2,7 @@
 
 namespace Envo;
 
-use Envo\Model\AbstractUser;
+use Envo\Model\User;
 
 use App\Core\Model\UserRepository;
 use App\Core\Model\RememberToken;
@@ -30,10 +30,13 @@ class Auth extends Component
 	const TOKEN_NAME = 'auth-identity';
 	const COOKIE_REMEMBER = 'remember_rmu';
 	const COOKIE_TOKEN = 'remember_rmt';
-
+	
+	/**
+	 * Auth constructor.
+	 */
 	public function __construct()
 	{
-		$this->userClass = config('app.user', AbstractUser::class);
+		$this->userClass = config('app.user', User::class);
 		$this->teamClass = config('app.team', Team::class);
 	}
 
@@ -357,7 +360,7 @@ class Auth extends Component
 	 *
 	 * @return bool
 	 */
-	public function checkUserFlags(AbstractUser $user)
+	public function checkUserFlags(User $user)
 	{
 		return true;
 		// if ($user->active != 'Y') {

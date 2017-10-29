@@ -9,6 +9,10 @@
         {
             "name": "Omer Mohamed Ali",
             "email": "om@envo.me"
+        },
+        {
+          "name": "Christian Marbach",
+          "email": "christianmarbach01@gmail.com"
         }
     ],
     "minimum-stability": "dev",

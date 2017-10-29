@@ -66,7 +66,12 @@ class Application extends \Phalcon\Mvc\Application
 		$this->setup();
 		$this->setupConfig();
 		$this->isInMaintenance();
-		$this->registerServices();
+		$di = $this->registerServices();
+		
+		if(env('APP_DEBUGBAR', false)) {
+			$di->setShared('app', $this);
+			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
+		}
 
 		echo $this->handle()->getContent();
 	}
