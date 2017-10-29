@@ -31,7 +31,10 @@ class AbstractRepository
 	 */
 	public function createBuilder()
 	{
-		return (new QueryBuilder())->from(get_class($this->model));
+		$class = get_class($this->model);
+		return (new QueryBuilder())->from([
+			lcfirst($class[0]) => $class
+		]);
 	}
 	
 	/**
@@ -49,6 +52,16 @@ class AbstractRepository
 	{
 		$builder = $this->createBuilder();
 		$builder->inWhere($key, $value);
+		return $builder;
+	}
+	
+	/**
+	 * Where not in
+	 */
+	public function notIn($key, array $value)
+	{
+		$builder = $this->createBuilder();
+		$builder->notInWhere($key, $value);
 		return $builder;
 	}
 	
