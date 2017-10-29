@@ -14,6 +14,8 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	protected $allowUpdate = true;
 	protected $cachedRelations = [];
 
+	protected static $repo = null;
+
 	public $reference = null;
 
 	/**
@@ -161,9 +163,15 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function repo()
 	{
-		$repoName = static::class . 'Repository';
+		if(self::$repo == null) {
+			$repoClass = str_replace('\\Model\\', '\\Model\\Repository\\', static::class);
+			if(!class_exists($repoClass)) {
+				public_exception('app.repositoryNotFound', 500, ['class' => $repoClass]);
+			}
+			self::$repo = new $repoClass(new self);
+		}
 
-		return resolve($repoName)->setModel($modelClass, false);
+		return self::$repo;
 	}
 
 	/**

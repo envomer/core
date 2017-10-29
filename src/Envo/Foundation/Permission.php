@@ -17,7 +17,19 @@ class Permission
      */
     public function __construct()
     {
-        $this->permissions = require(APP_PATH . 'config/permissions.php');
+        $this->permissions = config('permissions');
+        $this->init();
+    }
+
+    /**
+     * Define permission const
+     */
+    public function init()
+    {
+        define('CAN_READ', 8);
+        define('CAN_CREATE', 4);
+        define('CAN_UPDATE', 2);
+        define('CAN_DELETE', 1);
     }
 
     public function can($user, $key)
@@ -48,7 +60,7 @@ class Permission
 
     public static function getInstance()
     {
-        return \Phalcon\DI::getDefault()->get('permission');
+        return resolve('permission');
     }
 
     public function getAllKeys()
@@ -151,7 +163,7 @@ class Permission
     public function groupPermissions($permissions, $extractModule = false)
     {
         $grouped = [];
-        $modules = \Config::get('modules');
+        $modules = config('modules');
         foreach($permissions as $permission) {
             list($module, $name) = $this->parseKey($permission);
 

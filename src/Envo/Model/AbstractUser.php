@@ -145,7 +145,7 @@ class AbstractUser extends AbstractLegalEntity
 			return $this->cachedRelations['permissions'];
 		}
 
-		return $this->cachedRelations['permissions'] = Permission::repo()->getByUserId($this->getId()) ?: [];
+		return $this->cachedRelations['permissions'] = $this->di->get('permission')->getByUserId($this->getId()) ?: [];
 	}
 
 	public function getPermissionPublicKey()

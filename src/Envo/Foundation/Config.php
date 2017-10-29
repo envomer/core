@@ -8,7 +8,7 @@ class Config
 {
 	const CONFIG_PATH = 'config/';
 	
-	protected static $configs = [];
+	protected $configs = [];
 
 	/**
 	 * Get configuation item using dot notation
@@ -20,24 +20,24 @@ class Config
 	 * 
 	 * @return string|array|integer
 	 */
-	public static function get($name, $default = null)
+	public function get($name, $default = null)
 	{
 		$search = explode('.', $name);
-		if( ! isset(self::$configs[$search[0]]) ) {
-			self::$configs[$search[0]] = require_once APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
+		if( ! isset($this->configs[$search[0]]) ) {
+			$this->configs[$search[0]] = require_once APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
 		}
 
 		if( count($search) == 1 ) {
-			return self::$configs[$search[0]];
+			return $this->configs[$search[0]];
 		}
 
-		if( ! isset(self::$configs[$search[0]][$search[1]]) ) {
+		if( ! isset($this->configs[$search[0]][$search[1]]) ) {
 			return $default;
 		}
 
 		$key = substr($name, strlen($search[0]) + 1);
 
-		return Arr::get(self::$configs[$search[0]], $key, $default);
+		return Arr::get($this->configs[$search[0]], $key, $default);
 	}
 
 	/**
@@ -45,9 +45,9 @@ class Config
 	 * 
 	 * @return array
 	 */
-	public static function database()
+	public function database()
 	{
-		$database = self::get('database');
+		$database = $this->get('database');
 		$connection = $database['connections'][$database['default']];
 		return $connection;
 	}

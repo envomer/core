@@ -4,6 +4,7 @@ namespace Envo;
 
 use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\Permission;
+use Envo\Foundation\Config;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Support\Str;
 
@@ -101,6 +102,11 @@ class Application extends \Phalcon\Mvc\Application
 		});
 
 		/**
+		 * Set config
+		 */
+		$di->setShared('config', Config::class);
+
+		/**
 		 * Set request
 		 */
 		$di->setShared('request', Request::class);
@@ -113,7 +119,7 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set permission
 		 */
-		if(config('app.permission.enabled')) {
+		if(config('app.permissions.enabled')) {
 			$di->setShared('permission', Permission::class);
 		}
 
@@ -181,7 +187,6 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('db', function () use($debug, $instance) {
 			$databaseConfig = require(APP_PATH . 'config/database.php');
-
 			
 			if( $databaseConfig['default'] === 'sqlite' ) {
 				$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($databaseConfig['connections'][$databaseConfig['default']]);

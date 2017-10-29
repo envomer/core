@@ -6,7 +6,7 @@ class AbstractRepository
 {
 	protected $model = null;
 
-	protected static $modelsManager = null;
+	protected $manager = null;
 
 	public function __construct(AbstractModel $model = null)
 	{
@@ -42,9 +42,9 @@ class AbstractRepository
 	 *
 	 * @return \Phalcon\Mvc\Model\Query\Builder
 	 */
-	public static function getQueryBuilder($table = null, $alias = null)
+	public function getQueryBuilder($table = null, $alias = null)
 	{
-		$builder = self::modelsManager()->createBuilder();
+		$builder = $this->modelsManager()->createBuilder();
 		if( $table ) {
 			if( $alias ) {
 				$builder->from([$alias => $table]);
@@ -59,22 +59,22 @@ class AbstractRepository
 	/**
 	 * @return null|\Phalcon\Mvc\Model\ManagerInterface
 	 */
-	public static function modelsManager()
+	public function modelsManager()
 	{
-		if( self::$modelsManager ) {
-			return self::$modelsManager;
+		if( $this->manager ) {
+			return $this->manager;
 		}
-		return self::$modelsManager = \Phalcon\Di::getDefault()->getModelsManager();
+		return $this->manager = \Phalcon\Di::getDefault()->getModelsManager();
 	}
 
-	public static function raw($query, $params = null)
+	public function raw($query, $params = null)
 	{
-		return self::modelsManager()->executeQuery($query, $params);
+		return $this->modelsManager()->executeQuery($query, $params);
 	}
 
-	public static function getAllByProperty($property, $value, $whereIn = false)
+	public function getAllByProperty($property, $value, $whereIn = false)
 	{
-		$select = self::getQueryBuilder(self::model(), 'i');
+		$select = $this->getQueryBuilder($this->model(), 'i');
 
         $bind = [
             $property => $value,
@@ -90,9 +90,9 @@ class AbstractRepository
         return $query->execute();
 	}
 
-	public static function getByProperty($property, $value)
+	public function getByProperty($property, $value)
 	{
-		$model = self::model();
+		$model = $this->model();
 		return $model::findFirst([
 			'conditions' => $property . ' = :' . $property . ':',
 			'bind' => [$property => $value]

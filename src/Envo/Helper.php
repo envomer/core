@@ -6,14 +6,6 @@ use Envo\AbstractException;
 use Envo\Exception\PublicException;
 
 /**
- * Define permission const
- */
-define('ENVO_READ', 8);
-define('ENVO_CREATE', 4);
-define('ENVO_UPDATE', 2);
-define('ENVO_DELETE', 1);
-
-/**
  * Environment helper function.
  * Retrieve data defined in .env file
  */
@@ -277,7 +269,7 @@ if( ! function_exists('config') )
 {
 	function config($name, $default = null)
 	{
-		return resolve(Config::class)->get($name, $default);
+		return resolve('config')->get($name, $default);
 	}
 }
 
