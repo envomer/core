@@ -13,10 +13,18 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	protected $softDeletes = false;
 	protected $allowUpdate = true;
 	protected $cachedRelations = [];
+	
+	/**
+	 * @var AbstractRepository
+	 */
+	protected static $repo;
+	
+	/**
+	 * @var AbstractService
+	 */
+	protected static $service;
 
-	protected static $repo = null;
-
-	public $reference = null;
+	public $reference;
 
 	/**
 	* Get the table name
@@ -163,12 +171,15 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function repo()
 	{
-		if(self::$repo == null) {
+		if(self::$repo === null) {
 			$repoClass = str_replace('\\Model\\', '\\Model\\Repository\\', static::class);
+			
+			// Model repository class does not exist.
+			// Use the AbstractRepository class as fallback
 			if(!class_exists($repoClass)) {
-				public_exception('app.repositoryNotFound', 500, ['class' => $repoClass]);
+				$repoClass = AbstractRepository::class;
 			}
-			self::$repo = new $repoClass(new self);
+			self::$repo = new $repoClass(new static);
 		}
 
 		return self::$repo;
@@ -181,14 +192,18 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function service()
 	{
-		$repoName = static::class . 'Service';
-		$repoName = str_replace('\\Model\\', '\\Service\\', $repoName);
-
-		if( ! class_exists($repoName) ) {
-			return false;
+		if(self::$service === null) {
+			$serviceClass = str_replace('\\Model\\', '\\Service\\', static::class);
+			
+			// Model service class does not exist.
+			// Use the AbstractService class as fallback
+			if(!class_exists($serviceClass)) {
+				$serviceClass = AbstractService::class;
+			}
+			self::$service = new $serviceClass(new static);
 		}
-
-		return resolve($repoName);
+		
+		return self::$service;
 	}
 
 	/**

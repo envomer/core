@@ -6,13 +6,17 @@
 - Migration status
 
 ## TODO
+
+#### Open
 - Give the user more access to notification providers (Pushover for example has some params such url that can be of use at some point)
 - Add api to services defined in core package
 - Add these methods to repo (https://github.com/micheleangioni/phalcon-repositories) (https://laravel.com/docs/5.5/eloquent#retrieving-models)
 - Add backup config file with the option to encrypt compression
-- Add docker @micaso
+- Add docker file @micaso
 - Add api docs (extract documentation from api class) @micaso
-- Add debugbar (https://github.com/snowair/phalcon-debugbar)
+
+#### DONE
+- Add debugbar (https://github.com/snowair/phalcon-debugbar) 
 
 ## API
 
@@ -82,7 +86,7 @@ Call repo method
 ```php
 $result = Model::repo()->where('name', $name)->get();
 
-$result = Model::repo()->getIn(string $whereInKey, array $whereIn = [])->orderBy(['description' => 'asc', 'name' => 'desc'])->limit(20)->get();
-$result = Model::repo()->getIn(string $whereInKey, array $whereIn = [])->orderBy('name', 'desc')->limit(20)->get();
-$result = Model::repo()->getByPage(int 7)->limit(20)->with(['team.members', 'events''])->get();
+$result = Model::repo()->in(string $whereInKey, array $whereIn = [])->orderBy(['description' => 'asc', 'name' => 'desc'])->limit(20)->get();
+$result = Model::repo()->in(string $whereInKey, array $whereIn = [])->orderBy('name', 'desc')->limit(20)->get();
+$result = Model::repo()->page(int 7)->limit(20)->with(['team.members', 'events''])->get();
 ```
