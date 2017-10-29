@@ -161,9 +161,10 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function repo()
 	{
-		$repoName = get_called_class() . 'Repository';
+		$modelClass = get_called_class();
+		$repoName = str_replace('Model', 'Model\\Repository', $modelClass) . 'Repository';
 
-		return resolve($repoName);
+		return resolve($repoName)->setModel($modelClass, false);
 	}
 
 	/**

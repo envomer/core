@@ -63,3 +63,23 @@ notify(new WelcomeMail(), [Notification::SMS, Notification::EMAIL, NOTIFICATION:
 ```bash
 php envo
 ```
+
+## Model/Repository
+
+Folder structure
+```
+...
+- Controller
+- Model
+  - Repository
+- View
+...
+```
+
+```php
+$user = User::repo()->methodName();
+// or
+$user = User::repoMethodName();
+// or
+$users = repo(User::class)->methodName();
+```
