@@ -10,8 +10,8 @@
 - Add api to services defined in core package
 - Add these methods to repo (https://github.com/micheleangioni/phalcon-repositories) (https://laravel.com/docs/5.5/eloquent#retrieving-models)
 - Add backup config file with the option to encrypt compression
-- Add docker @CM
-- Add api docs (extract documention from api class) @CM
+- Add docker @micaso
+- Add api docs (extract documention from api class) @micaso
 - Add debugbar (https://github.com/snowair/phalcon-debugbar)
 
 ## API
