@@ -2,10 +2,9 @@
 
 namespace Envo\Model;
 
-use Envo\AbstractModel;
 use Envo\Support\Translator;
 
-class AbstractUser extends AbstractModel
+class AbstractUser extends AbstractLegalEntity
 {
     const ACCESS_API_TOKEN = 1;
     const ACCESS_SESSION = 2;
@@ -157,5 +156,27 @@ class AbstractUser extends AbstractModel
 	public function getPermissionKeys()
 	{
 		return $this->di->get('permission')->getKeysByUser($this);
+	}
+	
+	/**
+	 * get a name representation of this entity
+	 *
+	 * @return string
+	 */
+	public function getName()
+	{
+		return $this->username;
+	}
+	
+	/**
+	 * @param LegalEntity $legalEntity
+	 *
+	 * @return AbstractLegalEntity
+	 */
+	public function setParent( LegalEntity $legalEntity )
+	{
+		$this->parent = $legalEntity;
+		
+		return $this;
 	}
 }
