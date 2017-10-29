@@ -7,16 +7,14 @@
 
 ## TODO
 
-#### Open
-- Give the user more access to notification providers (Pushover for example has some params such url that can be of use at some point)
-- Add api to services defined in core package
-- Add these methods to repo (https://github.com/micheleangioni/phalcon-repositories) (https://laravel.com/docs/5.5/eloquent#retrieving-models)
-- Add backup config file with the option to encrypt compression
-- Add docker file @micaso
-- Add api docs (extract documentation from api class) @micaso
-
-#### DONE
-- Add debugbar (https://github.com/snowair/phalcon-debugbar) 
+- [ ] Give the user more access to notification providers (Pushover for example has some params such url that can be of use at some point)
+- [ ] Add api to services defined in core package
+- [x] Add these methods to repo (https://github.com/micheleangioni/phalcon-repositories) (https://laravel.com/docs/5.5/eloquent#retrieving-models)
+- [ ] Add backup config file with the option to encrypt compression
+- [ ] Add docker file @micaso
+- [ ] Add api docs (extract documentation from api class) @micaso
+- [ ] Rewrite database migration commands
+- [x] Add debugbar (https://github.com/snowair/phalcon-debugbar) 
 
 ## API
 

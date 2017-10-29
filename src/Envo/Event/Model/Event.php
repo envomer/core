@@ -10,6 +10,22 @@ use Envo\Support\IP;
 class Event extends AbstractModel
 {
 	protected $table = 'core_events';
+	
+	public $user_id;
+	
+	public $id;
+	
+	public $ip_id;
+	
+	public $created_at;
+	
+	public $team_id;
+	
+	public $message;
+	
+	public $model_entry_id;
+	
+	public $model_id;
 
 	public function initialize()
 	{

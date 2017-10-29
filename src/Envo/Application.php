@@ -29,7 +29,7 @@ class Application extends \Phalcon\Mvc\Application
 {
 	use ApplicationTrait;
 
-	public $inMaintenance = null;
+	public $inMaintenance;
 
 	/**
 	 * Check if app is maintenance
@@ -298,9 +298,10 @@ class Application extends \Phalcon\Mvc\Application
 			}
 		}
 		
-		foreach ($connections as $key => $connection){
-			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connection) {
-				$data = $databaseConfig['connections'][$key];
+		$self = $this;
+		foreach ($connections as $key => $connectionName){
+			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connectionName, $self) {
+				$data = $databaseConfig['connections'][$connectionName];
 				
 				if( $data['driver'] === 'sqlite' ) {
 					$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($data);
@@ -309,7 +310,7 @@ class Application extends \Phalcon\Mvc\Application
 				}
 				
 				if( $debug ) {
-					$connection->setEventsManager($this->dbDebug($key, $this));
+					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
 				
 				return $connection;

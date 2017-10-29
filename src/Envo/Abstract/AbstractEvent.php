@@ -7,7 +7,7 @@ use Envo\Notification\Notification;
 use Envo\Support\IP;
 use Envo\Support\File;
 use Envo\Support\Date;
-use Envo\AbstractModel;
+use Envo\Model\IP as IPModel;
 
 use Envo\Event\Model\Event;
 use Envo\Event\Model\EventType;
@@ -20,9 +20,18 @@ class AbstractEvent
 	const NOTIFY_VIA_SMS = 'sms';
 	const NOTIFY_VIA_PUSHOVER = 'pushover';
 
-	protected static $instance = null;
-	protected $event = null;
-
+	protected static $instance;
+	protected $event;
+	
+	/**
+	 * AbstractEvent constructor.
+	 *
+	 * @param null $message
+	 * @param bool $save
+	 * @param null $model
+	 * @param null $data
+	 *
+	 */
 	public function __construct($message = null, $save = true, $model = null, $data = null)
 	{
 		if( ! config('app.events.enabled', false) ) {
@@ -32,7 +41,7 @@ class AbstractEvent
 		// in case an event is given as first parameter()
 		// then just set the event instance without creating
 		// a new event instance
-		if( is_a($message, AbstractEvent::class) ) {
+		if( is_a($message, self::class) ) {
 			return $this->event = $message;
 		}
 
@@ -53,18 +62,17 @@ class AbstractEvent
 		$event->created_at = date('Y-m-d H:i:s');
 		$ip = resolve(IP::class)->getIpAddress();
 
-		// if( $ip ) {
-		// 	$userip = CoreIp::getByIp($ip);
-		// 	if( ! $userip ) {
-		// 		$userip = new UserIp;
-		// 		$userip->ip = $ip;
-		// 		$userip->created_at = date('Y-m-d H:i:s');
-		// 		$userip->user_id = $user ? $user->id : null;
-		// 		$userip->save();
-		// 	}
-		// 	$userip = $userip->id;
-		// 	$event->ip_id = $userip;
-		// }
+		 if( $ip ) {
+		 	$userIP = IPModel::repo()->where('ip', $ip)->getOne();
+		 	if( ! $userIP ) {
+		 		$userIP = new IPModel();
+		 		$userIP->ip = $ip;
+		 		$userIP->created_at = Date::now();
+		 		$userIP->user_id = $user ? $user->id : null;
+		 		$userIP->save();
+		 	}
+		 	$event->ip_id = $userIP->id;
+		 }
 
 		$this->setMessage($event, $message);
 
@@ -78,8 +86,8 @@ class AbstractEvent
 			$event->save();
 		}
 
-		$filepath = APP_PATH . 'storage/framework/logs/events/events-' . date('Y-m-d').'.log';
-		File::append($filepath, "\n\r" . $event->toReadableString(get_called_class()));
+		$filePath = APP_PATH . 'storage/framework/logs/events/events-' . date('Y-m-d').'.log';
+		File::append($filePath, "\n\r" . $event->toReadableString(static::class));
 
 		return $event;
 	}
@@ -90,19 +98,20 @@ class AbstractEvent
 	public static function getInstance()
 	{
 		if(! self::$instance) {
-			$class = get_called_class();
-			$instance = new $class(null, false);
+			$class = static::class;
+			self::$instance = new $class(null, false);
 		}
 
-		return $instance;
+		return self::$instance;
 	}
 
 	/**
 	 * Set message
 	 *
-	 * @param AbstractEvent $event
-	 * @param string $message
-	 * @return AbstractEvent
+	 * @param Event $event
+	 * @param mixed $message
+	 *
+	 * @return Event|bool
 	 */
 	public function setMessage($event, $message)
 	{
@@ -144,9 +153,9 @@ class AbstractEvent
 	/**
 	 * Set model
 	 *
-	 * @param AbstractEvent $event
+	 * @param Event $event
 	 * @param AbstractModel $model
-	 * @return AbstractEvent
+	 * @return Event|bool
 	 */
 	public function setModel($event, $model)
 	{
@@ -167,7 +176,7 @@ class AbstractEvent
 
 		$event->model_id = $eventModel->id;
 
-		if( isset($model->id) ) {
+		if( $model && isset($model->id) ) {
 			$event->model_entry_id = $model->id;
 		}
 
@@ -179,7 +188,7 @@ class AbstractEvent
 	 */
 	public function setEventType($event)
 	{
-		$class = get_called_class();
+		$class = static::class;
 
 		$eventType = EventType::findFirst(['class=?0', 'bind' => [$class]]);
 
@@ -220,7 +229,7 @@ class AbstractEvent
 	/**
 	 * Get event
 	 *
-	 * @return AbstractEvent
+	 * @return Event
 	 */
 	public function getEvent()
 	{
@@ -247,7 +256,7 @@ class AbstractEvent
 	 */
 	public function getName()
 	{
-		return get_called_class();
+		return static::class;
 	}
 
 	public function getMessage()

@@ -12,18 +12,29 @@ class AbstractModel extends \Phalcon\Mvc\Model
 
 	protected $softDeletes = false;
 	protected $allowUpdate = true;
+	
+	/**
+	 * Cached related entities
+	 *
+	 * @var array
+	 */
 	protected $cachedRelations = [];
 	
 	/**
 	 * @var AbstractRepository
 	 */
-	protected static $repo;
+	protected static $repos;
 	
 	/**
 	 * @var AbstractService
 	 */
-	protected static $service;
-
+	protected static $services;
+	
+	/**
+	 * ???
+	 *
+	 * @var
+	 */
 	public $reference;
 
 	/**
@@ -63,6 +74,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public function getRelations($name = null)
 	{
+		/** @var array $relations */
 		$relations = $this->modelsManager->getRelations(get_class($this));
 		$arr = [];
 		foreach ($relations as $key => $relation) {
@@ -70,13 +82,13 @@ class AbstractModel extends \Phalcon\Mvc\Model
 			if( ! isset($options['alias']) ) {
 				continue;
 			}
-			if( $name && $name == $options['alias'] ) {
+			if( $name && $name === $options['alias'] ) {
 				return $relation;
 			}
 			$arr[$options['alias']] = $relation;
 		}
 		
-		return ($name) ? null : $arr;
+		return $name ? null : $arr;
 	}
 
 	/**
@@ -92,7 +104,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	}
 
 	/**
-	 * Wheter the model is soft deletable
+	 * Whether the model is soft deletable
 	 * 
 	 * @return bool
 	 */
@@ -102,7 +114,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	}
 
 	/**
-	 * Is deleteable
+	 * Is deletable
 	 *
 	 * @return boolean
 	 */
@@ -171,7 +183,9 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function repo()
 	{
-		if(self::$repo === null) {
+		$className = static::class;
+		
+		if(!isset(self::$repos[$className])) {
 			$repoClass = str_replace('\\Model\\', '\\Model\\Repository\\', static::class);
 			
 			// Model repository class does not exist.
@@ -179,10 +193,10 @@ class AbstractModel extends \Phalcon\Mvc\Model
 			if(!class_exists($repoClass)) {
 				$repoClass = AbstractRepository::class;
 			}
-			self::$repo = new $repoClass(new static);
+			self::$repos[$className] = new $repoClass(new $className);
 		}
 
-		return self::$repo;
+		return self::$repos[$className];
 	}
 
 	/**
@@ -192,7 +206,9 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 */
 	public static function service()
 	{
-		if(self::$service === null) {
+		$className = static::class;
+		
+		if(!isset(self::$services[$className])) {
 			$serviceClass = str_replace('\\Model\\', '\\Service\\', static::class);
 			
 			// Model service class does not exist.
@@ -200,10 +216,10 @@ class AbstractModel extends \Phalcon\Mvc\Model
 			if(!class_exists($serviceClass)) {
 				$serviceClass = AbstractService::class;
 			}
-			self::$service = new $serviceClass(new static);
+			self::$services[$className] = new $serviceClass(new $className);
 		}
 		
-		return self::$service;
+		return self::$services[$className];
 	}
 
 	/**

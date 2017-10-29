@@ -2,6 +2,7 @@
 
 namespace Envo;
 
+use Envo\Event\Model\Event;
 use Envo\Model\User;
 
 use App\UserRepository;
@@ -163,14 +164,13 @@ class Auth extends Component
 		// Check if the user exist
 		$userClass = $this->userClass;
 		$user = $userClass::repo()->where('email = ?0 OR username = ?1',[ $email, $email ])->getOne();
-		die(var_dump($user));
 
 		if(
-			(! $user || ! env('IGNORE_PASSWORDS')) &&
-			(!$user || password_verify( $password, $user->password) === false)
+			(! $user || ! env('IGNORE_PASSWORDS'))
+			&& (!$user || password_verify( $password, $user->password) === false)
 		) {
 			if(env('APP_ENV') !== 'local') {
-				$this->registerUserThrottling($user ? $user->id : 0);
+				$this->registerUserThrottling($user);
 			}
 
 			if ($user) {
@@ -212,23 +212,19 @@ class Auth extends Component
 	 * Implements login throttling
 	 * Reduces the effectiveness of brute force attacks
 	 *
-	 * @param int $userId
+	 * @param User $user
 	 */
-	public function registerUserThrottling($userId)
+	public function registerUserThrottling($user = null)
 	{
-		$loginFailedEvent = new LoginFailed();
-		$failedLogin            = new FailedLogin();
-		$failedLogin->identifier   = $userId;
-		$failedLogin->ip        = $this->request->getClientAddress();
-		$failedLogin->attempted = time();
-		$failedLogin->save();
-		$attempts = FailedLogin::count( array(
-			'ip = ?0 AND attempted >= ?1',
+		$loginFailedEvent = new LoginFailed(null, true, $user);
+		$attempts = Event::count([
+			'ip_id = ?0 AND created_at >= ?1',
 			'bind' => array(
-				$this->request->getClientAddress(),
-				time() - 3600 * 6,
+				$loginFailedEvent->getEvent()->ip_id,
+				date('Y-m-d H:i:s', strtotime('-15 min')),
 			),
-		) );
+		]);
+		
 		switch ($attempts) {
 			case 1:
 			case 2:
