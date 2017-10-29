@@ -2,10 +2,12 @@
 
 namespace Envo;
 
+use Envo\API\Handler;
 use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\Permission;
 use Envo\Foundation\Config;
 use Envo\Foundation\ApplicationTrait;
+use Envo\Foundation\Router;
 use Envo\Support\Str;
 
 use Phalcon\Cache\Frontend\Data as FrontendData;
@@ -19,6 +21,10 @@ use Phalcon\Mvc\View;
 use Phalcon\Mvc\Model\Manager;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
 
+/**
+ * Class Application
+ * @package Envo
+ */
 class Application extends \Phalcon\Mvc\Application
 {
 	use ApplicationTrait;
@@ -43,7 +49,7 @@ class Application extends \Phalcon\Mvc\Application
 		if( $this->inMaintenance ) {
 			$maintenance = $this->inMaintenance;
 			$maintenance->retry = $maintenance->retry ?: 60;
-			$maintenance->progress = abs(floor(((($maintenance->time + $maintenance->retry) - time())/$maintenance->retry)));
+			$maintenance->progress = abs(floor((($maintenance->time + $maintenance->retry) - time())/$maintenance->retry));
 			$maintenance->progress = $maintenance->progress >= 98 ? 98 : $maintenance->progress;
 			require ENVO_PATH . 'View/html/maintenance.php';
 			die;
@@ -51,11 +57,12 @@ class Application extends \Phalcon\Mvc\Application
 
 		return false;
 	}
-
+	
 	/**
 	 * Start app
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function start()
 	{
@@ -85,14 +92,14 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		$di = new DI();
 		$instance = $this;
-		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG', false);
+		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG');
 
 		/**
 		 * Start the session the first time some component request the session service
 		 */
 		$di->setShared('session', function () {
 			session_save_path(APP_PATH.'storage/framework/sessions');
-			$session = new SessionAdapter(array('uniqueId' => 'envo-session'));
+			$session = new SessionAdapter(['uniqueId' => 'envo-session']);
 			$session->start();
 			return $session;
 		});
@@ -137,8 +144,11 @@ class Application extends \Phalcon\Mvc\Application
 		 * Custom authentication component
 		 */
 		$di->setShared('auth', Auth::class);
-
-		$di->set('eventsManager', function() use($debug) {
+		
+		/**
+		 * Events manager
+		 */
+		$di->setShared('eventsManager', function() use($debug) {
 			$eventManager = new \Phalcon\Events\Manager();
 			if( ! $debug ) {
 				$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
@@ -156,23 +166,24 @@ class Application extends \Phalcon\Mvc\Application
 			$dispatcher->setDefaultNamespace("Core\Controller\\");
 			return $dispatcher;
 		});
-
-		$di->setShared('apiHandler', function() {
-			return new \Envo\API\Handler();
-		});
+		
+		/**
+		 * Initialize API handler
+		 */
+		$di->setShared('apiHandler', Handler::class);
 
 		/**
 		 * Register the router
 		 */
 		$di->setShared('router', function() use($di) {
-			$router = new \Envo\Foundation\Router(false);
+			$router = new Router(false);
 			$api = $router->api();
 			$router->setHandler($di->get('apiHandler'));
 			require_once APP_PATH . 'app/routes.php';
 			$router->mount($api);
 
 			$router->removeExtraSlashes(true);
-			$router->setUriSource(\Phalcon\Mvc\Router::URI_SOURCE_SERVER_REQUEST_URI);
+			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
 
 			return $router;
 		});
@@ -190,26 +201,12 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set the database configuration
 		 */
-		$di->setShared('db', function () use($debug, $instance) {
-			$databaseConfig = require APP_PATH . 'config/database.php';
-			
-			if( $databaseConfig['default'] === 'sqlite' ) {
-				$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($databaseConfig['connections'][$databaseConfig['default']]);
-			} else {
-				$connection = new Database($databaseConfig['connections'][$databaseConfig['default']]);
-			}
-
-			if( $debug ) {
-				$connection->setEventsManager($instance->dbDebug($this));
-			}
-
-			return $connection;
-		});
+		$this->registerDatabases($di, $debug);
 
 		/**
 		* If the configuration specify the use of metadata adapter use it or use memory otherwise
 		*/
-		$di->set('modelsMetadata', function () {
+		$di->setShared('modelsMetadata', function () {
 			$metaData = new \Phalcon\Mvc\Model\Metadata\Files(array(
 				'metaDataDir' => APP_PATH . 'storage/framework/cache/'
 			));
@@ -220,7 +217,7 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set the models cache service
 		 */
-		$di->set('modelsCache', function () {
+		$di->setShared('modelsCache', function () {
 			// Cache data for one day by default
 			$frontCache = new FrontendData(["lifetime" => 86400]);
 
@@ -244,37 +241,79 @@ class Application extends \Phalcon\Mvc\Application
 
 		return $di;
 	}
-
-	public function dbDebug($di)
+	
+	/**
+	 * Debug database
+	 *
+	 * @param $di
+	 *
+	 * @return \Phalcon\Events\Manager
+	 */
+	public function dbDebug($databaseName, $di)
 	{
 		// log the mysql queries if APP_DEBUG is set to true
 		// $logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/logs/db-'.date('Y-m-d').'.log');
 		$profiler = $di->getProfiler();
 	  	$eventsManager = new \Phalcon\Events\Manager();
 		// Listen all the database events
-		$eventsManager->attach('db', function($event, $connection) use ($profiler) {
-			if ($event->getType() == 'beforeQuery') {
+		$eventsManager->attach($databaseName, function($event, $connection) use ($profiler) {
+			if ($event->getType() === 'beforeQuery') {
 				// $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				$profiler->startProfile($connection->getSQLStatement());
 				if(isset($_GET['cc2'])) {
 					$ignoreClasses = ['Phalcon\\', 'Application'];
 					$path = '';
 					foreach(debug_backtrace() as $trace) {
-						if( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ) continue;
+						if( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ){
+							continue;
+						}
 						$path .= (isset($trace['class']) ? $trace['class'] : '') . '::' .$trace['function'].';';
 					}
 					var_dump($connection->getSQLStatement(), $connection->getSQLVariables());
 					echo "Execution Time: {$profiler->getTotalElapsedSeconds()}. <br> PATH: {$path}\n\r";
 					echo '<br><br>-----------------------------------------------------------------------<br><br>';
-				} else {
-					// $logger->log($connection->getSQLStatement() . " [Execution Time: {$profiler->getTotalElapsedSeconds()}. PATH: {$path}]\n\r", Phalcon\Logger::DEBUG);
 				}
 			}
-			if ($event->getType() == 'afterQuery') {
+			if ($event->getType() === 'afterQuery') {
 				$profiler->stopProfile();
 			}
 		});
 
 		return $eventsManager;
+	}
+	
+	/**
+	 * Register database connections
+	 *
+	 * @param DI $di
+	 * @param bool $debug
+	 */
+	public function registerDatabases(DI $di, $debug)
+	{
+		$databaseConfig = config('database');
+		$connections = ['db' => $databaseConfig['default']];
+		if(isset($databaseConfig['use'])) {
+			foreach ($databaseConfig['use'] as $item){
+				$connections[$item] = $item;
+			}
+		}
+		
+		foreach ($connections as $key => $connection){
+			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connection) {
+				$data = $databaseConfig['connections'][$key];
+				
+				if( $data['driver'] === 'sqlite' ) {
+					$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($data);
+				} else {
+					$connection = new Database($data);
+				}
+				
+				if( $debug ) {
+					$connection->setEventsManager($this->dbDebug($key, $this));
+				}
+				
+				return $connection;
+			});
+		}
 	}
 }
