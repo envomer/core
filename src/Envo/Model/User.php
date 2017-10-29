@@ -8,6 +8,10 @@ class User extends AbstractLegalEntity
 {
     const ACCESS_API_TOKEN = 1;
     const ACCESS_SESSION = 2;
+    
+    const STATUS_ACTIVE = 1;
+    const STATUS_BANNED = 5;
+    const STATUS_SUSPENDED = 6;
 
     /**
      * Table name
@@ -72,6 +76,11 @@ class User extends AbstractLegalEntity
 	 * @var int
 	 */
     protected $level;
+	
+	/**
+	 * @var int
+	 */
+    protected $status;
 
     /**
      * Is admin flag
@@ -92,6 +101,30 @@ class User extends AbstractLegalEntity
     {
         return $this->loggedIn;
     }
+	
+	/**
+	 * @return bool
+	 */
+	public function isBanned()
+	{
+		return $this->status === self::STATUS_BANNED;
+	}
+	
+	/**
+	 * @return bool
+	 */
+	public function isSuspended()
+	{
+		return $this->status === self::STATUS_SUSPENDED;
+	}
+	
+	/**
+	 * @return bool
+	 */
+	public function isActive()
+	{
+		return $this->status === self::STATUS_ACTIVE || $this->status === null;
+	}
 
     /**
      * Set access mode.
@@ -196,6 +229,14 @@ class User extends AbstractLegalEntity
 	public function getName()
 	{
 		return $this->username;
+	}
+	
+	/**
+	 * @return int
+	 */
+	public function getStatus()
+	{
+		return $this->status;
 	}
 	
 	/**

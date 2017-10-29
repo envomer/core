@@ -20,7 +20,7 @@ class Column extends PhinxColumn
      *
      * @param  string $key
      * @param  mixed $value
-     * @return void
+     * @return self
      */
     public function __set($key, $value)
     {

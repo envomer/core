@@ -2,15 +2,17 @@
 
 use Envo\AbstractMigration;
 
+use Envo\Database\Migration\Table;
+
 class CreateMails extends AbstractMigration
 {
     public function up()
     {
-        if(!config('app.mail.enabled')) {
-            return false;
-        }
+        //if(!config('app.mail.enabled', false)) {
+        //    return false;
+        //}
 
-        $this->create('core_mails', function($table) {
+        $this->create('core_mails', function(Table $table) {
             $table->increments('id');
             
             $table->string('title');

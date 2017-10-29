@@ -145,7 +145,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 *
 	 * @param string $name
 	 * @param boolean $fresh
-	 * @return void
+	 * @return mixed
 	 */
 	public function ref($name, $fresh = false)
 	{

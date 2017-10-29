@@ -4,11 +4,10 @@ namespace Envo;
 
 use Envo\Model\User;
 
-use App\Core\Model\UserRepository;
+use App\UserRepository;
 use App\Core\Model\RememberToken;
 use App\Core\Model\FailedLogin;
 use Envo\Model\Team;
-use Envo\Support\Translator;
 use Envo\Event\LoginFailed;
 use Envo\Event\UserWrongPassword;
 use Envo\Event\LoggedIn;
@@ -20,12 +19,30 @@ use Phalcon\Mvc\User\Component;
  */
 class Auth extends Component
 {
-	protected $instance = null;
-	protected $user = null;
-	protected $team = null;
-	protected $loggedIn = null;
-	protected $userClass = null;
-	protected $teamClass = null;
+	/**
+	 * @var User
+	 */
+	protected $user;
+	
+	/**
+	 * @var Team
+	 */
+	protected $team;
+	
+	/**
+	 * @var bool
+	 */
+	protected $loggedIn;
+	
+	/**
+	 * @var string
+	 */
+	protected $userClass;
+	
+	/**
+	 * @var string
+	 */
+	protected $teamClass;
 
 	const TOKEN_NAME = 'auth-identity';
 	const COOKIE_REMEMBER = 'remember_rmu';
@@ -41,30 +58,22 @@ class Auth extends Component
 	}
 
 	/**
-	 * @return self|null
-	 */
-	public function getInstance()
-	{
-		if ( $this->instance ) {
-			return $this->instance;
-		}
-
-		return $this->instance = new self();
-	}
-
-	/**
 	 * Get current team
+	 *
+	 * @return Team
 	 */
 	public function team()
 	{
 		if( ! $this->team ) {
-			$this->team = self::user()->ref('team');
+			$this->team = $this->user()->ref('team');
 		}
 		return $this->team;
 	}
 
 	/**
 	 * Get current user
+	 *
+	 * @return User
 	 */
 	public function user()
 	{
@@ -76,7 +85,7 @@ class Auth extends Component
 			return null;
 		}
 
-		$auth = $this->session->get( self::TOKEN_NAME );
+		$auth = $this->session->get(self::TOKEN_NAME);
 
 		$user = null;
 		if ( ! $auth ) {
@@ -127,7 +136,7 @@ class Auth extends Component
 	/**
 	 * Is user a guest
 	 *
-	 * @return \Core\Model\User|null
+	 * @return bool
 	 */
 	public function guest()
 	{
@@ -238,7 +247,7 @@ class Auth extends Component
 	/**
 	 * Creates the remember me environment settings the related cookies and generating tokens
 	 *
-	 * @param Core\Model\User $user
+	 * @param User $user
 	 */
 	public function createRememberEnviroment(User $user)
 	{
@@ -295,7 +304,7 @@ class Auth extends Component
 	/**
 	 * Login into the app with a Authorization header
 	 * 
-	 * @return Core\Model\User|null
+	 * @return User|null
 	 */
 	public function loginWithAuthorizationHeaders()
 	{
@@ -311,18 +320,18 @@ class Auth extends Component
 			return null;
 		}
 
-		if( $apiKey == 'iYePyAsgoopeSo6iR8sJM1QOYjpGCKb5' || $apiKey == 'iYePyAsgoopeSo6iR8sJM1QOYjpGCKc5' ) {
+		if( $apiKey === 'iYePyAsgoopeSo6iR8sJM1QOYjpGCKb5' || $apiKey === 'iYePyAsgoopeSo6iR8sJM1QOYjpGCKc5' ) {
 			putenv('APP_TESTING=true');
 		}
 
 		$userClass = $this->userClass;
-		return $userClass::findFirstByApiKey($apiKey);
+		return $userClass::repo()->where('api_key', $apiKey)->getOne();
 	}
 
 	/**
 	 * Check if user is using api key
 	 *
-	 * @return void
+	 * @return string
 	 */
 	public function usesApiKey()
 	{
@@ -332,19 +341,15 @@ class Auth extends Component
 	/**
 	 * Get user from api key
 	 *
-	 * @return void
+	 * @return User|bool
 	 */
 	public function getUserFromApiKey()
 	{
 		$apiKey = $this->request->get('api_key');
-		// $secret = $this->request->get('app_secret');
-
-		// if( ! ($app = \Core\Model\AppRepository::getBySecret($secret)) ) {
-		// 	return false;
-		// }
 
 		$userClass = $this->userClass;
-		$user = $userClass::findFirstByApiKey($apiKey);
+		/** @var User $user */
+		$user = $userClass::repo()->where('api_key', $apiKey)->getOne();
 		if( ! $user ) {
 			return false;
 		}
@@ -356,22 +361,13 @@ class Auth extends Component
 	/**
 	 * Checks if the user is banned/inactive/suspended
 	 *
-	 * @param Core\Model\User $user
+	 * @param User $user
 	 *
 	 * @return bool
 	 */
 	public function checkUserFlags(User $user)
 	{
-		return true;
-		// if ($user->active != 'Y') {
-		//     throw new Exception('The user is inactive');
-		// }
-		// if ($user->banned != 'N') {
-		//     throw new Exception('The user is banned');
-		// }
-		// if ($user->suspended != 'N') {
-		//     throw new Exception('The user is suspended');
-		// }
+		return ! $user->isActive();
 	}
 
 	/**

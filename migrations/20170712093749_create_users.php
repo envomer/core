@@ -2,11 +2,13 @@
 
 use Envo\AbstractMigration;
 
+use Envo\Database\Migration\Table;
+
 class CreateUsers extends AbstractMigration
 {
     public function up()
     {
-        $this->create('core_users', function($table) {
+        $this->create('core_users', function(Table $table) {
             $table->increments('id');
 
             $table->string('identifier', 64);
@@ -17,6 +19,7 @@ class CreateUsers extends AbstractMigration
             
             $table->integer('team_id')->unsigned()->nullable()->index(); // hmmm....
             $table->tinyInteger('level')->nullable();
+            $table->tinyInteger('status')->nullable();
 
             $table->string('api_key', 128)->nullable();
 
