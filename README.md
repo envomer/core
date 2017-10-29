@@ -14,7 +14,8 @@
 - [ ] Add docker file @micaso
 - [ ] Add api docs (extract documentation from api class) @micaso
 - [ ] Rewrite database migration commands
-- [x] Add debugbar (https://github.com/snowair/phalcon-debugbar) 
+- [x] Add debugbar (https://github.com/snowair/phalcon-debugbar)
+- [ ] Implement middleWares (https://docs.phalconphp.com/en/3.2/application-micro) @envomer 
 
 ## API
 
