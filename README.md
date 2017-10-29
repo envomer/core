@@ -1,4 +1,4 @@
-# Framework
+# Core layer
 
 ## Features:
 - IP checker/blocker/throttle (done?)

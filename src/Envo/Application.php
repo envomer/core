@@ -191,7 +191,7 @@ class Application extends \Phalcon\Mvc\Application
 		 * Set the database configuration
 		 */
 		$di->setShared('db', function () use($debug, $instance) {
-			$databaseConfig = require(APP_PATH . 'config/database.php');
+			$databaseConfig = require APP_PATH . 'config/database.php';
 			
 			if( $databaseConfig['default'] === 'sqlite' ) {
 				$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($databaseConfig['connections'][$databaseConfig['default']]);

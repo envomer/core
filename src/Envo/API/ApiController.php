@@ -14,7 +14,7 @@ class ApiController extends AbstractController
     /**
      * Authenticate user
      *
-     * @return void
+     * @return array
      */
     public function authenticateAction()
     {
@@ -22,10 +22,7 @@ class ApiController extends AbstractController
         $password = $this->get('password');
 
         try {
-            $response = $this->auth->check(array(
-                'email' => $email,
-                'password' => $password,
-            ));
+            $response = $this->auth->check($email, $password);
         } catch (\Exception $exception) {
             return $this->json($exception);
         }

@@ -12,6 +12,7 @@ use Envo\Event\LoginFailed;
 use Envo\Event\UserWrongPassword;
 use Envo\Event\LoggedIn;
 
+use Envo\Support\Translator;
 use Phalcon\Mvc\User\Component;
 
 /**
@@ -73,7 +74,7 @@ class Auth extends Component
 	/**
 	 * Get current user
 	 *
-	 * @return User
+	 * @return User|bool
 	 */
 	public function user()
 	{
@@ -89,12 +90,12 @@ class Auth extends Component
 
 		$user = null;
 		if ( ! $auth ) {
-			if( ! $user && $this->usesApiKey() ) {
-				$user = $this->getUserFromApiKey();
+			if( ! $user && ($key = $this->usesApiKey())) {
+				$user = $this->getUserFromApiKey($key);
 			}
 			
-			if ( ! $user && $this->hasRememberMe() ) {
-				$user = $this->loginWithRememberMe();
+			if ( ! $user && ($key = $this->hasRememberMe())) {
+				$user = $this->loginWithRememberMe($key);
 			}
 
 			if( ! $user ) {
@@ -112,25 +113,25 @@ class Auth extends Component
 		else {
 			// TODO: cache user query
 			$userClass = $this->userClass;
-			$user = $userClass::findFirstByIdentifier($auth['id']);
+			/** @var User $user */
+			$user = $userClass::repo()->where('identifier', $auth['id'])->getOne();
 
 			if ( !$user ) {
-				$session->remove( self::TOKEN_NAME );
-				header( 'Location: /' );
+				$this->session->remove(self::TOKEN_NAME);
+				header('Location: /');
 
-				return;
+				return false;
 			}
 			$user->loggedIn = $this->loggedIn = true;
 			$user->setAccessMode($userClass::ACCESS_SESSION);
 			// $user->switched = $session->get( 'orig_user' );
 		}
 
-		// if( $user->isLoggedIn() ) {
-			// Translator::setLocale($user->getLanguage());
-		// }
-
-		$this->user = $user;
-		return $this->user;
+		 if( $user->isLoggedIn() && $user->getLanguage() ) {
+			 Translator::setLocale($user->getLanguage());
+		 }
+		
+		return $this->user = $user;
 	}
 
 	/**
@@ -146,42 +147,43 @@ class Auth extends Component
 
 		return $this->loggedIn;
 	}
-
+	
 	/**
 	 * Checks the user credentials
 	 *
-	 * @param array $credentials
+	 * @param $email
+	 * @param $password
 	 *
 	 * @return bool
+	 * @internal param array $credentials
+	 *
 	 */
-	public function check($credentials)
+	public function check($email, $password)
 	{
-		extract( $credentials );
 		// Check if the user exist
 		$userClass = $this->userClass;
-		$user = $userClass::findFirst( array(
-			"(email = ?0 OR username = ?1)",
-			'bind' => [ $email, $email ],
-		));
+		$user = $userClass::repo()->where('email = ?0 OR username = ?1',[ $email, $email ])->getOne();
+		die(var_dump($user));
 
-		if( ! $user || ! env('IGNORE_PASSWORDS') ) {
-			// Check the password
-			if ( !$user || password_verify( $password, $user->password) === false ) {
-				if( env('APP_ENV') !== 'local' ) {
-					$this->registerUserThrottling( $user ? $user->id : 0 );
-				}
-
-				if ( $user ) {
-					new UserWrongPassword(null, true, $user );
-				}
-				else new LoginFailed( [ 'user' => $email ] );
-
-				public_exception('validation.emailOrPAsswordWrong', 400);
+		if(
+			(! $user || ! env('IGNORE_PASSWORDS')) &&
+			(!$user || password_verify( $password, $user->password) === false)
+		) {
+			if(env('APP_ENV') !== 'local') {
+				$this->registerUserThrottling($user ? $user->id : 0);
 			}
+
+			if ($user) {
+				new UserWrongPassword(null, true, $user);
+			} else {
+				new LoginFailed(['user' => $email]);
+			}
+
+			public_exception('validation.emailOrPasswordWrong', 400);
 		}
 		
 		if( ! $user ) {
-			public_exception('validation.emailOrPAsswordWrong', 400);
+			public_exception('validation.emailOrPasswordWrong', 400);
 		}
 
 		// Check if the user was flagged
@@ -192,15 +194,15 @@ class Auth extends Component
 			$this->createRememberEnviroment( $user );
 		}
 
-		$this->session->set( self::TOKEN_NAME, array(
+		$this->session->set(self::TOKEN_NAME, [
 			'id'   => $user->identifier,
 			'name' => $user->username,
-		));
+		]);
 
 		$event = new LoggedIn(null, false, $user );
 		$event = $event->getEvent();
 		$event->identifier = $user->getId();
-		$event->team_id = $user->getteamId();
+		$event->team_id = $user->getTeamId();
 		$event->save();
 
 		return true;
@@ -214,6 +216,7 @@ class Auth extends Component
 	 */
 	public function registerUserThrottling($userId)
 	{
+		$loginFailedEvent = new LoginFailed();
 		$failedLogin            = new FailedLogin();
 		$failedLogin->identifier   = $userId;
 		$failedLogin->ip        = $this->request->getClientAddress();
@@ -269,34 +272,33 @@ class Auth extends Component
 	 */
 	public function hasRememberMe()
 	{
-		return $this->cookies->has( self::COOKIE_REMEMBER );
+		return $this->cookies->get(self::COOKIE_REMEMBER);
 	}
-
+	
 	/**
-	 * Logs on using the information in the coookies
+	 * Logs on using the information in the cookies
 	 *
-	 * @return \Phalcon\Http\Response
+	 * @param $userId
+	 *
+	 * @return bool|User
 	 */
-	public function loginWithRememberMe()
+	public function loginWithRememberMe($userId)
 	{
-		$userId = $this->cookies->get( self::COOKIE_REMEMBER )->getValue();
-		$token = $this->cookies->get( self::COOKIE_TOKEN )->getValue();
+		$userId = $userId ?: $this->cookies->get(self::COOKIE_REMEMBER)->getValue();
+		$token = $this->cookies->get(self::COOKIE_TOKEN)->getValue();
+		
+		$userModel = $this->userClass;
+		$user = $userModel::repo()->where('identifier', $userId)->getOne();
 
-		if ( ($user = UserRepository::getByUserId( $userId )) ) {
-			if( $user && isset($user->remember_token) && $user->remember_token == $token ) {
-				// $this->checkUserFlags( $user );
-				// $this->session->set( self::TOKEN_NAME, array(
-				// 	'id'   => $user->identifier,
-				// 	'name' => $user->username,
-				// ));
-				$this->loginUsingIdentifier($user);
+		if ( $user && isset($user->remember_token) && $user->remember_token === $token ) {
+			$this->checkUserFlags($user);
+			$this->loginUsingIdentifier($user);
 
-				return $user;
-			}
+			return $user;
 		}
 
-		$this->cookies->get( self::COOKIE_REMEMBER )->delete();
-		$this->cookies->get( self::COOKIE_TOKEN )->delete();
+		$this->cookies->get(self::COOKIE_REMEMBER)->delete();
+		$this->cookies->get(self::COOKIE_TOKEN)->delete();
 
 		return false;
 	}
@@ -312,9 +314,11 @@ class Auth extends Component
 		if( ! isset($headers['Authorization']) || ! ($authorization = $headers['Authorization']) ) {
 			return null;
 		}
+		
 		if( strpos($authorization, 'Bearer') === false ) {
 			return null;
 		}
+		
 		$apiKey = str_replace('Bearer ', '', $authorization);
 		if( ! $apiKey ) {
 			return null;
@@ -337,15 +341,17 @@ class Auth extends Component
 	{
 		return $this->request->get('api_key');
 	}
-
+	
 	/**
 	 * Get user from api key
 	 *
-	 * @return User|bool
+	 * @param $apiKey
+	 *
+	 * @return bool|User
 	 */
-	public function getUserFromApiKey()
+	public function getUserFromApiKey($apiKey)
 	{
-		$apiKey = $this->request->get('api_key');
+		$apiKey = $apiKey ?: $this->request->get('api_key');
 
 		$userClass = $this->userClass;
 		/** @var User $user */
@@ -377,7 +383,7 @@ class Auth extends Component
 	 */
 	public function getIdentity()
 	{
-		return $this->session->get( self::TOKEN_NAME );
+		return $this->session->get(self::TOKEN_NAME);
 	}
 
 	/**
@@ -387,7 +393,7 @@ class Auth extends Component
 	 */
 	public function getName()
 	{
-		$identity = $this->session->get( self::TOKEN_NAME );
+		$identity = $this->session->get(self::TOKEN_NAME);
 		return $identity[ 'name' ];
 	}
 
@@ -396,21 +402,24 @@ class Auth extends Component
 	 */
 	public function remove()
 	{
-		if ( $this->cookies->has( self::COOKIE_REMEMBER ) ) {
-			$this->cookies->get( self::COOKIE_REMEMBER )->delete();
+		if ( $this->cookies->has(self::COOKIE_REMEMBER) ) {
+			$this->cookies->get(self::COOKIE_REMEMBER)->delete();
 		}
-		if ( $this->cookies->has( self::COOKIE_TOKEN ) ) {
-			$this->cookies->get( self::COOKIE_TOKEN )->delete();
+		
+		if ( $this->cookies->has(self::COOKIE_TOKEN) ) {
+			$this->cookies->get(self::COOKIE_TOKEN)->delete();
 		}
-		$this->session->remove( self::TOKEN_NAME );
+		
+		$this->session->remove(self::TOKEN_NAME);
 	}
-
+	
 	/**
-	 * Auths the user by his/her id
+	 * Auth the user by their id
 	 *
-	 * @param int $id
+	 * @param int|string $user
 	 *
-	 * @throws Exception
+	 * @return int|string
+	 * @throws AbstractException
 	 */
 	public function loginUsingIdentifier($user)
 	{
@@ -419,8 +428,8 @@ class Auth extends Component
 			$user = $userClass::findFirstByIdentifier( $user );
 		}
 
-		if ( $user == false ) {
-			public_exception('auth.userNotFound');
+		if ( $user === false ) {
+			internal_exception('auth.userNotFound', 404);
 		}
 		$this->checkUserFlags( $user );
 		$this->session->set( self::TOKEN_NAME, array(
@@ -430,23 +439,24 @@ class Auth extends Component
 
 		return $user;
 	}
-
+	
 	/**
-	 * Auths the user by his/her id
+	 * Login the user by their id
 	 *
-	 * @param int $id
+	 * @param int $user
 	 *
-	 * @throws Exception
+	 * @return int|User
+	 * @throws AbstractException
 	 */
 	public function loginUsingId($user)
 	{
 		$userClass = $this->userClass;
 		if( is_numeric($user) ) {
-			$user = $userClass::findFirstById( $user );
+			$user = $userClass::findFirstById($user);
 		}
 
-		if ( $user == false ) {
-			public_exception('auth.userNotFound');
+		if ( $user === false ) {
+			internal_exception('auth.userNotFound', 404);
 		}
 		$this->checkUserFlags( $user );
 		$this->session->set( self::TOKEN_NAME, array(
@@ -466,7 +476,7 @@ class Auth extends Component
 	public function getUser()
 	{
 		$userClass = $this->userClass;
-		$identity = $this->session->get( self::TOKEN_NAME );
+		$identity = $this->session->get(self::TOKEN_NAME);
 		if ( isset($identity[ 'id' ]) ) {
 			$user = $userClass::findFirstByIdentifier( $identity[ 'id' ] );
 			if ( $user == false ) {
