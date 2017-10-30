@@ -30,12 +30,46 @@ class LegalEntity extends AbstractModel
 	protected $type;
 	
 	/**
-	 * @var LegalEntity
+	 * @var LegalEntity[]
 	 */
-	protected $parent;
+	protected $parents;
+	
+	/**
+	 * @var LegalEntity[]
+	 */
+	protected $children;
 	
 	/**
 	 * @var string
 	 */
 	protected $name;
+	
+	/**
+	 * initialize the model
+	 */
+	public function initialize()
+	{
+		/* defines the children */
+		$this->hasManyToMany(
+			'id',
+			LegalEntities::class,
+			'parent_id',
+			'child_id',
+			static::class,
+			'id',
+			['alias' => 'children']
+		);
+		
+		/* defines the parents */
+		$this->hasManyToMany(
+			'id',
+			LegalEntities::class,
+			'child_id',
+			'parent_id',
+			static::class,
+			'id',
+			['alias' => 'parents']
+		);
+		
+	}
 }

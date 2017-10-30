@@ -2,16 +2,14 @@
 
 namespace Envo\Model;
 
-use Envo\AbstractModel;
 use Phalcon\Mvc\Model\MetaDataInterface;
 
-abstract class AbstractLegalEntity extends AbstractModel
+/**
+ * Trait LegalEntityTrait
+ * @package Envo\Model
+ */
+trait LegalEntityTrait
 {
-	/**
-	 * @var LegalEntity|null
-	 */
-	protected $parent;
-	
 	/**
 	 * @param MetaDataInterface $metaData
 	 * @param bool              $exists
@@ -36,16 +34,41 @@ abstract class AbstractLegalEntity extends AbstractModel
 	}
 	
 	/**
+	 * @param LegalEntity $child
+	 */
+	public function addChild( LegalEntity $child)
+	{
+		//todo implement me
+	}
+	
+	/**
+	 * @param LegalEntity $parent
+	 */
+	public function addParent( LegalEntity $parent)
+	{
+		//todo implement me
+	}
+	
+	/**
+	 * @param LegalEntity $child
+	 */
+	public function removeChild( LegalEntity $child)
+	{
+		//todo implement me
+	}
+	
+	/**
+	 * @param LegalEntity $parent
+	 */
+	public function removeParent( LegalEntity $parent)
+	{
+		//todo implement me
+	}
+	
+	/**
 	 * get a name representation of this entity
 	 *
 	 * @return string
 	 */
 	abstract public function getName();
-	
-	/**
-	 * @param LegalEntity $legalEntity
-	 *
-	 * @return AbstractLegalEntity
-	 */
-	abstract public function setParent(LegalEntity $legalEntity);
 }

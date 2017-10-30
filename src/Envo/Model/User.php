@@ -2,9 +2,10 @@
 
 namespace Envo\Model;
 
+use Envo\AbstractModel;
 use Envo\Support\Translator;
 
-class User extends AbstractLegalEntity
+class User extends AbstractModel
 {
     const ACCESS_API_TOKEN = 1;
     const ACCESS_SESSION = 2;
@@ -13,6 +14,8 @@ class User extends AbstractLegalEntity
     const STATUS_BANNED = 5;
     const STATUS_SUSPENDED = 6;
 
+    use LegalEntityTrait;
+    
     /**
      * Table name
      *
@@ -247,17 +250,5 @@ class User extends AbstractLegalEntity
 	public function getPassword()
 	{
 		return $this->password;
-	}
-	
-	/**
-	 * @param LegalEntity $legalEntity
-	 *
-	 * @return AbstractLegalEntity
-	 */
-	public function setParent( LegalEntity $legalEntity )
-	{
-		$this->parent = $legalEntity;
-		
-		return $this;
 	}
 }

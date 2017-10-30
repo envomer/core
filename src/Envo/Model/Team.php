@@ -1,6 +1,7 @@
 <?php
 
 namespace Envo\Model;
+use Envo\AbstractModel;
 
 /**
  * Class Team
@@ -11,8 +12,10 @@ namespace Envo\Model;
  * @property string  identifier
  * @property string  name
  */
-class Team extends AbstractLegalEntity
+class Team extends AbstractModel
 {
+	use LegalEntityTrait;
+	
 	/**
 	 * Table name
 	 *
@@ -26,14 +29,14 @@ class Team extends AbstractLegalEntity
 	protected $id;
 	
 	/**
-	 * Identifier of user
+	 * Identifier of team
 	 *
 	 * @var string
 	 */
 	protected $identifier;
 	
 	/**
-	 * Username
+	 * Team name
 	 *
 	 * @var string
 	 */
@@ -47,17 +50,5 @@ class Team extends AbstractLegalEntity
 	public function getName()
 	{
 		return $this->name;
-	}
-	
-	/**
-	 * @param LegalEntity $legalEntity
-	 *
-	 * @return AbstractLegalEntity
-	 */
-	public function setParent( LegalEntity $legalEntity )
-	{
-		$this->parent = $legalEntity;
-		
-		return $this;
 	}
 }

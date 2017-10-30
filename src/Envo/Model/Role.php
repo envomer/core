@@ -12,6 +12,7 @@ use Envo\AbstractModel;
  * @property integer     id
  * @property LegalEntity legalEntity
  * @property integer     permission
+ * @property Unit        unit
  */
 class Role extends AbstractModel
 {
@@ -37,6 +38,16 @@ class Role extends AbstractModel
 	 */
 	protected $permission;
 	
-	//todo create unit and module models
+	/**
+	 * @var Unit
+	 */
 	protected $unit;
+	
+	/**
+	 * initialize the model
+	 */
+	public function initialize()
+	{
+		$this->belongsTo('unit_id', Unit::class, 'id', ['alias' => 'unit']);
+	}
 }
