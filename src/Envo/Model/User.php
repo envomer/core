@@ -194,7 +194,7 @@ class User extends AbstractModel
             return true;
         }
 
-        return $this->di->get('permission')->can($this, $permissionKey);
+        return $this->getDI()->get('permission')->can($this, $permissionKey);
     }
 	
 	/**
@@ -206,7 +206,7 @@ class User extends AbstractModel
 			return $this->cachedRelations['permissions'];
 		}
 
-		$permissions = $this->di->get('permission')->getByUserId($this->getId()) ?: [];
+		$permissions = $this->getDI()->get('permission')->getByUserId($this->getId()) ?: [];
 		return $this->cachedRelations['permissions'] = $permissions;
 	}
 	
@@ -215,7 +215,7 @@ class User extends AbstractModel
 	 */
 	public function getPermissionPublicKey()
 	{
-		return $this->di->get('permission')->getPublicKey($this);
+		return $this->getDI()->get('permission')->getPublicKey($this);
 	}
 	
 	/**
@@ -223,7 +223,7 @@ class User extends AbstractModel
 	 */
 	public function getPermissionKeys()
 	{
-		return $this->di->get('permission')->getKeysByUser($this);
+		return $this->getDI()->get('permission')->getKeysByUser($this);
 	}
 	
 	/**
