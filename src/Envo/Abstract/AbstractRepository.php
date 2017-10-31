@@ -4,6 +4,14 @@ namespace Envo;
 
 use Envo\Model\QueryBuilder;
 
+/**
+ * Class AbstractRepository
+ *
+ * @package Envo
+ *
+ * @property AbstractModel model
+ * @property QueryBuilder  builder
+ */
 class AbstractRepository
 {
 	/**
@@ -32,21 +40,31 @@ class AbstractRepository
 	public function createBuilder()
 	{
 		$class = get_class($this->model);
-		return (new QueryBuilder())->from([
+		$queryBuilder = new QueryBuilder();
+		$queryBuilder->from([
 			lcfirst($class[0]) => $class
 		]);
+		
+		return $queryBuilder;
 	}
 	
 	/**
-	 * @return \Phalcon\Mvc\Model\Resultset\Simple
+	 * @return \Phalcon\Mvc\Model\Resultset\Simple|\Phalcon\Mvc\Model\ResultsetInterface
 	 */
 	public function getAll()
 	{
-		return $this->model->find();
+		$model = $this->model;
+		
+		return $model::find();
 	}
 	
 	/**
 	 * Where in
+	 *
+	 * @param       $key
+	 * @param array $value
+	 *
+	 * @return QueryBuilder
 	 */
 	public function in($key, array $value)
 	{
@@ -57,6 +75,11 @@ class AbstractRepository
 	
 	/**
 	 * Where not in
+	 *
+	 * @param       $key
+	 * @param array $value
+	 *
+	 * @return QueryBuilder
 	 */
 	public function notIn($key, array $value)
 	{
