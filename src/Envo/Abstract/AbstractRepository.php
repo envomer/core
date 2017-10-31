@@ -89,6 +89,22 @@ class AbstractRepository
 	}
 	
 	/**
+	 * Get all results paginated
+	 *
+	 * @param     $page
+	 * @param int $limit
+	 *
+	 * @return QueryBuilder
+	 */
+	public function page($page, $limit = 50)
+	{
+		$builder = $this->createBuilder();
+		$builder->limit($limit);
+		$builder->offset(($page - 1) * $limit);
+		return $builder;
+	}
+	
+	/**
 	 * @param      $model
 	 * @param bool $override
 	 *

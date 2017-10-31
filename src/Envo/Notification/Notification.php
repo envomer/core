@@ -2,39 +2,107 @@
 
 namespace Envo\Notification;
 
-use Envo\AbstractEvent;
-
 class Notification
 {
     const PUSHOVER = 'Pushover';
     const SMS = 'Sms';
     const MAIL = 'Mail';
     const SLACK = 'Slack';
-
+	
+	/**
+	 * @var string
+	 */
     public $body;
+	
+	/**
+	 * @var string
+	 */
     public $subject;
+	
+	/**
+	 * @var string|array
+	 */
     public $recipients;
+	
+	/**
+	 * @var string
+	 */
     public $from;
+	
+	/**
+	 * @var string
+	 */
     public $cc;
+	
+	/**
+	 * @var string
+	 */
     public $bcc;
+	
+	/**
+	 * @see constants
+	 * @var array|string
+	 */
     public $providers;
+	
+	/**
+	 * @TODO not sure about the array...maybe DTO?
+	 *
+	 * @var array
+	 */
     public $url; // must be array [url, title]
-
+	
+	/**
+	 * Notification constructor.
+	 *
+	 * @param string|array $providers
+	 */
     public function __construct($providers = null)
     {
         if( $providers !== null ) {
             $this->providers = $providers;
         }
     }
-    
-    public function setProvider() {}
-    public function setBody() {}
-    public function setSubject() {}
-    public function setRecipients() {}
-    public function setFrom() {}
+	
+	/**
+	 * Set provider
+	 *
+	 * @param $providers
+	 */
+    public function setProviders($providers)
+	{
+		$this->providers = $providers;
+	}
+	
+    public function setBody($body)
+	{
+		$this->body = $body;
+	}
+	
+    public function setSubject($subject)
+	{
+		$this->subject = $subject;
+	}
+	
+    public function setRecipients($recipients)
+	{
+		$this->recipients = $recipients;
+	}
+	
+    public function setFrom($from)
+	{
+		$this->from = $from;
+	}
 
-    public function setBCC() {}
-    public function setCC() {}
+    public function setBCC($bcc)
+	{
+		$this->bcc = $bcc;
+	}
+	
+    public function setCC($cc)
+	{
+		$this->cc = $cc;
+	}
 
     final public function send()
     {
@@ -62,17 +130,32 @@ class Notification
     {
         return $this->from;
     }
-
+	
+	/**
+	 * Get recipients
+	 *
+	 * @return string
+	 */
     public function getRecipients()
     {
         return $this->recipients;
     }
-
+	
+	/**
+	 * Get BCC
+	 *
+	 * @return string
+	 */
     public function getBcc()
     {
         return $this->bcc;
     }
-
+	
+	/**
+	 * Get providers
+	 *
+	 * @return array|null|string
+	 */
     public function getProviders()
     {
         return $this->providers;

@@ -2,6 +2,8 @@
 
 namespace Envo\Support;
 
+use FilesystemIterator;
+
 class File
 {
     public static function filesystem($driver)
@@ -309,7 +311,7 @@ class File
             // (var_dump($file, $filter, strpos($file, $filter) !== false));
             if( $filter ) return filetype($file) == 'file' && strpos($file, $filter) !== false;
 
-            return filetype($file) == 'file';
+            return filetype($file) === 'file';
         });
     }
 
@@ -422,7 +424,7 @@ class File
      */
     public function deleteDirectory($directory, $preserve = false)
     {
-        if (! $this->isDirectory($directory)) {
+        if (! self::isDirectory($directory)) {
             return false;
         }
 
@@ -440,7 +442,7 @@ class File
             // just looping through and waxing all of the files in this directory
             // and calling directories recursively, so we delete the real path.
             else {
-                $this->delete($item->getPathname());
+                self::delete($item->getPathname());
             }
         }
 
@@ -461,13 +463,19 @@ class File
     {
         return $this->deleteDirectory($directory, true);
     }
-
+	
+	/**
+	 * Download file
+	 * @param $path
+	 */
     public static function download($path)
     {
         $info = pathinfo($path);
-        // die(var_dump($info));
-        if( ! $info ) die(var_dump('not found'));
-        header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
+
+        if( ! $info ){
+			die(var_dump('not found'));
+		}
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
         header('Content-Description: File Transfer');
         header('Content-type: ' . $info['extension']);
         header('Content-length: ' . filesize($path));
@@ -475,12 +483,19 @@ class File
         readfile($path);
         die();
     }
-
+	
+	/**
+	 * Parse csv file
+	 *
+	 * @param        $path
+	 * @param string $separator
+	 *
+	 * @return array
+	 */
     public static function parseCsv($path, $separator = ',')
     {
-        $row = 1;
         $items = array();
-        if (($handle = fopen($path, "r")) !== FALSE) {
+        if (($handle = fopen($path, 'r')) !== FALSE) {
             while (($data = fgetcsv($handle, 1000, $separator)) !== FALSE) {
                 $items[] = $data;
             }
@@ -496,18 +511,24 @@ class File
 
         if ($max_size < 0) {
             // Start with post_max_size.
-            $max_size = \System::parseSize(ini_get('post_max_size'));
+            $max_size = System::parseSize(ini_get('post_max_size'));
 
             // If upload_max_size is less, then reduce. Except if upload_max_size is
             // zero, which indicates no limit.
-            $upload_max = \System::parseSize(ini_get('upload_max_filesize'));
+            $upload_max = System::parseSize(ini_get('upload_max_filesize'));
             if ($upload_max > 0 && $upload_max < $max_size) {
                 $max_size = $upload_max;
             }
         }
         return $max_size;
     }
-
+	
+	/**
+	 * Download file as json
+	 *
+	 * @param $filename
+	 * @param $json
+	 */
     public static function downloadJson($filename, $json)
     {
         header('Content-disposition: attachment; filename='.$filename.'.json');
@@ -518,28 +539,42 @@ class File
         
         echo $json;
     }
-
-
-    /**
+	
+	
+	/**
 	 * Slightly modified version of http://www.geekality.net/2011/05/28/php-tail-tackling-large-files/
-	 * @author Torleif Berger, Lorenzo Stanco
-	 * @link http://stackoverflow.com/a/15025877/995958
-	 * @link https://gist.github.com/lorenzos/1711e81a9162320fde20
+	 * @author  Torleif Berger, Lorenzo Stanco
+	 * @link    http://stackoverflow.com/a/15025877/995958
+	 * @link    https://gist.github.com/lorenzos/1711e81a9162320fde20
 	 * @license http://creativecommons.org/licenses/by/3.0/
+	 *
+	 * @param      $filePath
+	 * @param int  $lines
+	 * @param bool $adaptive
+	 *
+	 * @return string
 	 */
-	public static function tail($filepath, $lines = 1, $adaptive = true) {
+	public static function tail($filePath, $lines = 1, $adaptive = true) {
 		// Open file
-		$f = @fopen($filepath, "rb");
-		if ($f === false) return false;
+		$f = @fopen($filePath, 'rb');
+		if ($f === false){
+			return false;
+		}
 		// Sets buffer size, according to the number of lines to retrieve.
 		// This gives a performance boost when reading a few lines from the file.
-		if (!$adaptive) $buffer = 4096;
-		else $buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
+		if (!$adaptive){
+			$buffer = 4096;
+		} else {
+			$buffer = ($lines < 2 ? 64 : ($lines < 10 ? 512 : 4096));
+		}
+		
 		// Jump to last character
 		fseek($f, -1, SEEK_END);
 		// Read it and adjust line number if necessary
 		// (Otherwise the result would be wrong if file doesn't end with a blank line)
-		if (fread($f, 1) != "\n") $lines -= 1;
+		if (fread($f, 1) !== "\n"){
+			--$lines;
+		}
 		
 		// Start reading
 		$output = '';
@@ -566,5 +601,32 @@ class File
 		// Close file and return
 		fclose($f);
 		return trim($output);
+	}
+	
+	/**
+	 * Render a script
+	 *
+	 * @param $path
+	 * @param array $vars
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function render($path, array $vars = [])
+	{
+		if( ! self::exists($path) ) {
+			internal_exception('Render file path not found', 500);
+		}
+		
+		if (is_array($vars) && !empty($vars)) {
+			$variablesCreated = extract($vars, EXTR_SKIP);
+			if ($variablesCreated !== count($values)) {
+				internal_exception('Extraction failed: scope modification attempted', 500);
+			}
+		}
+		
+		ob_start();
+		include $path;
+		return ob_get_clean();
 	}
 }

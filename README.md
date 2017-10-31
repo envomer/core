@@ -33,7 +33,7 @@ $notification->setFrom($name, $email);
 $notification->setBCC($bcc);
 $notification->setCC($cc);
 
-$notification->send($afterSeconds = 60);
+$notification->send();
 $notification->queue($afterSeconds = 60);
 ```
 
