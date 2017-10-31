@@ -4,6 +4,7 @@ namespace Envo\Notification\Provider;
 
 use Envo\Notification\Notification;
 use Envo\Notification\ProviderInterface;
+use Envo\Support\File;
 use SendGrid;
 use SendGrid\Content;
 use SendGrid\Email;
@@ -39,35 +40,37 @@ class Mail implements ProviderInterface
 	 */
 	public function send(Notification $notification)
 	{
-		$recipeients = $this->readRecipients($notification);
+		$recipients = $this->readRecipients($notification);
 		
 		$mail = $this->makeMail($notification);
 		
+		die(var_dump($mail, $recipients));
 		$sendGrid = new SendGrid($this->token);
 		
-		die(var_dump($mail, $recipeients));
 	}
 	
 	/**
 	 * @param Notification $notification
 	 *
 	 * @return SendGridMail
+	 * @throws \Exception
 	 */
 	public function makeMail(Notification $notification)
 	{
-		$from = new Email($newsletter->from_name, $newsletter->from);
-		$subject = $newsletter->subject;
+		$from = new Email($notification->from, $notification->from);
 		
-		$newsletterId = strtotime($newsletter->created_at) . '-' . $newsletter->id;
+		//$newsletterId = strtotime($newsletter->created_at) . '-' . $newsletter->id;
 		
-		$content = $notification->body;
+		$content = File::render(ENVO_PATH . 'View/html/notification-mail.php', [
+			'notification' => $notification
+		]);
 		
 		$content = new Content('text/html', $content);
 		$mail = new SendGridMail();
 		$mail->setFrom($from);
-		$mail->setSubject($subject);
+		$mail->setSubject($notification->subject);
 		$mail->addContent($content);
-		$mail->addCustomArg('newsletterid', $newsletterId); // ???
+		$mail->addCustomArg('newsletterid', 'testing'); // ???
 		
 		if( $this->test ) {
 			$mail_settings = new MailSettings();
@@ -92,10 +95,10 @@ class Mail implements ProviderInterface
 			$personalization->addTo($to);
 			// $personalization->addSubstitution('%recipient.name%', $subscriber->subscriber_name);
 			$personalization->addSubstitution('%recipient.email%', $recipient);
-			$personalization->addSubstitution('%recipient.id%', $subscriber->identifier);
+			//$personalization->addSubstitution('%recipient.id%', $subscriber->identifier);
 			// SENDGRID doesn't accept numbers. so turn number into string.
-			$personalization->addSubstitution('%r.id%', ''.$subscriber->id);
-			$personalization->addCustomArg('userid', $subscriber->identifier);
+			//$personalization->addSubstitution('%r.id%', ''.$subscriber->id);
+			//$personalization->addCustomArg('userid', $subscriber->identifier);
 			$mailingList[] = $personalization;
 		}
 		
@@ -111,6 +114,10 @@ class Mail implements ProviderInterface
 	 */
 	public function validate()
 	{
+		if(!env('APP_URL')) {
+			internal_exception('app.appUrlNotDefined', 500);
+		}
+		
 		$this->token = env('MAIL_SENDGRID');
 		
 		if( ! $this->token ) {

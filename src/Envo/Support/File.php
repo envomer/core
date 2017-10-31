@@ -2,6 +2,7 @@
 
 namespace Envo\Support;
 
+use Envo\AbstractException;
 use FilesystemIterator;
 
 class File
@@ -610,18 +611,18 @@ class File
 	 * @param array $vars
 	 *
 	 * @return string
-	 * @throws \Exception
+	 * @throws AbstractException
 	 */
 	public static function render($path, array $vars = [])
 	{
 		if( ! self::exists($path) ) {
-			internal_exception('Render file path not found', 500);
+			internal_exception('app.renderFilePathNotFound', 500);
 		}
 		
 		if (is_array($vars) && !empty($vars)) {
 			$variablesCreated = extract($vars, EXTR_SKIP);
-			if ($variablesCreated !== count($values)) {
-				internal_exception('Extraction failed: scope modification attempted', 500);
+			if ($variablesCreated !== count($vars)) {
+				internal_exception('app.extractionFailedScopeModificationAttempted', 500);
 			}
 		}
 		
