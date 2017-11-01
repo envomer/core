@@ -3,7 +3,13 @@
 namespace Envo\Model;
 
 use Envo\AbstractModel;
+use Envo\Model\Traits\SlugTrait;
 
+/**
+ * Class Unit
+ *
+ * @package Envo\Model
+ */
 class Unit extends AbstractModel
 {
 	use SlugTrait;

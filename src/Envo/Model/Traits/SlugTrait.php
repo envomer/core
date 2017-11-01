@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Model;
+namespace Envo\Model\Traits;
 
 trait SlugTrait
 {

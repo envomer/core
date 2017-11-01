@@ -3,6 +3,7 @@
 namespace Envo;
 
 use Envo\Model\QueryBuilder;
+use Phalcon\Di;
 
 /**
  * Class AbstractRepository
@@ -10,7 +11,6 @@ use Envo\Model\QueryBuilder;
  * @package Envo
  *
  * @property AbstractModel model
- * @property QueryBuilder  builder
  */
 class AbstractRepository
 {
@@ -18,11 +18,6 @@ class AbstractRepository
 	 * @var AbstractModel|null
 	 */
 	protected $model;
-	
-	/**
-	 * @var QueryBuilder
-	 */
-	protected $builder;
 	
 	/**
 	 * AbstractRepository constructor.
@@ -70,6 +65,7 @@ class AbstractRepository
 	{
 		$builder = $this->createBuilder();
 		$builder->inWhere($key, $value);
+		
 		return $builder;
 	}
 	
@@ -85,6 +81,7 @@ class AbstractRepository
 	{
 		$builder = $this->createBuilder();
 		$builder->notInWhere($key, $value);
+		
 		return $builder;
 	}
 	
@@ -101,7 +98,23 @@ class AbstractRepository
 		$builder = $this->createBuilder();
 		$builder->limit($limit);
 		$builder->offset(($page - 1) * $limit);
+		
 		return $builder;
+	}
+	
+	/**
+	 * @param $statement
+	 * @param $bindings
+	 * @param $type
+	 *
+	 * @return bool|\Phalcon\Db\ResultInterface
+	 */
+	public function raw($statement, $bindings = null, $type = null)
+	{
+		/** @var \Phalcon\Db\Adapter\Pdo $db */
+		$db = Di::getDefault()->get('db');
+		
+		return $db->query($statement, $bindings, $type);
 	}
 	
 	/**
@@ -129,6 +142,7 @@ class AbstractRepository
 	{
 		$builder = $this->createBuilder();
 		$builder->where($name, $value);
+		
 		return $builder;
 	}
 }

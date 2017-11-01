@@ -3,6 +3,7 @@
 namespace Envo\Model;
 
 use Envo\AbstractModel;
+use Envo\Model\Traits\LegalEntityTrait;
 use Envo\Support\Translator;
 
 class User extends AbstractModel
@@ -28,7 +29,7 @@ class User extends AbstractModel
      *
      * @var integer
      */
-    protected $accessMode = null;
+    protected $accessMode;
 
     /**
      * Are soft deletes allowed?
@@ -84,7 +85,10 @@ class User extends AbstractModel
 	 * @var int
 	 */
     protected $status;
-    
+	
+	/**
+	 * @var string
+	 */
     protected $password;
 
     /**

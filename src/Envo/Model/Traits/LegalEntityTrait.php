@@ -1,7 +1,8 @@
 <?php
 
-namespace Envo\Model;
+namespace Envo\Model\Traits;
 
+use Envo\Model\LegalEntity;
 use Phalcon\Mvc\Model\MetaDataInterface;
 
 /**

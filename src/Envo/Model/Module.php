@@ -3,6 +3,7 @@
 namespace Envo\Model;
 
 use Envo\AbstractModel;
+use Envo\Model\Traits\SlugTrait;
 
 /**
  * Class Module

@@ -17,6 +17,12 @@
 - [x] Add debugbar (https://github.com/snowair/phalcon-debugbar)
 - [ ] Implement middleWares (https://docs.phalconphp.com/en/3.2/application-micro) @envomer 
 
+https://gist.github.com/alex-LE/6138209
+https://gist.github.com/claviska/3536458
+https://gist.github.com/zofe/8bcd6a3d6d5832e8256bf6cb45cc0fad
+
+https://gist.github.com/search?utf8=✓&q=rest+client+php&ref=searchresults
+
 ## API
 
 ### Notification/Mail
