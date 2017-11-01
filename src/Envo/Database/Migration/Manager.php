@@ -443,8 +443,9 @@ class Manager
 		}
 		
 		if(!$paths) {
-			$paths[] = APP_PATH . 'resources/database/migrations/';
+			$paths[] = APP_PATH . 'resources/database/migrations';
 		}
+		
 		
 		$files = [];
 		foreach ($paths as $path) {
@@ -453,11 +454,12 @@ class Manager
 		
 		$files = array_merge(...$files);
 		
+		$sorted = [];
 		foreach ($files as $file){
-			$files[$this->getMigrationName($file)] = $file;
+			$sorted[$this->getMigrationName($file)] = $file;
 		}
 		
-		return $files;
+		return $sorted;
 	}
 	
 	/**
