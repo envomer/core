@@ -436,7 +436,7 @@ class Manager
 	 * @param  string|array  $paths
 	 * @return array
 	 */
-	public function getMigrationFiles($paths)
+	public function getMigrationFiles($paths = null)
 	{
 		if(is_string($paths)) {
 			$paths = [$paths];

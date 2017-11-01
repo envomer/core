@@ -2,63 +2,85 @@
 
 namespace Envo\Database\Console;
 
-use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
-use Symfony\Component\Console\Output\OutputInterface;
+use Envo\Console\Command;
 
-class MigrationStatus extends AbstractCommand
+class MigrationStatus extends Command
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected function configure()
-    {
-        parent::configure();
-
-        $this->addOption('--environment', '-e', InputOption::VALUE_REQUIRED, 'The target environment.');
-
-        $this->setName('migrate:status')
-             ->setDescription('Show migration status')
-             ->addOption('--format', '-f', InputOption::VALUE_REQUIRED, 'The output format: text or json. Defaults to text.')
-             ->setHelp(
-                 <<<EOT
-The <info>status</info> command prints a list of all migrations, along with their current status
-
-<info>phinx status -e development</info>
-<info>phinx status -e development -f json</info>
-
-The <info>version_order</info> configuration option is used to determine the order of the status migrations.
-EOT
-             );
-    }
-
-    /**
-     * Show the migration status.
-     *
-     * @param \Symfony\Component\Console\Input\InputInterface $input
-     * @param \Symfony\Component\Console\Output\OutputInterface $output
-     * @return int 0 if all migrations are up, or an error code
-     */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        $this->bootstrap($input, $output);
-
-        $environment = $input->getOption('environment');
-        $format = $input->getOption('format');
-
-        if ($environment === null) {
-            $environment = $this->getConfig()->getDefaultEnvironment();
-            $output->writeln('<comment>warning</comment> no environment specified, defaulting to: ' . $environment);
-        } else {
-            $output->writeln('<info>using environment</info> ' . $environment);
-        }
-        if ($format !== null) {
-            $output->writeln('<info>using format</info> ' . $format);
-        }
-
-        $output->writeln('<info>ordering by </info>' . $this->getConfig()->getVersionOrder() . " time");
-
-        // print the status
-        return $this->getManager()->printStatus($environment, $format);
-    }
+	/**
+	 * The name and signature of the console command.
+	 *
+	 * @var string
+	 */
+	protected $signature = 'migrate:status {--database= : The database connection to use.}
+                {--force : Force the operation to run when in production.}
+                {--path= : The path of migrations files to be executed.}
+                {--pretend : Dump the SQL queries that would be run.}
+                {--seed : Indicates if the seed task should be re-run.}
+                {--step : Force the migrations to be run so they can be rolled back individually.}';
+	
+	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
+	protected $description = 'Run the database migrations';
+	
+	/**
+	 * Execute the console command.
+	 *
+	 * @return void
+	 * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+	 */
+	public function handle()
+	{
+		$this->printStatus();
+	}
+	
+	/**
+	 * Prints the specified environment's migration status.
+	 *
+	 * @return integer 0 if all migrations are up, or an error code
+	 */
+	public function printStatus()
+	{
+		$output = $this->output;
+		$migrations = $this->manager->getMigrationFiles();
+		if (count($migrations)) {
+			$output->writeln('');
+			
+			$output->writeln(' Status  Date                  <info>Migration Name</info> ');
+			$output->writeln('----------------------------------------------------------------------------------');
+			
+			$sortedMigrations = $this->manager->getMigrationFiles();
+			
+			foreach ($sortedMigrations as $migration => $path) {
+				if (true) {
+					$status = '     <info>up</info> ';
+				} else {
+					$status = '   <error>down</error> ';
+				}
+				
+				$parts = explode('_', $migration);
+				$output->writeln(sprintf(
+					'%s  %19s  <comment>%s</comment>',
+					$status,
+					date('Y-m-d H:i:s',strtotime($parts[0])),
+					str_replace($parts[0].'_', '', $migration)
+				));
+				
+				$migrations[] = array(
+					'migration_status' => trim(strip_tags($status)),
+					'migration_id' => sprintf('%14.0f', '192891'),
+					'migration_name' => $migration
+				);
+			}
+		} else {
+			// there are no migrations
+			$output->writeln('');
+			$output->writeln('There are no available migrations. Try creating one using the <info>create</info> command.');
+		}
+		
+		// write an empty line
+		$output->writeln('');
+	}
 }
