@@ -8,11 +8,8 @@ use Envo\Foundation\Permission;
 use Envo\Foundation\Config;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Foundation\Router;
-use Envo\Support\Str;
 
 use Phalcon\Cache\Frontend\Data as FrontendData;
-use Phalcon\Db\Adapter\Pdo\Mysql as Database;
-use Phalcon\DI\FactoryDefault;
 use Phalcon\DI;
 use Phalcon\Http\Response\Cookies;
 use Phalcon\Http\Response;
@@ -239,81 +236,5 @@ class Application extends \Phalcon\Mvc\Application
 		$this->setDI($di);
 
 		return $di;
-	}
-	
-	/**
-	 * Debug database
-	 *
-	 * @param $di
-	 *
-	 * @return \Phalcon\Events\Manager
-	 */
-	public function dbDebug($databaseName, $di)
-	{
-		// log the mysql queries if APP_DEBUG is set to true
-		// $logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/logs/db-'.date('Y-m-d').'.log');
-		$profiler = $di->getProfiler();
-	  	$eventsManager = new \Phalcon\Events\Manager();
-		// Listen all the database events
-		$eventsManager->attach($databaseName, function($event, $connection) use ($profiler) {
-			if ($event->getType() === 'beforeQuery') {
-				// $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-				$profiler->startProfile($connection->getSQLStatement());
-				if(isset($_GET['cc2'])) {
-					$ignoreClasses = ['Phalcon\\', 'Application'];
-					$path = '';
-					foreach(debug_backtrace() as $trace) {
-						if( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ){
-							continue;
-						}
-						$path .= (isset($trace['class']) ? $trace['class'] : '') . '::' .$trace['function'].';';
-					}
-					var_dump($connection->getSQLStatement(), $connection->getSQLVariables());
-					echo "Execution Time: {$profiler->getTotalElapsedSeconds()}. <br> PATH: {$path}\n\r";
-					echo '<br><br>-----------------------------------------------------------------------<br><br>';
-				}
-			}
-			if ($event->getType() === 'afterQuery') {
-				$profiler->stopProfile();
-			}
-		});
-
-		return $eventsManager;
-	}
-	
-	/**
-	 * Register database connections
-	 *
-	 * @param DI $di
-	 * @param bool $debug
-	 */
-	public function registerDatabases(DI $di, $debug)
-	{
-		$databaseConfig = config('database');
-		$connections = ['db' => $databaseConfig['default']];
-		if(isset($databaseConfig['use'])) {
-			foreach ($databaseConfig['use'] as $item){
-				$connections[$item] = $item;
-			}
-		}
-		
-		$self = $this;
-		foreach ($connections as $key => $connectionName){
-			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connectionName, $self) {
-				$data = $databaseConfig['connections'][$connectionName];
-				
-				if( $data['driver'] === 'sqlite' ) {
-					$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($data);
-				} else {
-					$connection = new Database($data);
-				}
-				
-				if( $debug ) {
-					$connection->setEventsManager($self->dbDebug($key, $this));
-				}
-				
-				return $connection;
-			});
-		}
 	}
 }

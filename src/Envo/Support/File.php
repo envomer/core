@@ -290,13 +290,15 @@ class File
     {
         return glob($pattern, $flags);
     }
-
-    /**
-     * Get an array of all files in a directory.
-     *
-     * @param  string  $directory
-     * @return array
-     */
+	
+	/**
+	 * Get an array of all files in a directory.
+	 *
+	 * @param  string $directory
+	 * @param null    $filter
+	 *
+	 * @return array
+	 */
     public static function files($directory, $filter = null)
     {
         $glob = glob($directory.'/*');
@@ -304,13 +306,14 @@ class File
         if ($glob === false) {
             return [];
         }
-
+		
         // To get the appropriate files, we'll simply glob the directory and filter
         // out any "files" that are not truly files so we do not end up with any
         // directories in our list, but only true files within the directory.
         return array_filter($glob, function ($file) use ($filter) {
-            // (var_dump($file, $filter, strpos($file, $filter) !== false));
-            if( $filter ) return filetype($file) == 'file' && strpos($file, $filter) !== false;
+            if( $filter ) {
+				return filetype($file) === 'file' && strpos($file, $filter) !== false;
+			}
 
             return filetype($file) === 'file';
         });

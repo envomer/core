@@ -2,26 +2,59 @@
 
 namespace Envo;
 
-use Envo\Exception\InternalException;
 use Envo\API\RequestDTO;
+use Envo\Model\User;
 use Envo\Support\Validator;
 
-class AbstractAPI
+/**
+ * Class AbstractAPI
+ *
+ * @package Envo
+ */
+abstract class AbstractAPI
 {
-    public $model = null;
-    public $dto = null;
-    public $name = null;
-    public $user = null;
-    public $repo = null;
-
-    public $config = null;
-    
+	/**
+	 * @var AbstractModel
+	 */
+    public $model;
+	
+	/**
+	 * @var AbstractDTO
+	 */
+    public $dto;
+	
+	/**
+	 * @var string
+	 */
+    public $name;
+	
+	/**
+	 * @var User
+	 */
+    public $user;
+	
+	/**
+	 * @var AbstractRepository
+	 */
+    public $repo;
+	
+	/**
+	 * ???
+	 * @TODO what is this attribute for?
+	 *
+	 * @var array
+	 */
+    public $config;
+	
+	/**
+	 * @var string
+	 */
     public $identifier = 'id';
 	
 	/**
 	 * @var RequestDTO $request
 	 */
-    public $request = null;
+    public $request;
 	
 	/**
 	 * Build API class (DTO/mode/Repo)
@@ -36,11 +69,14 @@ class AbstractAPI
         $this->buildDTO();
         $this->buildRepo();
     }
-
+	
+	/**
+	 * @return $this
+	 */
     public function buildModel()
     {
         if( ! $this->model ) {
-            $this->model = str_replace('\API\\', '\Model\\', get_called_class());
+            $this->model = str_replace('\API\\', '\Model\\', static::class);
         }
 
         if( is_string($this->model) ) {
@@ -50,18 +86,22 @@ class AbstractAPI
             
             $this->model = new $this->model;
         }
+		
+		return $this;
     }
-
+	
+	/**
+	 * @return $this|bool
+	 */
     public function buildDTO()
     {
         if( ! $this->dto ) {
-            $this->dto = str_replace('\API\\', '\DTO\\', get_called_class()) . 'DTO';
+            $this->dto = str_replace('\API\\', '\DTO\\', static::class) . 'DTO';
         }
 
         if( is_string($this->dto) ) {
             if( ! class_exists($this->dto) ) {
                 return false;
-                // internal_exception('api.dtoNotFound', 404);
             }
 
             $data = null;
@@ -71,21 +111,28 @@ class AbstractAPI
 
             $this->dto = new $this->dto($data);
         }
+		
+		return $this;
     }
-
+	
+	/**
+	 * @return self
+	 */
     public function buildRepo()
     {
         if( ! $this->repo ) {
-            $this->repo = str_replace('\API\\', '\Repository\\', get_called_class()) . 'Repository';
+            $this->repo = str_replace('\API\\', '\Repository\\', static::class) . 'Repository';
         }
 
         if( is_string($this->repo) ) {
             if( ! class_exists($this->repo) ) {
-                return $this->repo = new AbstractRepository($this->model);
-            }
-
-            $this->repo = new $this->repo($this->model);
+                $this->repo = new AbstractRepository($this->model);
+            } else {
+				$this->repo = new $this->repo($this->model);
+			}
         }
+		
+		return $this;
     }
 	
 	/**
@@ -97,7 +144,7 @@ class AbstractAPI
             return $this->name;
         }
 
-        return $this->name = strtolower(basename(str_replace('\\', '/', get_called_class())));
+        return $this->name = strtolower(basename(str_replace('\\', '/', static::class)));
     }
 	
 	/**
@@ -122,6 +169,7 @@ class AbstractAPI
      *
      * @param string $key
      * @param mixed $default
+	 *
      * @return mixed
      */
     public function getConfig($key, $default = null)

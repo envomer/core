@@ -3,21 +3,37 @@
 namespace Envo;
 
 use Envo\Database\Migration\Table;
+use Phalcon\Db\Adapter;
+use Phalcon\Di;
 
-use Phinx\Migration\AbstractMigration as PhinxAbstractMigration;
-
-class AbstractMigration extends PhinxAbstractMigration
+class AbstractMigration
 {
-    /**
+	protected $connection;
+	
+	/**
+	 * AbstractMigration constructor.
+	 *
+	 * @param Adapter|null $connection
+	 */
+	public function __construct(Adapter $connection = null)
+	{
+		if(!$connection) {
+			$connection = Di::getDefault()->get('db');
+		}
+		
+		$this->connection = $connection;
+	}
+	
+	/**
      * Create table instance
      *
-     * @param [type] $tableName
+     * @param string $tableName
      * @param array $options
-     * @return void
+     * @return Table
      */
-    public function table($tableName, $options = array())
+    public function table($tableName, array $options = array())
     {
-        return new Table($tableName, $options, $this->getAdapter());
+        return new Table($tableName, $options);
     }
 
     /**
@@ -29,11 +45,11 @@ class AbstractMigration extends PhinxAbstractMigration
      */
     public function create($name, \Closure $closure)
     {
-        $table = $this->table($name, ['id' => false, 'primary_key' => ['id']]);
+        $table = $this->table($name);
 
-        call_user_func($closure, $table);
+        $closure($table);
 
-        $table->create();
+        $this->connection->createTable($table->name, '', $table->columns);
     }
 
     /**
@@ -47,7 +63,7 @@ class AbstractMigration extends PhinxAbstractMigration
     {
         $table = $this->table($name);
 
-        call_user_func($closure, $table);
+        $closure($table);
 
         $table->update();
     }

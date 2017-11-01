@@ -2,8 +2,6 @@
 
 namespace Envo\Database\Migration;
 
-use Phinx\Db\Table\Column as PhinxColumn;
-
 /**
  * Class Column
  * @package lib\Database
@@ -12,9 +10,8 @@ use Phinx\Db\Table\Column as PhinxColumn;
  * @method unsigned()
  * @method signed()
  */
-class Column extends PhinxColumn
+class Column extends \Phalcon\Db\Column
 {
-
     /**
      * Dynamically set the value of an attribute.
      *

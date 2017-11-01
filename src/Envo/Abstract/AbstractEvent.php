@@ -2,6 +2,7 @@
 
 namespace Envo;
 
+use Envo\Model\User;
 use Envo\Notification\Notification;
 
 use Envo\Support\IP;
@@ -239,13 +240,15 @@ class AbstractEvent
 	/**
 	 * Notify users
 	 *
-	 * @param AbstractUser[] $users
+	 * @param User[] $users
 	 * @param string $data
 	 * @return bool
 	 */
 	public function notify($users = null, $data = null)
 	{
+		// TODO implement
 		$notification = new Notification();
+		
 		return $notification->send($this, $users, $data);
 	}
 

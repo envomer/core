@@ -3,6 +3,7 @@
 namespace Envo;
 
 use Envo\Foundation\ApplicationTrait;
+use Envo\Foundation\Config;
 use Envo\Support\Date;
 use Phalcon\Commands\CommandsListener;
 use Phalcon\Loader;
@@ -23,26 +24,36 @@ class Console extends \Phalcon\Cli\Console
     {
         $this->argv = $argv;
     }
-
-    /**
-     * Start the console
-     */
+	
+	/**
+	 * Start the console
+	 * @throws \Exception
+	 */
     public function start()
     {
         $this->setup();
         $this->setupConfig();
-        // $this->registerServices();
-        $this->setDi(new \Phalcon\DI\FactoryDefault);
+        $this->setDI(new \Phalcon\DI\FactoryDefault);
+        $di = $this->getDI();
+	
+		/**
+		 * Set config
+		 */
+		$di->setShared('config', Config::class);
 
         define('APP_CLI', true);
 
         if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate:') === 0  ) {
             define('ENVO_INCLUDE_MIGRATIONS', true);
         }
+	
+		if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate') === 0  ) {
+			$this->registerDatabases($di);
+		}
 
         $app = new Application('envome', '0.2.0');
 
-        $app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
+        //$app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
         $app->add((new \Phinx\Console\Command\Init())->setName('migrate:init'));
         $app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
         $app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
@@ -57,6 +68,7 @@ class Console extends \Phalcon\Cli\Console
         $app->add(new \Envo\Queue\Console\WorkCommand);
         $app->add(new \Envo\Foundation\Console\BackupGeneratorCommand);
         $app->add(new \Envo\Database\Console\MigrationReset);
+        $app->add(new \Envo\Database\Console\Migrate);
         // $app->add(new \Envo\Database\Console\MigrationRollback);
         // $app->add(new \Envo\Database\Console\MigrationStatus);
 

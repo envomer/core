@@ -103,29 +103,46 @@ class Notification
 	{
 		$this->cc = $cc;
 	}
-
+	
+	/**
+	 * @return bool
+	 */
     final public function send()
     {
         $handler = new Handler($this);
-        $handler->send();
+        
+        return $handler->send();
     }
-
+	
+	/**
+	 * @param int $seconds
+	 */
     final public function queue($seconds = 60)
     {
         $handler = new Handler($this);
-        $handler->queue($seconds);
+        
+        return $handler->queue($seconds);
     }
-
+	
+	/**
+	 * @return string
+	 */
     public function getBody()
     {
         return $this->body;
     }
-
+	
+	/**
+	 * @return string
+	 */
     public function getSubject()
     {
         return $this->subject;
     }
-
+	
+	/**
+	 * @return string
+	 */
     public function getFrom()
     {
         return $this->from;

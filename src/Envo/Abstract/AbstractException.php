@@ -23,7 +23,8 @@ class AbstractException extends Exception
     {
         $this->reference = Str::quickRandom() . '.' . time();
         $this->messageCode = $messageCode;
-        return parent::__construct(\_t($messageCode), $code, $previous);
+		
+        parent::__construct(\_t($messageCode), $code, $previous);
     }
 
     public function setData($data)

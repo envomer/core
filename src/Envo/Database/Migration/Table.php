@@ -2,13 +2,24 @@
 
 namespace Envo\Database\Migration;
 
-use Phinx\Db\Adapter\MysqlAdapter;
-use Phinx\Db\Table as PhinxTable;
-
-class Table extends PhinxTable
+class Table
 {
-
-    /**
+	/**
+	 * @var string
+	 */
+	public $name;
+	
+	/**
+	 * @var \Phalcon\Db\Column[]
+	 */
+	public $columns;
+	
+	public function __construct($name, $options = null)
+	{
+		$this->name = $name;
+	}
+	
+	/**
      * Specify a unique index for the table.
      *
      * @param  string|array $columns
@@ -105,7 +116,10 @@ class Table extends PhinxTable
      */
     public function string($column, $length = 255)
     {
-        return $this->addColumnNew('string', $column, compact('length'));
+        return $this->addColumnNew($column,[
+        	'type' => Column::TYPE_VARCHAR,
+			'size' => $length
+		]);
     }
 
     /**
@@ -152,8 +166,12 @@ class Table extends PhinxTable
      */
     public function integer($column, $autoIncrement = false, $unsigned = false)
     {
-        $signed = !$unsigned;
-        return $this->addColumnNew('integer', $column, compact('signed'));
+		return $this->addColumnNew($column,[
+			'type' => Column::TYPE_INTEGER,
+			'size' => 11,
+			'autoIncrement' => $autoIncrement,
+			'unsigned' => $unsigned
+		]);
     }
 
     /**
@@ -488,47 +506,42 @@ class Table extends PhinxTable
 
         $this->timestampTz('updated_at');
     }
-
-    /**
-     * Add a table column.
-     *
-     * Type can be: string, text, integer, float, decimal, datetime, timestamp,
-     * time, date, binary, boolean.
-     *
-     * Valid options can be: limit, default, null, precision or scale.
-     *
-     * @param string|Column $columnName Column Name
-     * @param string $type Column Type
-     * @param array $options Column Options
-     * @throws \RuntimeException
-     * @throws \InvalidArgumentException
-     * @return Column
-     */
-    public function addColumnNew($type, $columnName, $options = array())
+	
+	/**
+	 * Add a table column.
+	 *
+	 * Type can be: string, text, integer, float, decimal, datetime, timestamp,
+	 * time, date, binary, boolean.
+	 *
+	 * Valid options can be: limit, default, null, precision or scale.
+	 *
+	 * @param string|Column $columnName Column Name
+	 * @param array         $options    Column Options
+	 *
+	 * @return Column
+	 */
+    public function addColumnNew($columnName, array $options = array())
     {
-        // we need an adapter set to add a column
-        if (null === $this->getAdapter()) {
-            throw new \RuntimeException('An adapter must be specified to add a column.');
-        }
+		$column = new Column($columnName, $options);
 
-        // create a new column object if only strings were supplied
-        if (!$columnName instanceof Column) {
-            $column = new Column();
-            $column->setName($columnName);
-            $column->setType($type);
-            $column->setOptions($options); // map options to column methods
-        } else {
-            $column = $columnName;
-        }
-
-        // Delegate to Adapters to check column type
-        if (!$this->getAdapter()->isValidColumnType($column)) {
-            throw new \InvalidArgumentException(sprintf(
-                'An invalid column type "%s" was specified for column "%s".',
-                $column->getType(),
-                $column->getName()
-            ));
-        }
+        //// create a new column object if only strings were supplied
+        //if (!$columnName instanceof Column) {
+        //    $column = new Column();
+        //    $column->setName($columnName);
+        //    $column->setType($type);
+        //    $column->setOptions($options); // map options to column methods
+        //} else {
+        //    $column = $columnName;
+        //}
+		//
+        //// Delegate to Adapters to check column type
+        //if (!$this->getAdapter()->isValidColumnType($column)) {
+        //    throw new \InvalidArgumentException(sprintf(
+        //        'An invalid column type "%s" was specified for column "%s".',
+        //        $column->getType(),
+        //        $column->getName()
+        //    ));
+        //}
 
         $this->columns[] = $column;
         return $column;

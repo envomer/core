@@ -9,9 +9,9 @@ use Envo\Support\Arr;
 class AbstractDTO implements JsonSerializable
 {
 	/**
-	 * Contruct abstract DTO
+	 * Construct abstract DTO
 	 *
-	 * @param object $data
+	 * @param mixed $data
 	 * @param array $mapping
 	 */
 	public function __construct($data = null, $mapping = null)
@@ -41,7 +41,6 @@ class AbstractDTO implements JsonSerializable
                 $this->{$k} = $v;
             }
             else if($mapping && isset($mapping[$k])) {
-            	// if( strpos(haystack, needle) )
             	$this->{$mapping[$k]} = $v;
             }
 		}
@@ -70,7 +69,7 @@ class AbstractDTO implements JsonSerializable
 	/**
 	 * Return array
 	 *
-	 * @return void
+	 * @return array
 	 */
 	public function toArray()
 	{

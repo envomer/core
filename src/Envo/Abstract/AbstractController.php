@@ -4,24 +4,29 @@ namespace Envo;
 
 use Exception;
 
-use Envo\AbstractException;
-use Envo\Exception\PublicException;
 use Envo\Foundation\ExceptionHandler;
 use Envo\Model\User;
-use Envo\Support\Str;
 
 use Phalcon\Mvc\Controller;
 
+/**
+ * Class AbstractController
+ *
+ * @package Envo
+ */
 class AbstractController extends Controller
 {
-	protected $user = null;
+	/**
+	 * @var User
+	 */
+	protected $user;
 
 	/**
 	 * Set views directory
 	 *
 	 * @param string $module
 	 * 
-	 * @return boolean
+	 * @return void
 	 */
 	public function setViewsDir($module = 'Core')
 	{
@@ -55,7 +60,7 @@ class AbstractController extends Controller
 		$params = array_merge($this->router->getParams(), $_REQUEST);
 		$requestMethods = array('PUT' => '', 'POST' => '', 'DELETE' => '');
 		if( array_key_exists($_SERVER['REQUEST_METHOD'], $requestMethods) !== false ) {
-			$rawInputData = file_get_contents("php://input");
+			$rawInputData = file_get_contents('php://input');
 			$post_vars = json_decode($rawInputData,true);
 
 			if( ! is_array($post_vars) ) {
@@ -67,7 +72,7 @@ class AbstractController extends Controller
 			}
 		}
 
-		if( is_null($name) ) {
+		if( null === $name ) {
 			return $params;
 		}
 
@@ -77,15 +82,21 @@ class AbstractController extends Controller
 
 		return $default;
 	}
-
-  	/**
-	 * Return the reponse as a json
+	
+	/**
+	 * Return the response as a json
+	 *
+	 * @param      $msg
+	 * @param null $sentence
+	 * @param bool $includeState
+	 *
+	 * @return string
 	 */
 	public function json($msg, $sentence = null, $includeState = true)
 	{
 		/** TODO: refactor **/
 		$code = 200;
-		$loggedIn = $this->user() && $this->user()->loggedIn ? true : false;;
+		$loggedIn = ($this->user() && $this->user()->loggedIn);
 
 		if( is_bool($msg) ) {
 			$msg = ['success' => $msg];
@@ -121,9 +132,8 @@ class AbstractController extends Controller
 		}
 
 	    if( ! $includeState ) {
-	    	unset($msg['success']);
-	    	unset($msg['authenticated']);
-	    }
+			unset($msg['success'], $msg['authenticated']);
+		}
 
 		if( is_array($msg) ) {
 			$msg['render_time'] = \render_time();
@@ -147,7 +157,7 @@ class AbstractController extends Controller
 	/**
 	 * Empty json response
 	 *
-	 * @return void
+	 * @return string
 	 */
 	public function emptyApiJson()
 	{
@@ -174,13 +184,13 @@ class AbstractController extends Controller
 			return true;
 		}
 
-		$this->abort();
+		return $this->abort();
 	}
 
 	/**
 	 * Abort unless user is logged in
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function mustBeLoggedIn()
 	{
@@ -188,18 +198,21 @@ class AbstractController extends Controller
 			return true;
 		}
 
-		$this->abort(404);
+		return $this->abort(404);
 	}
-
+	
 	/**
 	 * Abort
 	 *
 	 * @param integer $code
-	 * @param string $msg
-	 * @return void
+	 * @param string  $msgCode
+	 *
+	 * @return bool
 	 */
 	public function abort($code = 403, $msgCode = 'app.unauthorized')
 	{
 		public_exception($msgCode, $code);
+		
+		return false;
 	}
 }

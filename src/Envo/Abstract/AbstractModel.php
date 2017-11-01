@@ -186,13 +186,17 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		$className = static::class;
 		
 		if(!isset(self::$repos[$className])) {
-			$repoClass = str_replace('\\Model\\', '\\Model\\Repository\\', static::class);
+			$parts = explode('\\', $className);
+			
+			array_splice($parts, count($parts) - 1, 0, 'Repository'); // splice in at position 3
+			$repoClass = implode('\\', $parts);
 			
 			// Model repository class does not exist.
 			// Use the AbstractRepository class as fallback
 			if(!class_exists($repoClass)) {
 				$repoClass = AbstractRepository::class;
 			}
+			
 			self::$repos[$className] = new $repoClass(new $className);
 		}
 
