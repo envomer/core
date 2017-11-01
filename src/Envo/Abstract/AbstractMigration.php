@@ -48,8 +48,10 @@ class AbstractMigration
         $table = $this->table($name);
 
         $closure($table);
-
-        $this->connection->createTable($table->name, '', $table->columns);
+		
+        $this->connection->createTable($table->name, null, [
+        	'columns' => $table->columns
+		]);
     }
 
     /**
@@ -67,16 +69,28 @@ class AbstractMigration
 
         $table->update();
     }
-
-    /**
-     * Drop table if exists
-     *
-     * @return void
-     */
+	
+	/**
+	 * Drop table if exists
+	 *
+	 * @param $name
+	 *
+	 * @return void
+	 */
     public function dropIfExists($name)
     {
-        if( $this->hasTable($name) ) {
-            $this->dropTable($name);
+        if( $this->connection->tableExists($name) ) {
+            $this->connection->dropTable($name);
         }
     }
+	
+	public function hasTable($name)
+	{
+		return $this->connection->tableExists($name);
+	}
+	
+	public function dropTable($name)
+	{
+		return $this->connection->dropTable($name);
+	}
 }

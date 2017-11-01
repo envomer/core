@@ -44,6 +44,21 @@ class AbstractRepository
 	}
 	
 	/**
+	 * @param $statement
+	 * @param $bindings
+	 * @param $type
+	 *
+	 * @return bool|\Phalcon\Db\ResultInterface
+	 */
+	public function execute($statement, $bindings = null, $type = null)
+	{
+		/** @var \Phalcon\Db\Adapter\Pdo $db */
+		$db = Di::getDefault()->get('db');
+		
+		return $db->execute($statement, $bindings, $type);
+	}
+	
+	/**
 	 * @return \Phalcon\Mvc\Model\Resultset\Simple|\Phalcon\Mvc\Model\ResultsetInterface
 	 */
 	public function getAll()
@@ -109,7 +124,7 @@ class AbstractRepository
 	 *
 	 * @return bool|\Phalcon\Db\ResultInterface
 	 */
-	public function raw($statement, $bindings = null, $type = null)
+	public function query($statement, $bindings = null, $type = null)
 	{
 		/** @var \Phalcon\Db\Adapter\Pdo $db */
 		$db = Di::getDefault()->get('db');

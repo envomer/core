@@ -9,6 +9,8 @@ class Table
 	 */
 	public $name;
 	
+	public $indexes;
+	
 	/**
 	 * @var \Phalcon\Db\Column[]
 	 */
@@ -59,7 +61,7 @@ class Table
      */
     public function increments($column)
     {
-        return $this->unsignedInteger($column, true)->setIdentity(true);
+        return $this->unsignedInteger($column, true);
     }
 
     /**
@@ -130,7 +132,9 @@ class Table
      */
     public function text($column)
     {
-        return $this->addColumnNew('text', $column);
+        return $this->addColumnNew($column, [
+        	'type' => Column::TYPE_TEXT
+		]);
     }
 
     /**
@@ -170,7 +174,9 @@ class Table
 			'type' => Column::TYPE_INTEGER,
 			'size' => 11,
 			'autoIncrement' => $autoIncrement,
-			'unsigned' => $unsigned
+			'unsigned' => $unsigned,
+			'notNull' => $autoIncrement,
+			'primary' => $autoIncrement
 		]);
     }
 
@@ -200,10 +206,12 @@ class Table
      */
     public function smallInteger($column, $autoIncrement = false, $unsigned = false)
     {
-        $signed = !$unsigned;
-        //smallInteger
-        $limit = MysqlAdapter::INT_SMALL;
-        return $this->addColumnNew('integer', $column, compact('limit', 'signed'));
+        return $this->addColumnNew($column, [
+        	'type' => Column::TYPE_INTEGER,
+			'size' => 4,
+			'unsigned' => $unsigned,
+			'autoIncrement' => $autoIncrement
+		]);
     }
 
     /**
@@ -344,7 +352,10 @@ class Table
      */
     public function boolean($column)
     {
-        return $this->addColumnNew('boolean', $column)->unsigned();
+        return $this->addColumnNew($column, [
+        	'type' => Column::TYPE_BOOLEAN,
+			'unsigned' => true
+		]);
     }
 
     /**
@@ -400,7 +411,9 @@ class Table
      */
     public function dateTime($column)
     {
-        return $this->addColumnNew('datetime', $column);
+        return $this->addColumnNew($column, [
+        	'type' => Column::TYPE_DATETIME
+		]);
     }
 
     /**
@@ -454,10 +467,11 @@ class Table
      */
     public function timestamp($column)
     {
-        return $this->addColumnNew('timestamp', $column, array(
+        return $this->addColumnNew($column, [
             'null' => true,
+            'type' => Column::TYPE_DATETIME
             // 'default' => '0000-00-00 00:00:00'
-        ));
+        ]);
     }
 
     /**
@@ -542,6 +556,8 @@ class Table
         //        $column->getName()
         //    ));
         //}
+		
+		$column->table = $this;
 
         $this->columns[] = $column;
         return $column;

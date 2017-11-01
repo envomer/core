@@ -3,6 +3,7 @@
 namespace Envo\Database\Migration;
 
 use Envo\Database\Migration\Model\Migration;
+use Envo\Support\Arr;
 use Envo\Support\File;
 use Envo\Support\Str;
 use Phalcon\Di;
@@ -194,7 +195,7 @@ class Manager
 		// Once we have run a migrations class, we will log that it was run in this
 		// repository so that we don't try to run it next time we do a migration
 		// in the application. A migration repository keeps the migrate order.
-		$this->repository->log($name, $batch);
+		$this->logMigration($name, $batch);
 		
 		$this->note("<info>Migrated:</info>  {$name}");
 	}
@@ -235,7 +236,7 @@ class Manager
 		if (($steps = $options['step'] ?? 0) > 0) {
 			return $this->repository->getMigrations($steps);
 		} else {
-			return $this->repository->getLast();
+			return $this->getLast();
 		}
 	}
 	
@@ -247,7 +248,7 @@ class Manager
 	 * @param  array  $options
 	 * @return array
 	 */
-	protected function rollbackMigrations(array $migrations, $paths, array $options)
+	protected function rollbackMigrations($migrations, $paths, array $options)
 	{
 		$rolledBack = [];
 		
@@ -327,7 +328,7 @@ class Manager
 	 * Run "down" a migration instance.
 	 *
 	 * @param  string  $file
-	 * @param  object  $migration
+	 * @param  Model  $migration
 	 * @param  bool    $pretend
 	 * @return void
 	 */
@@ -351,7 +352,10 @@ class Manager
 		// Once we have successfully run the migration "down" we will remove it from
 		// the migration repository so it will be considered to have not been run
 		// by the application then will be able to fire by any later operation.
-		$this->repository->delete($migration);
+		//$this->repository->delete($migration);
+		Model::repo()->execute('DELETE FROM migrations WHERE migration = :migration', [
+			'migration' => $migration->migration
+		]);
 		
 		$this->note("<info>Rolled back:</info>  {$name}");
 	}
@@ -372,10 +376,6 @@ class Manager
 		};
 		
 		$callback();
-		
-		//$this->getSchemaGrammar($connection)->supportsSchemaTransactions()
-		//	? $connection->transaction($callback)
-		//	: $callback();
 	}
 	
 	/**
@@ -451,7 +451,13 @@ class Manager
 			$files[] = File::files($path);
 		}
 		
-		return array_merge(...$files);
+		$files = array_merge(...$files);
+		
+		foreach ($files as $file){
+			$files[$this->getMigrationName($file)] = $file;
+		}
+		
+		return $files;
 	}
 	
 	/**
@@ -536,5 +542,30 @@ class Manager
 		$this->connection->createTable($table->name, null, [
 			'columns' => $table->columns
 		]);
+	}
+	
+	public function getLastBatchNumber()
+	{
+		$query = $this->connection->query('select max(batch) as batch from migrations');
+		
+		return $query->fetch()['batch'];
+	}
+	
+	public function getLast()
+	{
+		if(! ($lastBatch = $this->getLastBatchNumber())) {
+			return [];
+		}
+		
+		return Model::repo()->where('batch', $lastBatch)->get();
+	}
+	
+	public function logMigration($name, $batch)
+	{
+		$migration = new Model();
+		$migration->migration = $name;
+		$migration->batch = $batch;
+		
+		return $migration->save();
 	}
 }
