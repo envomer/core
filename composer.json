@@ -31,5 +31,9 @@
             "Envo\\": ["src/Envo", "src/Envo/Abstract"]
         }
     },
-    "bin": ["bin/envo"]
+    "bin": ["bin/envo"],
+    "require-dev": {
+        "phpunit/phpunit": "^6.4",
+        "phalcon/incubator": "^3.2"
+    }
 }
