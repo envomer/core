@@ -2,6 +2,7 @@
 
 namespace Envo\Database\Migration;
 
+use Envo\AbstractMigration;
 use Envo\Database\Migration\Model\Migration;
 use Envo\Support\Arr;
 use Envo\Support\File;
@@ -207,7 +208,7 @@ class Manager
 	 * @param  array  $options
 	 * @return array
 	 */
-	public function rollback($paths = [], array $options = [])
+	public function rollback($paths, array $options = [])
 	{
 		$this->notes = [];
 		
@@ -220,9 +221,9 @@ class Manager
 			$this->note('<info>Nothing to rollback.</info>');
 			
 			return [];
-		} else {
-			return $this->rollbackMigrations($migrations, $paths, $options);
 		}
+		
+		return $this->rollbackMigrations($migrations, $paths, $options);
 	}
 	
 	/**
@@ -235,9 +236,9 @@ class Manager
 	{
 		if (($steps = $options['step'] ?? 0) > 0) {
 			return $this->repository->getMigrations($steps);
-		} else {
-			return $this->getLast();
 		}
+		
+		return $this->getLast();
 	}
 	
 	/**
@@ -383,7 +384,8 @@ class Manager
 	 *
 	 * @param  object  $migration
 	 * @param  string  $method
-	 * @return void
+	 *
+	 * @return bool
 	 */
 	protected function pretendToRun($migration, $method)
 	{
@@ -392,6 +394,8 @@ class Manager
 			
 			$this->note("<info>{$name}:</info> {$query['query']}");
 		}
+		
+		return true;
 	}
 	
 	/**
@@ -421,7 +425,7 @@ class Manager
 	 * Resolve a migration instance from a file.
 	 *
 	 * @param  string  $file
-	 * @return object
+	 * @return mixed|AbstractMigration
 	 */
 	public function resolve($file)
 	{
@@ -445,7 +449,6 @@ class Manager
 		if(!$paths) {
 			$paths[] = APP_PATH . 'resources/database/migrations';
 		}
-		
 		
 		$files = [];
 		foreach ($paths as $path) {

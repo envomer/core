@@ -14,20 +14,28 @@ use Envo\Foundation\Console\DownCommand;
 use Envo\Foundation\Console\ScaffoldCommand;
 use Envo\Foundation\Console\UpCommand;
 use Envo\Queue\Console\WorkCommand;
+
 use Phalcon\DI\FactoryDefault;
-use Phalcon\Cli\Console as ConsoleApp;
 use Phinx\Console\Command\Create;
 use Phinx\Console\Command\Init;
 use Phinx\Console\Command\SeedCreate;
 use Phinx\Console\Command\SeedRun;
 use Symfony\Component\Console\Application;
 
-class Console extends ConsoleApp
+class Console extends \Phalcon\Application
 {
     use ApplicationTrait;
-
+	
+	/**
+	 * @var array
+	 */
     public $argv;
-
+	
+	/**
+	 * Console constructor.
+	 *
+	 * @param array $argv
+	 */
     public function __construct($argv)
     {
 		$this->argv = $argv;
@@ -55,10 +63,8 @@ class Console extends ConsoleApp
         if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate:') === 0  ) {
             define('ENVO_INCLUDE_MIGRATIONS', true);
         }
-	
-		if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate') === 0  ) {
-			$this->registerDatabases($di);
-		}
+		
+		$this->registerDatabases($di);
 
         $app = new Application('envome', '0.2.0');
 
@@ -83,4 +89,12 @@ class Console extends ConsoleApp
 
         $app->run();
     }
+	
+	/**
+	 * Handles a request
+	 */
+	public function handle()
+	{
+		// TODO: Implement handle() method.
+	}
 }
