@@ -2,19 +2,27 @@
 
 namespace Envo;
 
+use Envo\Database\Console\Migrate;
+use Envo\Database\Console\MigrationReset;
+use Envo\Database\Console\MigrationRollback;
+use Envo\Database\Console\MigrationStatus;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Foundation\Config;
-use Envo\Support\Date;
-use Phalcon\Commands\CommandsListener;
-use Phalcon\Loader;
-use Phalcon\Events\Manager as EventsManager;
-use Phalcon\Exception as PhalconException;
-use Phalcon\Di\FactoryDefault\Cli as CliDI;
+use Envo\Foundation\Console\BackupGeneratorCommand;
+use Envo\Foundation\Console\ClearStorageCommand;
+use Envo\Foundation\Console\DownCommand;
+use Envo\Foundation\Console\ScaffoldCommand;
+use Envo\Foundation\Console\UpCommand;
+use Envo\Queue\Console\WorkCommand;
+use Phalcon\DI\FactoryDefault;
 use Phalcon\Cli\Console as ConsoleApp;
-use Phalcon\Db\Adapter\Pdo\Mysql as Database;
+use Phinx\Console\Command\Create;
+use Phinx\Console\Command\Init;
+use Phinx\Console\Command\SeedCreate;
+use Phinx\Console\Command\SeedRun;
 use Symfony\Component\Console\Application;
 
-class Console extends \Phalcon\Cli\Console
+class Console extends ConsoleApp
 {
     use ApplicationTrait;
 
@@ -22,7 +30,8 @@ class Console extends \Phalcon\Cli\Console
 
     public function __construct($argv)
     {
-        $this->argv = $argv;
+		$this->argv = $argv;
+		parent::__construct();
     }
 	
 	/**
@@ -33,7 +42,7 @@ class Console extends \Phalcon\Cli\Console
     {
         $this->setup();
         $this->setupConfig();
-        $this->setDI(new \Phalcon\DI\FactoryDefault);
+        $this->setDI(new FactoryDefault);
         $di = $this->getDI();
 	
 		/**
@@ -54,23 +63,23 @@ class Console extends \Phalcon\Cli\Console
         $app = new Application('envome', '0.2.0');
 
         //$app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
-        $app->add((new \Phinx\Console\Command\Init())->setName('migrate:init'));
+        $app->add((new Init())->setName('migrate:init'));
         //$app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
         //$app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
-        $app->add((new \Phinx\Console\Command\Create())->setName('make:migration'));
-        $app->add((new \Phinx\Console\Command\SeedCreate())->setName('make:seeder'));
-        $app->add((new \Phinx\Console\Command\SeedRun())->setName('seed'));
+        $app->add((new Create())->setName('make:migration'));
+        $app->add((new SeedCreate())->setName('make:seeder'));
+        $app->add((new SeedRun())->setName('seed'));
 
-        $app->add(new \Envo\Foundation\Console\DownCommand);
-        $app->add(new \Envo\Foundation\Console\UpCommand);
-        $app->add(new \Envo\Foundation\Console\ClearStorageCommand);
-        $app->add(new \Envo\Foundation\Console\ScaffoldCommand);
-        $app->add(new \Envo\Queue\Console\WorkCommand);
-        $app->add(new \Envo\Foundation\Console\BackupGeneratorCommand);
-        $app->add(new \Envo\Database\Console\MigrationReset);
-        $app->add(new \Envo\Database\Console\Migrate);
-         $app->add(new \Envo\Database\Console\MigrationRollback);
-         $app->add(new \Envo\Database\Console\MigrationStatus);
+        $app->add(new DownCommand);
+        $app->add(new UpCommand);
+        $app->add(new ClearStorageCommand);
+        $app->add(new ScaffoldCommand);
+        $app->add(new WorkCommand);
+        $app->add(new BackupGeneratorCommand);
+        $app->add(new MigrationReset);
+        $app->add(new Migrate);
+		$app->add(new MigrationRollback);
+		$app->add(new MigrationStatus);
 
         $app->run();
     }
