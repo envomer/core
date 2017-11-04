@@ -44,6 +44,8 @@ class Manager
 	 */
 	protected $migrationTableExists = false;
 	
+	protected $migrationFiles;
+	
 	/**
 	 * Manager constructor.
 	 */
@@ -63,7 +65,7 @@ class Manager
 	 * @param  array  $options
 	 * @return array
 	 */
-	public function run($path, array $options = [])
+	public function run($path = null, array $options = [])
 	{
 		$this->notes = [];
 		
@@ -453,15 +455,17 @@ class Manager
 		}
 		
 		if(!$paths) {
-			$paths[] = APP_PATH . 'resources/database/migrations';
+			$paths = [APP_PATH . 'resources/database/migrations'];
 		}
 		
-		$files = [];
-		foreach ($paths as $path) {
-			$files[] = File::files($path);
+		$files = $this->migrationFiles ?: [];
+		if(!$files) {
+			foreach ($paths as $path) {
+				$files[] = File::files($path);
+			}
+			
+			$files = array_merge(...$files);
 		}
-		
-		$files = array_merge(...$files);
 		
 		$sorted = [];
 		foreach ($files as $file){
@@ -578,5 +582,10 @@ class Manager
 		$migration->batch = $batch;
 		
 		return $migration->save();
+	}
+	
+	public function setMigrationFiles($files)
+	{
+		$this->migrationFiles = $files;
 	}
 }

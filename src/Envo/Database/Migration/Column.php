@@ -43,5 +43,14 @@ class Column extends \Phalcon\Db\Column
 		
 		return $this;
 	}
+	
+	public function __call($name, $value)
+	{
+		if($name === 'default') {
+			$this->_default = $value;
+		}
+		
+		return $this;
+	}
 
 }

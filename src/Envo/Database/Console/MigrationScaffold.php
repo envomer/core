@@ -101,10 +101,27 @@ class MigrationScaffold extends BaseCommand
 	{
 		// Ask the user which of their defined paths they'd like to use:
 		$answer = $this->askWhichMigration();
+		//$answer = 'team';
 		if( $answer === 'none' ) {
 			return true;
 		}
 		$files = $this->getFiles($answer);
-		$this->manager->setMigrations($versions);
+		$this->manager->setMigrationFiles($files);
+		
+		$this->manager->run();
+		
+		// Once the manager has run we will grab the note output and send it out to
+		// the console screen, since the manager itself functions without having
+		// any instances of the OutputInterface contract passed into the class.
+		foreach ($this->manager->getNotes() as $note) {
+			$this->output->writeln($note);
+		}
+		
+		// Finally, if the "seed" option has been given, we will re-run the database
+		// seed task to re-populate the database, which is convenient when adding
+		// a migration and a seed at the same time, as it is only this command.
+		if ($this->option('seed')) {
+			$this->call('db:seed', ['--force' => true]);
+		}
 	}
 }

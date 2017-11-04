@@ -190,10 +190,12 @@ class Table
      */
     public function tinyInteger($column, $autoIncrement = false, $unsigned = false)
     {
-        $signed = !$unsigned;
-        //tinyInteger
-        $limit = MysqlAdapter::INT_TINY;
-        return $this->addColumnNew('integer', $column, compact('limit', 'signed'));
+		return $this->addColumnNew($column, [
+			'type' => Column::TYPE_INTEGER,
+			'size' => 2,
+			'unsigned' => $unsigned,
+			'autoIncrement' => $autoIncrement
+		]);
     }
 
     /**
@@ -537,25 +539,6 @@ class Table
     public function addColumnNew($columnName, array $options = array())
     {
 		$column = new Column($columnName, $options);
-
-        //// create a new column object if only strings were supplied
-        //if (!$columnName instanceof Column) {
-        //    $column = new Column();
-        //    $column->setName($columnName);
-        //    $column->setType($type);
-        //    $column->setOptions($options); // map options to column methods
-        //} else {
-        //    $column = $columnName;
-        //}
-		//
-        //// Delegate to Adapters to check column type
-        //if (!$this->getAdapter()->isValidColumnType($column)) {
-        //    throw new \InvalidArgumentException(sprintf(
-        //        'An invalid column type "%s" was specified for column "%s".',
-        //        $column->getType(),
-        //        $column->getName()
-        //    ));
-        //}
 		
 		$column->table = $this;
 

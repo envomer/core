@@ -27,4 +27,5 @@ abstract class BaseCommand extends Command
 		
 		parent::execute($input, $output);
 	}
+	
 }
