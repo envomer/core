@@ -3,13 +3,24 @@
 namespace Envo\Foundation\Console;
 
 use Envo\Console\Command;
-use Envo\Foundation\Config;
 use Envo\Foundation\Event\DatabaseBackupGenerated;
 use Envo\Support\System;
 
 class BackupGeneratorCommand extends Command
 {
-    protected $name = 'backup';
+	/**
+	 * The console command signature.
+	 *
+	 * @var string
+	 */
+	protected $signature = 'backup';
+	
+	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
+	protected $description = 'Back up database';
 
     public function handle()
 	{

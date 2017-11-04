@@ -2,9 +2,9 @@
 
 namespace Envo\Console\Command;
 
-use Envo\Console\Command;
+use Envo\Database\Console\BaseCommand;
 
-class MigrationCreate extends Command
+class MigrationCreate extends BaseCommand
 {
     /**
      * The console command signature.
@@ -25,7 +25,7 @@ class MigrationCreate extends Command
      *
      * @return void
      */
-    public function fire()
+    public function handle()
     {
         // It's possible for the developer to specify the tables to modify in this
         // schema operation. The developer may also specify if this table needs
@@ -47,11 +47,7 @@ class MigrationCreate extends Command
         // Now we are ready to write the migration out to disk. Once we've written
         // the migration out, we will dump-autoload for the entire framework to
         // make sure that the migrations are registered by the class loaders.
-        $this->writeMigration($name, $table, $create);
-    }
-
-    public function writeMigration($name, $table, $create)
-    {
-    
+		die(var_dump($name, $table, $create));
+        //$this->writeMigration($name, $table, $create);
     }
 }

@@ -11,15 +11,15 @@ use Envo\Foundation\Config;
 use Envo\Foundation\Console\BackupGeneratorCommand;
 use Envo\Foundation\Console\ClearStorageCommand;
 use Envo\Foundation\Console\DownCommand;
-use Envo\Foundation\Console\ScaffoldCommand;
+use Envo\Database\Console\MigrationScaffold;
 use Envo\Foundation\Console\UpCommand;
 use Envo\Queue\Console\WorkCommand;
 
 use Phalcon\DI\FactoryDefault;
-use Phinx\Console\Command\Create;
-use Phinx\Console\Command\Init;
-use Phinx\Console\Command\SeedCreate;
-use Phinx\Console\Command\SeedRun;
+//use Phinx\Console\Command\Create;
+//use Phinx\Console\Command\Init;
+//use Phinx\Console\Command\SeedCreate;
+//use Phinx\Console\Command\SeedRun;
 use Symfony\Component\Console\Application;
 
 class Console extends \Phalcon\Application
@@ -63,23 +63,25 @@ class Console extends \Phalcon\Application
         if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate:') === 0  ) {
             define('ENVO_INCLUDE_MIGRATIONS', true);
         }
-		
-		$this->registerDatabases($di);
+	
+		if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate') === 0  ) {
+			$this->registerDatabases($di);
+		}
 
         $app = new Application('envome', '0.2.0');
 
         //$app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
-        $app->add((new Init())->setName('migrate:init'));
+        //$app->add((new Init())->setName('migrate:init'));
         //$app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
         //$app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
-        $app->add((new Create())->setName('make:migration'));
-        $app->add((new SeedCreate())->setName('make:seeder'));
-        $app->add((new SeedRun())->setName('seed'));
+        //$app->add((new Create())->setName('make:migration'));
+        //$app->add((new SeedCreate())->setName('make:seeder'));
+        //$app->add((new SeedRun())->setName('seed'));
 
         $app->add(new DownCommand);
         $app->add(new UpCommand);
         $app->add(new ClearStorageCommand);
-        $app->add(new ScaffoldCommand);
+        $app->add(new MigrationScaffold);
         $app->add(new WorkCommand);
         $app->add(new BackupGeneratorCommand);
         $app->add(new MigrationReset);

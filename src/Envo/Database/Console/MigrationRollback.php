@@ -2,12 +2,8 @@
 
 namespace Envo\Database\Console;
 
-use Envo\Console\Command;
-use Symfony\Component\Console\Input\InputOption;
-
-class MigrationRollback extends Command
+class MigrationRollback extends BaseCommand
 {
-	
 	/**
 	 * The name and signature of the console command.
 	 *

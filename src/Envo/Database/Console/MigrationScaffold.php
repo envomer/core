@@ -1,0 +1,110 @@
+<?php
+
+namespace Envo\Database\Console;
+
+use Envo\Support\Arr;
+use Symfony\Component\Console\Question\ChoiceQuestion;
+
+class MigrationScaffold extends BaseCommand
+{
+	/**
+	 * The name and signature of the console command.
+	 *
+	 * @var string
+	 */
+	protected $signature = 'migrate:scaffold {--database= : The database connection to use.}
+                {--force : Force the operation to run when in production.}
+                {--path= : The path of migrations files to be executed.}
+                {--pretend : Dump the SQL queries that would be run.}
+                {--seed : Indicates if the seed task should be re-run.}
+                {--step : Force the migrations to be run so they can be rolled back individually.}';
+	
+	/**
+	 * The console command description.
+	 *
+	 * @var string
+	 */
+	protected $description = 'Scaffold database migrations...(user, teams, ...)';
+	
+	/**
+	 * Ask which migration
+	 *
+	 * @return mixed
+	 * @throws \Symfony\Component\Console\Exception\LogicException
+	 * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+	 */
+    public function askWhichMigration()
+    {
+        $paths = [
+            'none',
+            'ALL',
+            'user',
+            'team',
+            'event',
+            'mail',
+            'permissions',
+        ];
+
+        $helper = $this->getHelper('question');
+        $question = new ChoiceQuestion('Which migrations would you like to migrate?', $paths, 0);
+
+        return $helper->ask($this->input, $this->output, $question);
+    }
+
+    /**
+     * Get files
+     *
+     * @param [type] $group
+     *
+	 * @return array
+	 */
+    public function getFiles($group)
+    {
+        $files = [
+            'user' => [
+                ENVO_PATH . '../../migrations/20170712093749_create_users.php'
+            ],
+            'team' => [
+                ENVO_PATH . '../../migrations/20170712182747_create_teams.php',
+                ENVO_PATH . '../../migrations/20170712093750_create_user_team.php',
+            ],
+            'event' => [
+                ENVO_PATH . '../../migrations/20170713083404_create_events.php',
+                ENVO_PATH . '../../migrations/20170713084109_create_event_types.php',
+                ENVO_PATH . '../../migrations/20170713084113_create_event_models.php',
+                ENVO_PATH . '../../migrations/20170713084114_create_ips.php',
+            ],
+            'mail' => [
+                ENVO_PATH . '../../migrations/20170713093749_create_mails.php',
+            ],
+            'permissions' => [
+                ENVO_PATH . '../../migrations/20170712093753_create_permission_roles.php',
+                ENVO_PATH . '../../migrations/20170712093754_create_permission_rules.php',
+                ENVO_PATH . '../../migrations/20170712093755_create_permissions.php',
+                ENVO_PATH . '../../migrations/20170712093756_create_user_roles.php',
+            ],
+        ];
+
+        if( $group === 'ALL' ) {
+            return Arr::flatten($files);
+        }
+
+        return $files[$group];
+    }
+	
+	/**
+	 * @return mixed
+	 * @throws \Symfony\Component\Console\Exception\LogicException
+	 * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+	 */
+	public function handle()
+	{
+		// Ask the user which of their defined paths they'd like to use:
+		$answer = $this->askWhichMigration();
+		if( $answer === 'none' ) {
+			return true;
+		}
+		$files = $this->getFiles($answer);
+		$this->manager->setMigrations($versions);
+	}
+}

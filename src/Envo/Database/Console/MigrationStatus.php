@@ -2,9 +2,7 @@
 
 namespace Envo\Database\Console;
 
-use Envo\Console\Command;
-
-class MigrationStatus extends Command
+class MigrationStatus extends BaseCommand
 {
 	/**
 	 * The name and signature of the console command.

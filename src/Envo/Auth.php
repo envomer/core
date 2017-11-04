@@ -5,9 +5,6 @@ namespace Envo;
 use Envo\Event\Model\Event;
 use Envo\Model\User;
 
-use App\UserRepository;
-use App\Core\Model\RememberToken;
-use App\Core\Model\FailedLogin;
 use Envo\Model\Team;
 use Envo\Event\LoginFailed;
 use Envo\Event\UserWrongPassword;

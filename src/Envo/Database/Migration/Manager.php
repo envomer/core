@@ -39,8 +39,14 @@ class Manager
 	 */
 	protected $paths = [];
 	
+	/**
+	 * @var bool
+	 */
 	protected $migrationTableExists = false;
 	
+	/**
+	 * Manager constructor.
+	 */
 	public function __construct()
 	{
 		$this->connection = Di::getDefault()->get('db');
@@ -237,7 +243,7 @@ class Manager
 		if (($steps = $options['step'] ?? 0) > 0) {
 			return $this->repository->getMigrations($steps);
 		}
-		
+
 		return $this->getLast();
 	}
 	
@@ -285,22 +291,22 @@ class Manager
 	 * @param  bool  $pretend
 	 * @return array
 	 */
-	public function reset($paths = [], $pretend = false)
+	public function reset(array $paths = [], $pretend = false)
 	{
 		$this->notes = [];
 		
 		// Next, we will reverse the migration list so we can run them back in the
 		// correct order for resetting this database. This will allow us to get
 		// the database back into its "empty" state ready for the migrations.
-		$migrations = array_reverse($this->repository->getRan());
+		$migrations = array_reverse($this->getRan());
 		
 		if (count($migrations) === 0) {
 			$this->note('<info>Nothing to rollback.</info>');
 			
 			return [];
-		} else {
-			return $this->resetMigrations($migrations, $paths, $pretend);
 		}
+		
+		return $this->resetMigrations($migrations, $paths, $pretend);
 	}
 	
 	/**

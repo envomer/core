@@ -32,13 +32,6 @@ class User extends AbstractModel
     protected $accessMode;
 
     /**
-     * Are soft deletes allowed?
-     *
-     * @var boolean
-     */
-    protected $softDeletes = true;
-
-    /**
      * Whether the user is logged in
      *
      * @var boolean
@@ -57,7 +50,7 @@ class User extends AbstractModel
      *
      * @var string
      */
-    public $identifier = null;
+    public $identifier;
 
     /**
      * Username
@@ -90,6 +83,19 @@ class User extends AbstractModel
 	 * @var string
 	 */
     protected $password;
+	
+	/**
+	 * @var string
+	 */
+    protected $remember_token;
+	
+	/**
+	 * Initialize
+	 */
+    public function initialize()
+	{
+		$this->softDeletes = false;
+	}
 
     /**
      * Is admin flag

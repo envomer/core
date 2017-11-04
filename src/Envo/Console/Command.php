@@ -37,11 +37,6 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
     protected $signature;
 	
 	/**
-	 * @var Manager
-	 */
-    protected $manager;
-	
-	/**
 	 * Command constructor.
 	 *
 	 * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
@@ -52,17 +47,20 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
     {
         $this->setName(strtolower(basename(str_replace('\\', '/', static::class))));
         $this->setDescription($this->description);
-
-        if ( null !== $this->signature) {
-			/** @var array $arguments */
-			/** @var array $options */
+	
+		/** @var array $arguments */
+        $arguments = [];
+		/** @var array $options */
+        $options = [];
+        $name = null;
+        
+        if ( null !== $this->signature){
 			list($name, $arguments, $options) = Parser::parse($this->signature);
-	
-			parent::__construct($this->name = $name);
-	
-			// After parsing the signature we will spin through the arguments and options
-			// and set them on this command. These will already be changed into proper
-			// instances of these "InputArgument" and "InputOption" Symfony classes.
+		}
+		
+		parent::__construct($this->name = $name);
+        
+        if($arguments || $options) {
 			foreach ($arguments as $argument) {
 				$this->getDefinition()->addArgument($argument);
 			}
@@ -70,11 +68,7 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
 			foreach ($options as $option) {
 				$this->getDefinition()->addOption($option);
 			}
-        } else {
-            parent::__construct($this->name);
-        }
-		
-		$this->manager = new Manager();
+		}
     }
 	
 	/**

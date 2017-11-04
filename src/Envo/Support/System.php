@@ -15,6 +15,10 @@ class System
 	 * Make a backup of the database using the configuration
 	 * located in the database.php or .env file.
 	 * Store the generated file into the /storage/db/ folder
+	 *
+	 * @param bool $compress
+	 *
+	 * @return array
 	 */
 	public static function dbBackup($compress = true)
 	{
@@ -56,7 +60,7 @@ class System
 		return [
 			'msg' => $response,
 			'filename' => $filename,
-			'filesize' => filesize($path)
+			'size' => filesize($path)
 		];
 	}
 
@@ -91,16 +95,16 @@ class System
 			'/usr/mysql/bin/mysqldump' //Linux
 		);
 
-		foreach($available as $apath) {
-			if (is_executable($apath)) {
-                return $apath;
+		foreach($available as $path) {
+			if (is_executable($path)) {
+                return $path;
             }
 		}
 
 		// 4th: auto detection has failed!
 		// lets, throw an exception, and ask the user to provide the path instead, manually.
-		$message = "Path to \"mysqldump\" binary could not be detected!\n";
-		$message .= "Please, specify it inside the configuration file provided!";
+		$message = 'Path to "mysqldump" binary could not be detected!';
+		$message .= 'Please, specify it inside the configuration file provided!';
 		
 		throw new RuntimeException($message);
 	}
@@ -199,10 +203,9 @@ class System
 		$size = preg_replace('/[^0-9\.]/', '', $size); // Remove the non-numeric characters from the size.
 		if ($unit) {
 			// Find the position of the unit in the ordered string which is the power of magnitude to multiply a kilobyte by.
-			return round($size * pow(1024, stripos('bkmgtpezy', $unit[0])));
+			return round($size * (1024 ** stripos('bkmgtpezy', $unit[0])));
 		}
-		else {
-			return round($size);
-		}
+		
+		return round($size);
 	}
 }
