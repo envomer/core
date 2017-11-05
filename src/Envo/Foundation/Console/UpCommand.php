@@ -6,12 +6,12 @@ use Envo\Console\Command;
 
 class UpCommand extends Command
 {
-    /**
-     * The console command name.
-     *
-     * @var string
-     */
-    protected $name = 'up';
+	/**
+	 * The console command signature.
+	 *
+	 * @var string
+	 */
+	protected $signature = 'up';
 
     /**
      * The console command description.
