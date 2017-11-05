@@ -3,6 +3,7 @@
 namespace Envo;
 
 use Envo\Database\Console\Migrate;
+use Envo\Database\Console\MigrationCreate;
 use Envo\Database\Console\MigrationReset;
 use Envo\Database\Console\MigrationRollback;
 use Envo\Database\Console\MigrationStatus;
@@ -88,6 +89,7 @@ class Console extends \Phalcon\Application
         $app->add(new Migrate);
 		$app->add(new MigrationRollback);
 		$app->add(new MigrationStatus);
+		$app->add(new MigrationCreate);
 
         $app->run();
     }

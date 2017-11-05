@@ -1,0 +1,27 @@
+<?php
+
+use Envo\AbstractMigration;
+use Envo\Database\Migration\Table;
+
+class DummyClass extends AbstractMigration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        //
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        //
+    }
+}

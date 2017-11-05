@@ -88,7 +88,7 @@ class MigrationStatus extends BaseCommand
 			// there are no migrations
 			$io->newLine();
 			$this->comment('There are no available migrations.');
-			$output->writeln('Try creating one using the <info>migrate:create</info> command.');
+			$output->writeln('Try creating one using the <info>migrate:make</info> command.');
 		}
 	}
 }

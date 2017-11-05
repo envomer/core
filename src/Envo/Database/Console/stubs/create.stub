@@ -1,0 +1,31 @@
+<?php
+
+use Envo\AbstractMigration;
+use Envo\Database\Migration\Table;
+
+class DummyClass extends AbstractMigration
+{
+    /**
+     * Run the migrations.
+     *
+     * @return void
+     */
+    public function up()
+    {
+        $this->create('DummyTable', function (Table $table) {
+            $table->increments('id');
+            
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     *
+     * @return void
+     */
+    public function down()
+    {
+        $this->dropIfExists('DummyTable');
+    }
+}

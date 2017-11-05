@@ -29,4 +29,20 @@ abstract class BaseCommand extends Command
 		parent::execute($input, $output);
 	}
 	
+	/**
+	 * Get migration path
+	 *
+	 * @return mixed|null|string
+	 */
+	public function getMigrationPath()
+	{
+		$path = $this->option('path');
+		
+		if(!$path) {
+			$path = APP_PATH . 'resources/database/migrations';
+		}
+		
+		return $path;
+	}
+	
 }
