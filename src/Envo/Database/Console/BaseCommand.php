@@ -24,6 +24,7 @@ abstract class BaseCommand extends Command
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
 		$this->manager = new Manager();
+		$this->manager->command = $this->name;
 		
 		parent::execute($input, $output);
 	}

@@ -46,6 +46,8 @@ class Manager
 	
 	protected $migrationFiles;
 	
+	public $command;
+	
 	/**
 	 * Manager constructor.
 	 */
@@ -456,6 +458,10 @@ class Manager
 		
 		if(!$paths) {
 			$paths = [APP_PATH . 'resources/database/migrations'];
+		}
+		
+		if(in_array($this->command, ['migrate:rollback', 'migrate:status'], false)) {
+			$paths[] = ENVO_PATH . '../../migrations';
 		}
 		
 		$files = $this->migrationFiles ?: [];

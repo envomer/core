@@ -2,6 +2,8 @@
 
 namespace Envo\Database\Console;
 
+use Symfony\Component\Console\Style\SymfonyStyle;
+
 class MigrationStatus extends BaseCommand
 {
 	/**
@@ -36,49 +38,52 @@ class MigrationStatus extends BaseCommand
 	
 	/**
 	 * Prints the specified environment's migration status.
-	 *
-	 * @return integer 0 if all migrations are up, or an error code
 	 */
 	public function printStatus()
 	{
 		$output = $this->output;
 		$migrations = $this->manager->getMigrationFiles();
+		$io = new SymfonyStyle($this->input, $this->output);
+		$data = [];
 		if (count($migrations)) {
-			$output->writeln('');
-			
-			$output->writeln(' Status  Date                  <info>Migration Name</info> ');
-			$output->writeln('----------------------------------------------------------------------------------');
+			$io->newLine();
 			
 			$sortedMigrations = $this->manager->getMigrationFiles();
+			$ran = $this->manager->getRan();
+			asort($sortedMigrations);
 			
 			foreach ($sortedMigrations as $migration => $path) {
-				if (true) {
-					$status = '     <info>up</info> ';
-				} else {
-					$status = '   <error>down</error> ';
+				$status = '<error>down</error> ';
+				$scaffold = strpos($path, ENVO_PATH) !== false;
+				
+				if (in_array($migration, $ran, false)) {
+					$status = '<info>up</info> ';
+				} else if($scaffold) {
+					continue;
 				}
 				
 				$parts = explode('_', $migration);
-				$output->writeln(sprintf(
-					'%s  %19s  <comment>%s</comment>',
+
+				$data[] = [
 					$status,
 					date('Y-m-d H:i:s',strtotime($parts[0])),
-					str_replace($parts[0].'_', '', $migration)
-				));
-				
-				$migrations[] = array(
-					'migration_status' => trim(strip_tags($status)),
-					'migration_id' => sprintf('%14.0f', '192891'),
-					'migration_name' => $migration
-				);
+					'<comment>'.str_replace($parts[0].'_', '', $migration) .'</comment>'.
+					($scaffold ? ' <info>(scaffold)</info>' : '')
+				];
 			}
+			
+			$io->table(
+				['Status', 'Date', 'Migration name'],
+				$data
+			);
+			
+			// write an empty line
+			$io->newLine();
 		} else {
 			// there are no migrations
-			$output->writeln('');
-			$output->writeln('There are no available migrations. Try creating one using the <info>create</info> command.');
+			$io->newLine();
+			$this->comment('There are no available migrations.');
+			$output->writeln('Try creating one using the <info>migrate:create</info> command.');
 		}
-		
-		// write an empty line
-		$output->writeln('');
 	}
 }
