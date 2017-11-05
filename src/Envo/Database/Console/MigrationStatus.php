@@ -52,30 +52,35 @@ class MigrationStatus extends BaseCommand
 			$ran = $this->manager->getRan();
 			asort($sortedMigrations);
 			
+			$io->writeln(' # <fg=blue>Migration status</>');
+			$io->newLine();
+			
 			foreach ($sortedMigrations as $migration => $path) {
-				$status = '<error>down</error> ';
+				$up = in_array($migration, $ran, false);
 				$scaffold = strpos($path, ENVO_PATH) !== false;
 				
-				if (in_array($migration, $ran, false)) {
-					$status = '<info>up</info> ';
-				} else if($scaffold) {
+				if ( ! $up && $scaffold ) {
 					continue;
 				}
 				
 				$parts = explode('_', $migration);
+				$name = str_replace($parts[0].'_', '', $migration);
+				$date = date('Y-m-d H:i:s',strtotime($parts[0]));
 
 				$data[] = [
-					$status,
-					date('Y-m-d H:i:s',strtotime($parts[0])),
-					'<comment>'.str_replace($parts[0].'_', '', $migration) .'</comment>'.
-					($scaffold ? ' <info>(scaffold)</info>' : '')
+					$up ? '<info>✔</info>' : '<fg=red>✖</>',
+					$up ? '<info>'.$name.'</info>' : $name,
+					$up ? '<info>'.$date.'</info>' : $date,
+					$scaffold ? '<comment>yes</comment>' : 'no'
 				];
 			}
 			
 			$io->table(
-				['Status', 'Date', 'Migration name'],
+				['Status', 'Migration name', 'Date', 'Scaffold'],
 				$data
 			);
+			
+			$io->writeln('Legend: <info>✔</info> migrated <fg=red>✖</> not migrated yet');
 			
 			// write an empty line
 			$io->newLine();
