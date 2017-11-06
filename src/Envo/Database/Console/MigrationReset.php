@@ -30,6 +30,13 @@ class MigrationReset extends BaseCommand
      */
     public function handle()
     {
-    
+    	$this->manager->reset();
+	
+		// Once the manager has run we will grab the note output and send it out to
+		// the console screen, since the manager itself functions without having
+		// any instances of the OutputInterface contract passed into the class.
+		foreach ($this->manager->getNotes() as $note) {
+			$this->output->writeln($note);
+		}
     }
 }

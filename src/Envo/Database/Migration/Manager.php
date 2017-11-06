@@ -326,9 +326,9 @@ class Manager
 		// Since the getRan method that retrieves the migration name just gives us the
 		// migration name, we will format the names into objects with the name as a
 		// property on the objects so that we can pass it to the rollback method.
-		$migrations = collect($migrations)->map(function ($m) {
-			return (object) ['migration' => $m];
-		})->all();
+		$migrations = array_map(function($item) {
+			return (object) ['migration' => $item];
+		}, $migrations);
 		
 		return $this->rollbackMigrations(
 			$migrations, $paths, compact('pretend')
@@ -460,7 +460,8 @@ class Manager
 			$paths = [APP_PATH . 'resources/database/migrations'];
 		}
 		
-		if(in_array($this->command, ['migrate:rollback', 'migrate:status'], false)) {
+		$commands = ['migrate:rollback', 'migrate:status', 'migrate:reset', 'migrate:refresh'];
+		if(in_array($this->command, $commands, false)) {
 			$paths[] = ENVO_PATH . '../../migrations';
 		}
 		
