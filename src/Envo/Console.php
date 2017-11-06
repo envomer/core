@@ -9,7 +9,7 @@ use Envo\Database\Console\MigrationRollback;
 use Envo\Database\Console\MigrationStatus;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Foundation\Config;
-use Envo\Foundation\Console\BackupGeneratorCommand;
+use Envo\Foundation\Console\BackupCommand;
 use Envo\Foundation\Console\ClearStorageCommand;
 use Envo\Foundation\Console\DownCommand;
 use Envo\Database\Console\MigrationScaffold;
@@ -70,7 +70,7 @@ class Console extends \Phalcon\Application
         $app->add(new ClearStorageCommand);
         $app->add(new MigrationScaffold);
         $app->add(new WorkCommand);
-        $app->add(new BackupGeneratorCommand);
+        $app->add(new BackupCommand);
         $app->add(new MigrationReset);
         $app->add(new Migrate);
 		$app->add(new MigrationRollback);
