@@ -1,8 +1,6 @@
 <?php
-namespace Tests\Unit;
 
-use Envo\Model\User;
-use Tests\UnitTestCase;
+namespace Tests;
 
 class CoreTest extends UnitTestCase
 {

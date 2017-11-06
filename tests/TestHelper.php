@@ -16,6 +16,8 @@ set_include_path(
 // Required for phalcon/incubator
 include __DIR__ . "/../vendor/autoload.php";
 
+include __DIR__ . '/UnitTestCase.php';
+
 // Use the application autoloader to autoload the classes
 // Autoload the dependencies found in composer
 $loader = new Loader();
