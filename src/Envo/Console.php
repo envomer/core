@@ -17,10 +17,6 @@ use Envo\Foundation\Console\UpCommand;
 use Envo\Queue\Console\WorkCommand;
 
 use Phalcon\DI\FactoryDefault;
-//use Phinx\Console\Command\Create;
-//use Phinx\Console\Command\Init;
-//use Phinx\Console\Command\SeedCreate;
-//use Phinx\Console\Command\SeedRun;
 use Symfony\Component\Console\Application;
 
 class Console extends \Phalcon\Application
@@ -60,10 +56,6 @@ class Console extends \Phalcon\Application
 		$di->setShared('config', Config::class);
 
         define('APP_CLI', true);
-
-        if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate:') === 0  ) {
-            define('ENVO_INCLUDE_MIGRATIONS', true);
-        }
 	
 		if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate') === 0  ) {
 			$this->registerDatabases($di);
@@ -71,12 +63,6 @@ class Console extends \Phalcon\Application
 
         $app = new Application('envome', '0.2.0');
 
-        //$app->add((new \Phinx\Console\Command\Migrate())->setName('migrate'));
-        //$app->add((new Init())->setName('migrate:init'));
-        //$app->add((new \Phinx\Console\Command\Rollback())->setName('migrate:rollback'));
-        //$app->add((new \Phinx\Console\Command\Status())->setName('migrate:status'));
-        //$app->add((new Create())->setName('make:migration'));
-        //$app->add((new SeedCreate())->setName('make:seeder'));
         //$app->add((new SeedRun())->setName('seed'));
 
         $app->add(new DownCommand);
