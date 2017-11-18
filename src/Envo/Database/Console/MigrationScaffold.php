@@ -66,7 +66,7 @@ class MigrationScaffold extends BaseCommand
             ],
             'team' => [
                 ENVO_PATH . '../../migrations/20170712182747_create_teams.php',
-                ENVO_PATH . '../../migrations/20170712093750_create_user_team.php',
+                //ENVO_PATH . '../../migrations/20170712093750_create_user_team.php',
             ],
             'event' => [
                 ENVO_PATH . '../../migrations/20170713083404_create_events.php',
@@ -80,8 +80,9 @@ class MigrationScaffold extends BaseCommand
             'permissions' => [
                 ENVO_PATH . '../../migrations/20170712093753_create_permission_roles.php',
                 ENVO_PATH . '../../migrations/20170712093754_create_permission_rules.php',
-                ENVO_PATH . '../../migrations/20170712093755_create_permissions.php',
-                ENVO_PATH . '../../migrations/20170712093756_create_user_roles.php',
+                ENVO_PATH . '../../migrations/20170712093755_create_legal_entities.php',
+                ENVO_PATH . '../../migrations/20170712093756_create_legal_entities_self.php',
+                ENVO_PATH . '../../migrations/20170712093757_create_module_units.php',
             ],
         ];
 
@@ -100,8 +101,8 @@ class MigrationScaffold extends BaseCommand
 	public function handle()
 	{
 		// Ask the user which of their defined paths they'd like to use:
-		$answer = $this->askWhichMigration();
-		//$answer = 'team';
+		//$answer = $this->askWhichMigration();
+		$answer = 'ALL';
 		if( $answer === 'none' ) {
 			return true;
 		}

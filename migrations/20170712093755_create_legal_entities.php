@@ -3,7 +3,7 @@
 use Envo\AbstractMigration;
 use Envo\Database\Migration\Table;
 
-class CreateLegalEntites extends AbstractMigration
+class CreateLegalEntities extends AbstractMigration
 {
     public function up()
     {
@@ -19,6 +19,6 @@ class CreateLegalEntites extends AbstractMigration
 
     public function down()
     {
-        $this->dropIfExists('core_permissions');
+        $this->dropIfExists('core_legal_entities');
     }
 }

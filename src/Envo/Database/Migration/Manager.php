@@ -3,7 +3,6 @@
 namespace Envo\Database\Migration;
 
 use Envo\AbstractMigration;
-use Envo\Database\Migration\Model\Migration;
 use Envo\Support\Arr;
 use Envo\Support\File;
 use Envo\Support\Str;
@@ -199,6 +198,10 @@ class Manager
 		
 		if(!$this->migrationTableExists) {
 			$this->createMigrationTable();
+		}
+		
+		if(!$batch) {
+			$batch = $this->nextBatchNumber;
 		}
 		
 		$this->runMigration($migration, 'up');
@@ -564,6 +567,9 @@ class Manager
 		$this->connection->createTable($table->name, null, [
 			'columns' => $table->columns
 		]);
+		
+		$this->migrationTableExists = true;
+		$this->nextBatchNumber = 1;
 	}
 	
 	public function getLastBatchNumber()

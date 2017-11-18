@@ -15,6 +15,6 @@ class CreateLegalEntitiesSelf extends AbstractMigration
 
     public function down()
     {
-        $this->dropIfExists('core_user_roles');
+        $this->dropIfExists('core_legal_entities_self');
     }
 }
