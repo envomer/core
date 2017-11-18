@@ -12,9 +12,9 @@ use Envo\AbstractModel;
  * @property integer     id
  * @property LegalEntity legalEntity
  * @property integer     permission
- * @property Unit        unit
+ * @property ModuleUnit  unit
  */
-class Role extends AbstractModel
+class PermissionRule extends AbstractModel
 {
 	/**
 	 * Table name
@@ -39,7 +39,7 @@ class Role extends AbstractModel
 	protected $permission;
 	
 	/**
-	 * @var Unit
+	 * @var ModuleUnit
 	 */
 	protected $unit;
 	
@@ -48,6 +48,6 @@ class Role extends AbstractModel
 	 */
 	public function initialize()
 	{
-		$this->belongsTo('unit_id', Unit::class, 'id', ['alias' => 'unit']);
+		$this->belongsTo('unit_id', ModuleUnit::class, 'id', [ 'alias' => 'unit']);
 	}
 }

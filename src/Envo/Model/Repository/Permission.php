@@ -2,19 +2,21 @@
 
 namespace Envo\Model\Repository;
 
+use Envo\AbstractRepository;
 use Envo\Model\Permission as Model;
-use Envo\Model\Role;
+use Envo\Model\PermissionRule;
 use Envo\Model\RoleUser;
 use Envo\Model\PermissionRole;
 
-class Permission extends \Envo\AbstractRepository
+class Permission extends AbstractRepository
 {
     public function getByUserId($userId)
     {
-        $builder = parent::getQueryBuilder(['p' => Model::class]);
+        //$builder = parent::getQueryBuilder(['p' => Model::class]);
+        $builder = parent::createBuilder();
 
         $builder->join(PermissionRole::class, 'pr.permission_id = p.id', 'pr');
-        $builder->join(Role::class, 'r.id = pr.role_id', 'r');
+        $builder->join(PermissionRule::class, 'r.id = pr.role_id', 'r');
         $builder->join(RoleUser::class, 'ru.role_id = r.id', 'ru');
 
         $bind = ['user_id' => $userId];

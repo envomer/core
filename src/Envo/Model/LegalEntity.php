@@ -71,5 +71,15 @@ class LegalEntity extends AbstractModel
 			['alias' => 'parents']
 		);
 		
+		$this->hasManyToMany(
+			'id',
+			PermissionRole::class,
+			'legal_entity_id',
+			'permission_rule_id',
+			static::class,
+			'id',
+			['alias' => 'permissions']
+		);
+		
 	}
 }

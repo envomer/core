@@ -2,6 +2,7 @@
 
 namespace Envo\Model;
 use Envo\AbstractModel;
+use Envo\Model\Traits\LegalEntityTrait;
 
 /**
  * Class Team

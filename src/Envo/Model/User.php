@@ -88,6 +88,8 @@ class User extends AbstractModel
 	 * @var string
 	 */
     protected $remember_token;
+    
+    private $permissionString;
 	
 	/**
 	 * Initialize
@@ -260,5 +262,10 @@ class User extends AbstractModel
 	public function getPassword()
 	{
 		return $this->password;
+	}
+	
+	public function getPermissionString()
+	{
+	
 	}
 }

@@ -10,7 +10,7 @@ use Envo\Model\Traits\SlugTrait;
  *
  * @package Envo\Model
  */
-class Unit extends AbstractModel
+class ModuleUnit extends AbstractModel
 {
 	use SlugTrait;
 	

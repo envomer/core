@@ -1,20 +1,15 @@
 <?php
 
 use Envo\AbstractMigration;
+use Envo\Database\Migration\Table;
 
 class CreatePermissionRoles extends AbstractMigration
 {
     public function up()
     {
-        $this->create('core_permission_roles', function($table) {
-            $table->increments('id');
-            
-            $table->string('name');
+        $this->create('core_permission_roles', function(Table $table) {
             $table->integer('team_id');
-            $table->integer('user_id'); // creator
-
-            $table->softDeletes();
-            $table->nullableTimestamps();
+            $table->integer('permission_rule_id');
         });
     }
 

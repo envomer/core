@@ -1,17 +1,16 @@
 <?php
 
 use Envo\AbstractMigration;
+use Envo\Database\Migration\Table;
 
-class CreatePermissions extends AbstractMigration
+class CreateLegalEntites extends AbstractMigration
 {
     public function up()
     {
-        $this->create('core_permissions', function($table) {
+        $this->create('core_legal_entities', function(Table $table) {
             $table->increments('id');
             
-            $table->string('key');
             $table->string('name');
-            $table->tinyInteger('status');
 
             $table->softDeletes();
             $table->nullableTimestamps();

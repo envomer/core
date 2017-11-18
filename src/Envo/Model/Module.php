@@ -10,7 +10,7 @@ use Envo\Model\Traits\SlugTrait;
  *
  * @package Envo\Model
  *
- * @property Unit[] units
+ * @property ModuleUnit[] units
  */
 class Module extends AbstractModel
 {
@@ -22,7 +22,7 @@ class Module extends AbstractModel
 	protected $id;
 	
 	/**
-	 * @var Unit[]
+	 * @var ModuleUnit[]
 	 */
 	protected $units;
 	
@@ -31,6 +31,6 @@ class Module extends AbstractModel
 	 */
 	public function initialize()
 	{
-		$this->hasMany('id', Unit::class, 'module_id',['alias' => 'units']);
+		$this->hasMany('id', ModuleUnit::class, 'module_id',[ 'alias' => 'units']);
 	}
 }
