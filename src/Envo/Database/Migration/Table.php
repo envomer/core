@@ -226,10 +226,12 @@ class Table
      */
     public function mediumInteger($column, $autoIncrement = false, $unsigned = false)
     {
-        $signed = !$unsigned;
-        //mediumInteger
-        $limit = MysqlAdapter::INT_MEDIUM;
-        return $this->addColumnNew('integer', $column, compact('limit', 'signed'));
+		return $this->addColumnNew($column, [
+			'type' => Column::TYPE_INTEGER,
+			'size' => 4,
+			'unsigned' => $unsigned,
+			'autoIncrement' => $autoIncrement
+		]);
     }
 
     /**
@@ -330,7 +332,13 @@ class Table
      */
     public function double($column, $precision = null, $scale = null)
     {
-        return $this->addColumnNew('double', $column, compact('precision', 'scale'));
+		return $this->addColumnNew($column, [
+			'type' => Column::TYPE_DOUBLE,
+			'size'    => 16,
+			'scale'   => $scale,
+			'precision' => $precision
+		]);
+        //return $this->addColumnNew('double', $column, compact('precision', 'scale'));
     }
 
     /**
@@ -343,7 +351,13 @@ class Table
      */
     public function decimal($column, $precision = 8, $scale = 2)
     {
-        return $this->addColumnNew('decimal', $column, compact('precision', 'scale'));
+		return $this->addColumnNew($column, [
+			'type' => Column::TYPE_DECIMAL,
+			'size'    => 16,
+			'scale'   => $scale,
+			'precision' => $precision
+		]);
+        //return $this->addColumnNew('decimal', $column, compact('precision', 'scale'));
     }
 
     /**

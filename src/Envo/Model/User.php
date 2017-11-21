@@ -88,7 +88,10 @@ class User extends AbstractModel
 	 * @var string
 	 */
     protected $remember_token;
-    
+	
+	/**
+	 * @var string
+	 */
     private $permissionString;
 	
 	/**
@@ -266,6 +269,15 @@ class User extends AbstractModel
 	
 	public function getPermissionString()
 	{
-	
+		if (! $this->permissionString){
+			/* permissions are not fetched yet so do it now*/
+			/** @var \Envo\Model\Repository\User $repo */
+			$repo = self::repo();
+			$permissions = $repo->getPermissions($this->getId());
+			
+			
+		}
+		
+		return $this->permissionString;
 	}
 }
