@@ -10,6 +10,7 @@ use Envo\Event\LoginFailed;
 use Envo\Event\UserWrongPassword;
 use Envo\Event\LoggedIn;
 
+use Envo\Support\Str;
 use Envo\Support\Translator;
 use Phalcon\Mvc\User\Component;
 
@@ -149,17 +150,23 @@ class Auth extends Component
 	/**
 	 * Checks the user credentials
 	 *
-	 * @param $email
-	 * @param $password
+	 * @param      $email
+	 * @param      $password
+	 *
+	 * @param bool $remember
 	 *
 	 * @return bool
+	 * @throws Exception\PublicException
 	 */
-	public function check($email, $password)
+	public function check($email, $password, $remember = false)
 	{
 		// Check if the user exist
 		$userClass = $this->userClass;
 		/** @var User $user */
-		$user = $userClass::repo()->where('email = ?0 OR username = ?1',[ $email, $email ])->getOne();
+		$user = $userClass::repo()->where('email = :email: OR username = :username:',[
+			'email' => $email,
+			'username' => $email
+		])->getOne();
 
 		if(
 			(! $user || ! env('IGNORE_PASSWORDS'))
@@ -186,8 +193,8 @@ class Auth extends Component
 		$this->checkUserFlags( $user );
 
 		// Check if the remember me was selected
-		if ( isset($credentials[ 'remember' ]) ) {
-			$this->createRememberEnviroment( $user );
+		if ($remember) {
+			$this->createRememberEnvironment( $user );
 		}
 
 		$this->session->set(self::TOKEN_NAME, [
@@ -238,17 +245,19 @@ class Auth extends Component
 				break;
 		}
 	}
-
+	
 	/**
 	 * Creates the remember me environment settings the related cookies and generating tokens
 	 *
 	 * @param User $user
+	 *
+	 * @throws \RuntimeException
 	 */
-	public function createRememberEnviroment(User $user)
+	public function createRememberEnvironment($user)
 	{
 		// $userAgent            = $this->request->getUserAgent();
 		if( ! $user->remember_token ) {
-			$user->remember_token = \Str::random(32);
+			$user->remember_token = Str::random(32);
 			$user->save();
 		}
 		$expire = time() + (86400 * 365);
@@ -264,7 +273,8 @@ class Auth extends Component
 	 */
 	public function hasRememberMe()
 	{
-		return $this->cookies->get(self::COOKIE_REMEMBER);
+		$cookie = $this->cookies->get(self::COOKIE_REMEMBER);
+		return $cookie ? $cookie->getValue() : null;
 	}
 	
 	/**
@@ -273,6 +283,7 @@ class Auth extends Component
 	 * @param $userId
 	 *
 	 * @return bool|User
+	 * @throws AbstractException
 	 */
 	public function loginWithRememberMe($userId)
 	{
@@ -363,7 +374,7 @@ class Auth extends Component
 	 *
 	 * @return bool
 	 */
-	public function checkUserFlags(User $user)
+	public function checkUserFlags($user)
 	{
 		return ! $user->isActive();
 	}

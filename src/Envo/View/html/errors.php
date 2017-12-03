@@ -53,20 +53,20 @@
 		<?php echo \_t('app.backToHomepage'); ?>
 	</a>
 
-    <?php if( env('APP_DEBUG') && isset($error) ): ?>
-	<div style="text-align:left; max-width: 900px; margin: 50px auto 50px; border-left: 4px solid #E75A5C; padding: 20px; font-size: 8pt; background: #f5f5f5">
+    <?php if( isset($error) && env('APP_DEBUG') ): ?>
+	<div style="text-align:left; max-width: 1200px; margin: 50px auto 50px; border-left: 4px solid #E75A5C; padding: 20px; font-size: 8pt; background: #f5f5f5">
 		<?php
-
- 			$message = "Runtime: " . (microtime(true) - APP_START) . " msec\n";
- 			$message .= "Memory peak usage: " . (memory_get_peak_usage(true)/1024/1024) . " MiB\n";
- 			$message .= "Memory usage: " . (memory_get_usage(true)/1024/1024) . " MiB\n";
+			 /** @var \Exception $error */
+ 			$message = 'Runtime: ' . (microtime(true) - APP_START) . " ms\n";
+ 			$message .= 'Memory peak usage: ' . (memory_get_peak_usage(true)/1024/1024) . " MiB\n";
+ 			$message .= 'Memory usage: ' . (memory_get_usage(true)/1024/1024) . " MiB\n";
 
 			$message .= "\n";
 			$message .= $error->getMessage(). "\n"
-			 . " Class: " . get_class($error) . "\n"
-			 . " Date:  ". date('Y-m-d H:i:s') . "\n"
-	         . " File:  ". $error->getFile(). "\n"
-	         . " Line:  ". $error->getLine(). "\n";
+			 . ' Class: ' . get_class($error) . "\n"
+			 . ' Date:  ' . date('Y-m-d H:i:s') . "\n"
+	         . ' File:  ' . $error->getFile(). "\n"
+	         . ' Line:  ' . $error->getLine(). "\n";
 
 			echo '<h2>'. $error->getMessage() .'</h2>';
 	        echo '<pre style="word-wrap:break-word">' .  $message . "\n";
@@ -74,6 +74,9 @@
             echo $error->getTraceAsString();
 
 			var_dump($_SERVER);
+		
+		echo '<h3>Included files</h3>';
+		print_r(get_included_files());
 
             //  foreach($error->getTrace() as $trace) {
             //      echo isset($trace['class']) ? $trace['class'] : '';

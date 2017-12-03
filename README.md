@@ -1,4 +1,4 @@
-# Core layer
+# Core layr
 
 ## Features:
 - IP checker/blocker/throttle (done?)

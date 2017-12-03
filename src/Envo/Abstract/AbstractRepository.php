@@ -156,9 +156,13 @@ class AbstractRepository
 	public function where($name, $value)
 	{
 		$builder = $this->createBuilder();
-		$builder->where($name .' = :'.$name.':', [
-			$name => $value
-		]);
+		if(strpos($name, ' ', true)) {
+			$builder->where($name, $value);
+		} else {
+			$builder->where($name .' = :'.$name.':', [
+				$name => $value
+			]);
+		}
 		
 		return $builder;
 	}
