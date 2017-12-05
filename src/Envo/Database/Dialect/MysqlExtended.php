@@ -36,12 +36,14 @@ class MysqlExtended extends Mysql
 	/**
 	 * Transforms an intermediate representation for a expression into a database system valid expression.
 	 *
-	 * @param array $expression
+	 * @param array  $expression
 	 * @param string $escapeChar
-	 * @param mixed $bindCounts
+	 * @param mixed  $bindCounts
+	 *
 	 * @return string
 	 *
-	 * @throws Exception
+	 * @throws \Phalcon\Db\Exception
+	 * @throws \Exception
 	 */
 	public function getSqlExpression(array $expression, $escapeChar = null, $bindCounts = null)
 	{

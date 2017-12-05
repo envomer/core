@@ -215,10 +215,10 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('modelsCache', function () {
 			// Cache data for one day by default
-			$frontCache = new FrontendData(["lifetime" => 86400]);
+			$frontCache = new FrontendData(['lifetime' => 86400]);
 
 			$cache = new Phalcon\Cache\Backend\File($frontCache, array(
-				"cacheDir" => APP_PATH . 'storage/framework/cache/'
+				'cacheDir' => APP_PATH . 'storage/framework/cache/'
 			));
 
 			return $cache;

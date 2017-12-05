@@ -65,18 +65,19 @@ if( ! function_exists('apache_request_headers') )
 		foreach($_SERVER as $key => $val) {
 			if( preg_match($rx_http, $key) ) {
 				$arh_key = preg_replace($rx_http, '', $key);
-				$rx_matches = array();
 				// do some nasty string manipulations to restore the original letter case
 				// this should work in most cases
 				$rx_matches = explode('_', $arh_key);
 				if( count($rx_matches) > 0 and strlen($arh_key) > 2 ) {
-					foreach($rx_matches as $ak_key => $ak_val) $rx_matches[$ak_key] = ucfirst($ak_val);
+					foreach($rx_matches as $ak_key => $ak_val) {
+						$rx_matches[ $ak_key ] = ucfirst($ak_val);
+					}
 					$arh_key = implode('-', $rx_matches);
 				}
 				$arh[$arh_key] = $val;
 			}
 		}
-		return( $arh );
+		return $arh;
 	}
 }
 
@@ -154,7 +155,7 @@ if (! function_exists('session'))
 {
     function session($key = null, $default = null)
     {
-        if (is_null($key)) {
+        if ( null === $key ) {
             return resolve('session');
         }
 
@@ -231,6 +232,11 @@ function envo_error_handler($errno, $errstr, $errfile, $errline)
  */
 if( ! function_exists('abort_unless') )
 {
+	/**
+	 * @param      $condition
+	 * @param int  $code
+	 * @param null $message
+	 */
 	function abort_unless($condition, $code = 403, $message = null)
 	{
 		if( ! $condition ) {
@@ -300,6 +306,13 @@ if( ! function_exists('fire') )
  */
 if( ! function_exists('public_exception') )
 {
+	/**
+	 * @param      $messageCode
+	 * @param      $code
+	 * @param null $data
+	 *
+	 * @throws PublicException
+	 */
 	function public_exception($messageCode, $code, $data = null)
 	{
 		$exception = new \Envo\Exception\PublicException($messageCode, $code);
@@ -314,6 +327,13 @@ if( ! function_exists('public_exception') )
  */
 if( ! function_exists('internal_exception') )
 {
+	/**
+	 * @param      $messageCode
+	 * @param      $code
+	 * @param null $data
+	 *
+	 * @throws \Envo\Exception\InternalException
+	 */
 	function internal_exception($messageCode, $code, $data = null)
 	{
 		$exception = new \Envo\Exception\InternalException($messageCode, $code);
@@ -328,6 +348,12 @@ if( ! function_exists('internal_exception') )
  */
 if( ! function_exists('uncaught_exception') )
 {
+	/**
+	 * @param Exception $exception
+	 * @param int       $code
+	 *
+	 * @return \Envo\Exception\InternalException|Exception
+	 */
 	function uncaught_exception(\Exception $exception, $code = 500)
 	{
 		if( $exception instanceof AbstractException ) {

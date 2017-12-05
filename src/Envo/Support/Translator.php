@@ -4,7 +4,9 @@ namespace Envo\Support;
 
 class Translator
 {
-	/** TODO: add path to config **/
+	/**
+	 * TODO: add path to config
+	 **/
 	const LANG_PATH = 'resources/lang/';
 	const LANG_DE = 0;
 	const LANG_EN = 1;
@@ -44,16 +46,13 @@ class Translator
 		if( $params && is_array($params) ) {
 			$i = 0;
 			foreach ($params as $k => $param) {
-
 				if(is_array($translation) ) {
 					return $translation;
 				}
 				
 				if( strpos($translation, ':' .$k) === false ) {
-					if( ! isset($matches) ) {
-						preg_match_all('/(?<!\w):\w+/',$translation,$matches);
-						$matches = $matches[0];
-					}
+					preg_match_all('/(?<!\w):\w+/', $translation, $matches);
+					$matches = $matches[0];
 
 					if( ! $matches ) {
 						return $translation;
@@ -64,7 +63,9 @@ class Translator
 					    $translation = substr_replace($translation, $param, $pos, strlen($matches[$i]));
 					}
 				}
-				else $translation = str_replace(':' . $k, $param, $translation);
+				else {
+					$translation = str_replace(':' . $k, $param, $translation);
+				}
 				$i++;
 			}
 		}
@@ -96,7 +97,7 @@ class Translator
 	 * @param string $name
 	 * @param boolean $all
 	 * @param string $locale
-	 * @return void
+	 * @return mixed
 	 */
 	public static function get($name, $all = false, $locale = null)
 	{
@@ -113,13 +114,13 @@ class Translator
 			}
 
 			$path = APP_PATH . self::LANG_PATH . $locale .'/' . $search[0] . '.php';
-			if( File::exists($path) ) {
+			if( file_exists($path) ) {
 				self::$langs[$search[0]] = require $path;
 			} else {
 				self::$langs[$search[0]] = [];
 			}
 		}
-		if( $all && count($search) == 1 ) {
+		if( $all && count($search) === 1 ) {
 			return self::$langs[$search[0]];
 		}
 		if( ! isset(self::$langs[$search[0]][$search[1]]) ) {
