@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title><?php echo config('app.name') ?></title>
+	<title>Error - Envo</title>
 
 	<style type="text/css">
 		*{ box-sizing: border-box }
@@ -42,18 +42,19 @@
 			if( array_key_exists($code, $messages) === false ) {
 				$code = 500;
 			}
-
+   
 			$message = $messages[$code];
 		?>
 	    <b><?php echo $code ?></b>
-	    <?php echo \_t('app.' . $message); ?>
+	    <?php echo ('app.' . $message); ?>
 	</div>
 
 	<a href="/" class="center" id="back-home">
-		<?php echo \_t('app.backToHomepage'); ?>
+		<?php echo ('app.backToHomepage'); ?>
 	</a>
 
-    <?php if( isset($error) && env('APP_DEBUG') ): ?>
+    <?php
+    if( isset($error) && env('APP_DEBUG') ): ?>
 	<div style="text-align:left; max-width: 1200px; margin: 50px auto 50px; border-left: 4px solid #E75A5C; padding: 20px; font-size: 8pt; background: #f5f5f5">
 		<?php
 			 /** @var \Exception $error */

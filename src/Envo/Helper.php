@@ -182,49 +182,55 @@ if( ! function_exists('user') )
  * Handle all exceptions
  * TODO: modify
  */
-function envo_exception_handler($error)
+if(!function_exists('envo_exception_handler'))
 {
-	if( $error instanceof PublicException ) {
-		http_response_code($error->getCode());
-	} else {
-		http_response_code(500);
-	}
-
-	//TODO: sure about this??
-	if( $error instanceof AbstractException ) {
-		try {
-			$router = resolve('router');
-			if( $router && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/v1') === 0  ) {
-				header('Content-Type: application/json');
-				echo json_encode($error->json());
-				exit;
-			}
-		} catch(\Exception $e) {
-
+	function envo_exception_handler($error)
+	{
+		if ( $error instanceof PublicException ) {
+			http_response_code($error->getCode());
+		} else {
+			http_response_code(500);
 		}
+		
+		//TODO: sure about this??
+		if ( $error instanceof AbstractException ) {
+			try {
+				$router = resolve('router');
+				if ( $router && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/v1') === 0 ) {
+					header('Content-Type: application/json');
+					echo json_encode($error->json());
+					exit;
+				}
+			} catch (\Exception $e) {
+			
+			}
+		}
+		
+		require_once __DIR__ . '/View/html/errors.php';
+		exit;
 	}
-
-	require_once __DIR__ . '/View/html/errors.php';
-	exit;
 }
 
 /**
  * Turn all errors into exceptions
  */
-function envo_error_handler($errno, $errstr, $errfile, $errline)
+if(!function_exists('envo_error_handler'))
 {
-	if (!(error_reporting() & $errno)) {
-		// This error code is not included in error_reporting, so let it fall
-		// through to the standard PHP error handler
-		return false;
-	}
+	function envo_error_handler($errno, $errstr, $errfile, $errline)
+	{
+		if (!(error_reporting() & $errno)) {
+			// This error code is not included in error_reporting, so let it fall
+			// through to the standard PHP error handler
+			return false;
+		}
+		
+		$error = new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 	
-	$error = new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-
-	envo_exception_handler($error);
-
-	/* Don't execute PHP internal error handler */
-	return true;
+		envo_exception_handler($error);
+	
+		/* Don't execute PHP internal error handler */
+		return true;
+	}
 }
 
 /**

@@ -7,7 +7,7 @@ class Loader
 	/**
 	 * @var \Phalcon\Loader
 	 */
-	protected $loader;
+	public $loader;
 	
 	/**
 	 * Loader constructor.
@@ -41,12 +41,28 @@ class Loader
 	}
 	
 	/**
-	 * @param $directory
+	 * @param string|array $directory
+	 * @param bool $merge
 	 */
-	public function loadDir($directory)
+	public function loadDir($directory, $merge = true)
 	{
-		$directories = $this->loader->getDirs();
-		$directories[] = $directory;
-		$this->loader->registerDirs($directories);
+		if(!is_array($directory)) {
+			$directory = [$directory];
+		}
+
+		$this->loader->registerDirs($directory, $merge);
+	}
+	
+	/**
+	 * @param string|array $namespace
+	 * @param bool $merge
+	 */
+	public function loadNamespace($namespace, $merge = true)
+	{
+		if(!is_array($namespace)) {
+			$namespace = [$namespace];
+		}
+		
+		$this->loader->registerNamespaces($namespace, $merge);
 	}
 }
