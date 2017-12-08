@@ -69,11 +69,12 @@ class Auth extends Component
 		}
 		return $this->team;
 	}
-
+	
 	/**
 	 * Get current user
 	 *
 	 * @return User|bool
+	 * @throws AbstractException
 	 */
 	public function user()
 	{
@@ -132,11 +133,12 @@ class Auth extends Component
 		
 		return $this->user = $user;
 	}
-
+	
 	/**
 	 * Is user a guest
 	 *
 	 * @return bool
+	 * @throws AbstractException
 	 */
 	public function guest()
 	{
@@ -167,7 +169,7 @@ class Auth extends Component
 			'email' => $email,
 			'username' => $email
 		])->getOne();
-
+		
 		if(
 			(! $user || ! env('IGNORE_PASSWORDS'))
 			&& (!$user || password_verify($password, $user->getPassword()) === false)
@@ -202,11 +204,13 @@ class Auth extends Component
 			'name' => $user->username,
 		]);
 
-		$event = new LoggedIn(null, false, $user );
+		$event = new LoggedIn(null, false, $user);
 		$event = $event->getEvent();
-		$event->user_id = $user->getId();
-		$event->team_id = $user->getTeamId();
-		$event->save();
+		if($event) {
+			$event->user_id = $user->getId();
+			$event->team_id = $user->getTeamId();
+			$event->save();
+		}
 
 		return true;
 	}

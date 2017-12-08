@@ -50,8 +50,9 @@ class AbstractEvent
 			$model = $message;
 			$message = null;
 		}
-
-		$event = new Event;
+		
+		$eventClass = config('app.classmap.event', Event::class);
+		$event = new $eventClass;
 		$user = ! defined('APP_CLI') ? user() : null;
 		if( $user && $user->loggedIn ) {
 			$event->user_id = $user->id;
@@ -64,7 +65,8 @@ class AbstractEvent
 		$ip = resolve(IP::class)->getIpAddress();
 
 		 if( $ip ) {
-		 	$userIP = IPModel::repo()->where('ip', $ip)->getOne();
+		 	$ipModel = config('app.classmap.ip', IPModel::class);
+		 	$userIP = $ipModel::repo()->where('ip', $ip)->getOne();
 		 	if( ! $userIP ) {
 		 		$userIP = new IPModel();
 		 		$userIP->ip = $ip;
@@ -87,7 +89,7 @@ class AbstractEvent
 			$event->save();
 		}
 
-		$filePath = APP_PATH . 'storage/framework/logs/events/events-' . date('Y-m-d').'.log';
+		$filePath = APP_PATH . 'storage/logs/events/events-' . date('Y-m-d').'.log';
 		File::append($filePath, "\n\r" . $event->toReadableString(static::class));
 
 		return $event;
@@ -134,7 +136,8 @@ class AbstractEvent
 	 *
 	 * @param AbstractEvent $event
 	 * @param string $data
-	 * @return AbstractEvent
+	 *
+	 * @return bool|AbstractEvent
 	 */
 	public function setData($event, $data)
 	{
@@ -166,10 +169,11 @@ class AbstractEvent
 
 		$modelClass = get_class($model);
 
-		$eventModel = EventModel::findFirst(['class=?0', 'bind' => [$modelClass]]);
+		$eventType = config('app.classmap.event_type', EventType::class);
+		$eventModel = $eventType::findFirst(['class=?0', 'bind' => [$modelClass]]);
 
 		if( ! $eventModel ) {
-			$eventModel = new EventModel();
+			$eventModel = new $eventType();
 			$eventModel->class = $modelClass;
 			$eventModel->created_at = Date::now();
 			$eventModel->save();
@@ -183,24 +187,29 @@ class AbstractEvent
 
 		return $event;
 	}
-
+	
 	/**
 	 * Set the current called class (event type)
+	 *
+	 * @param $event
+	 *
+	 * @return mixed
 	 */
 	public function setEventType($event)
 	{
 		$class = static::class;
+		
+		$eventType = config('app.classmap.event_type', EventType::class);
+		$eventTypeResult = $eventType::findFirst(['class=?0', 'bind' => [$class]]);
 
-		$eventType = EventType::findFirst(['class=?0', 'bind' => [$class]]);
-
-		if( ! $eventType ) {
-			$eventType = new EventType();
-			$eventType->class = $class;
-			$eventType->created_at = Date::now();
-			$eventType->save();
+		if( ! $eventTypeResult ) {
+			$eventTypeResult = new $eventType();
+			$eventTypeResult->class = $class;
+			$eventTypeResult->created_at = Date::now();
+			$eventTypeResult->save();
 		}
 
-		$event->event_type_id = $eventType->id;
+		$event->event_type_id = $eventTypeResult->id;
 
 		return $event;
 	}

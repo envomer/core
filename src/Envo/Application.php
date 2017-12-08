@@ -192,10 +192,10 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('router', function() use($di, $debug) {
 			$router = new Router(false);
-			$api = $router->api();
+			//$api = $router->api();
 			$router->setHandler($di->get('apiHandler'));
 			require_once APP_PATH . 'app/routes.php';
-			$router->mount($api);
+			//$router->mount($api);
 
 			$router->removeExtraSlashes(true);
 			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
@@ -289,7 +289,7 @@ class Application extends \Phalcon\Mvc\Application
 			throw new \Exception('Configuration file not set. Contact support team.', 500);
 		}
 		
-		ini_set('error_log', APP_PATH . 'storage/frameworks/logs/errors/'.date('Y-m.W').'.log');
+		ini_set('error_log', APP_PATH . 'storage/logs/errors/'.date('Y-m.W').'.log');
 		
 		// IP check
 		//(new IP())->isBlocked();

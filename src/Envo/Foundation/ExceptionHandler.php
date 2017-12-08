@@ -28,12 +28,12 @@ class ExceptionHandler
 		$code = $exception->getCode();
 
 		$message = $e->getMessage(). "\n"
-			 . " Class:" . get_class($e) . "\n"
-             . " File:". $e->getFile(). "\n"
-             . " Date:". date('Y-m-d H:i:s') . "\n"
-             . " Line:". $e->getLine(). "\n";
+			 . ' Class:' . get_class($e) . "\n"
+             . ' File:' . $e->getFile(). "\n"
+             . ' Date:' . date('Y-m-d H:i:s') . "\n"
+             . ' Line:' . $e->getLine(). "\n";
 
-		if( $exception->getCode() == 404 ) {
+		if( $exception->getCode() === 404 ) {
 			$code = 404;
 			$message = null;
 		}
@@ -63,12 +63,12 @@ class ExceptionHandler
 		}
 
 		// send a Notification every 5 minutes if the error repeats itself
-		if( env('APP_ENV') == 'production' ) {
+		if( env('APP_ENV') === 'production' ) {
 			// \Notification::pushoverRemind($_SERVER['SERVER_NAME'],  'IP: ' . \IP::getIpAddress() . "\nCode: ".  $code . ' ' . $requestMethod . ' ' . "\n\rMessage: " . $message, 60*5);
 		}
 
 		// also log the error message into a log file
-       	error_log($message . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W') . '.log');
+       	error_log($message . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/logs/errors/'.date('Y-m.W') . '.log');
 	}
 
 	/**
