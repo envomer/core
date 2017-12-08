@@ -4,6 +4,7 @@ namespace Envo;
 
 use Envo\Model\QueryBuilder;
 use Phalcon\Di;
+use Phalcon\Mvc\Model;
 
 /**
  * Class AbstractRepository
@@ -24,7 +25,7 @@ class AbstractRepository
 	 *
 	 * @param AbstractModel|null $model
 	 */
-	public function __construct(AbstractModel $model)
+	public function __construct(Model $model)
 	{
 		$this->model = $model;
 	}

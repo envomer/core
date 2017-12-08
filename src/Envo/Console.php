@@ -16,12 +16,13 @@ use Envo\Database\Console\MigrationScaffold;
 use Envo\Foundation\Console\UpCommand;
 use Envo\Queue\Console\WorkCommand;
 
+use Phalcon\Di;
 use Phalcon\DI\FactoryDefault;
 use Symfony\Component\Console\Application;
 
 class Console extends \Phalcon\Application
 {
-    use ApplicationTrait;
+    //use ApplicationTrait;
 	
 	/**
 	 * @var array
@@ -45,15 +46,16 @@ class Console extends \Phalcon\Application
 	 */
     public function start()
     {
-        $this->setup();
-        $this->setupConfig();
-        $this->setDI(new FactoryDefault);
-        $di = $this->getDI();
-	
+		$di = new Di();
 		/**
 		 * Set config
 		 */
 		$di->setShared('config', Config::class);
+	
+		$this->setDI($di);
+    	$this->setup();
+        $this->registerServices();
+        $this->setupConfig();
 
         define('APP_CLI', true);
 	
@@ -80,11 +82,109 @@ class Console extends \Phalcon\Application
         $app->run();
     }
 	
+	public function registerServices()
+	{
+		/**
+		 * Register the module directories
+		 */
+		$loader = new \Phalcon\Loader();
+		//$loader->registerDirs([ APP_PATH . 'library', APP_PATH . 'services']);
+		$namespaces = [
+			'Envo' => ENVO_PATH
+		];
+		$loader->registerNamespaces($namespaces);
+		$loader->register();
+	}
+	
 	/**
 	 * Handles a request
 	 */
 	public function handle()
 	{
 		// TODO: Implement handle() method.
+	}
+	
+	/**
+	 * Define error logging and check if .env file exists
+	 *
+	 * @throws \Exception
+	 */
+	public function setup()
+	{
+		define('APP_START', microtime(true));
+		define('ENVO_PATH', __DIR__ . '/../');
+		
+		if( ! defined('APP_PATH') ) {
+			exit('APP_PATH not defined');
+		}
+		
+		/**
+		 * Read configuration file
+		 */
+		if(! file_exists(APP_PATH . '.env') ) {
+			throw new \Exception('Configuration file not set. Contact support team.', 500);
+		}
+		
+		ini_set('error_log', APP_PATH . 'storage/frameworks/logs/errors/'.date('Y-m.W').'.log');
+		
+		// IP check
+		require_once 'Helper.php';
+		//(new IP())->isBlocked();
+	}
+	
+	/**
+	 * Setup .env configuration
+	 */
+	public function setupConfig()
+	{
+		$config = parse_ini_file(APP_PATH . '.env');
+		
+		if( getenv('APP_ENV') === 'testing' ) {
+			unset($config['APP_ENV']);
+		}
+		
+		foreach($config as $key => $conf) {
+			if( is_array($conf) ) {
+				continue;
+			}
+			putenv($key.'='.$conf);
+		}
+	}
+	
+	/**
+	 * Register database connections
+	 *
+	 * @param DI $di
+	 * @param bool $debug
+	 */
+	public function registerDatabases(DI $di, $debug = false)
+	{
+		$databaseConfig = config('database');
+		$connections = ['db' => $databaseConfig['default']];
+		if(isset($databaseConfig['use'])) {
+			/** @var array $databaseConfig */
+			foreach ($databaseConfig['use'] as $item){
+				$connections[$item] = $item;
+			}
+		}
+		
+		$self = $this;
+		foreach ($connections as $key => $connectionName){
+			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connectionName, $self) {
+				$data = $databaseConfig['connections'][$connectionName];
+				
+				if( $data['driver'] === 'sqlite' ) {
+					$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($data);
+				} else {
+					$connection = new Database($data);
+				}
+				
+				if( $debug ) {
+					$connection->setEventsManager($self->dbDebug($key, $this));
+				}
+				
+				return $connection;
+			});
+		}
 	}
 }

@@ -11,12 +11,13 @@ class Validator
 	/**
 	 * Validate given data
 	 *
-	 * @param $data
-	 * @param $validations
+	 * @param      $data
+	 * @param      $validations
+	 * @param null $messages
 	 *
 	 * @return bool|array|self
 	 */
-	public static function make($data, $validations)
+	public static function make($data, $validations, $messages = null)
 	{
 		$instance = resolve(self::class);
 		$instance->data = $data;

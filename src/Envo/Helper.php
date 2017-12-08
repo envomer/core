@@ -204,7 +204,7 @@ function envo_exception_handler($error)
 		}
 	}
 
-	require_once ENVO_PATH . 'View/html/errors.php';
+	require_once __DIR__ . '/View/html/errors.php';
 	exit;
 }
 
