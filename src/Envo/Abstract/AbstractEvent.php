@@ -3,16 +3,13 @@
 namespace Envo;
 
 use Envo\Model\User;
-use Envo\Notification\Notification;
-
 use Envo\Support\IP;
 use Envo\Support\File;
 use Envo\Support\Date;
 use Envo\Model\IP as IPModel;
-
 use Envo\Event\Model\Event;
 use Envo\Event\Model\EventType;
-use Envo\Event\Model\EventModel;
+use Envo\Notification\Notification;
 
 class AbstractEvent
 {
@@ -36,7 +33,7 @@ class AbstractEvent
 	public function __construct($message = null, $save = true, $model = null, $data = null)
 	{
 		if( ! config('app.events.enabled', false) ) {
-			return $this;
+			return;
 		}
 
 		// in case an event is given as first parameter()
@@ -68,7 +65,7 @@ class AbstractEvent
 		 	$ipModel = config('app.classmap.ip', IPModel::class);
 		 	$userIP = $ipModel::repo()->where('ip', $ip)->getOne();
 		 	if( ! $userIP ) {
-		 		$userIP = new IPModel();
+		 		$userIP = new $ipModel();
 		 		$userIP->ip = $ip;
 		 		$userIP->created_at = Date::now();
 		 		$userIP->user_id = $user ? $user->id : null;

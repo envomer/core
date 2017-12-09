@@ -12,7 +12,7 @@ class Translator
 	const LANG_EN = 1;
 
 	protected static $langs = [];
-	protected static $locale = 'en';
+	protected static $locale = 'de';
 
 	protected static $languages = [
 		self::LANG_DE => 'de',
