@@ -6,6 +6,9 @@ class Router extends \Phalcon\Mvc\Router
 {
     private static $router;
     private $apiHandler = null;
+    
+    //public $version = 'v.1';
+    public $apiPrefix = '/api/1';
 
     public static function getInstance()
     {
@@ -23,62 +26,69 @@ class Router extends \Phalcon\Mvc\Router
     public function api()
     {
         $api = new \Phalcon\Mvc\Router\Group();
-
-        $api->setPrefix('/api/v1');
+        
+		$api->setPrefix($this->apiPrefix);
+		
         $api->add('/:params', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'notFound'
         ]);
 
-        $api->addGet('/model/{model}', [
+        $api->addGet('/{model}', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'handle',
             'method' => 'index'
-        ]);
-        $api->addGet('/model/{model}/{id}', [
+        ])->setName('api-index');
+        
+        $api->addGet('/{model}/{id}', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'handle',
             'method' => 'show'
-        ]);
-        $api->addPost('/model/{model}/search', [
+        ])->setName('api-show');
+        
+        $api->addPost('/{model}/search', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'handle',
             'method' => 'index'
-        ]);
-        $api->addPost('/model/{model}', [
+        ])->setName('api-search');
+        
+        $api->addPost('/{model}', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'handle',
             'method' => 'store'
-        ]);
-        $api->addPut('/model/{model}/{id}', [
+        ])->setName('api-store');
+        
+        $api->add('/{model}/{id}', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'handle',
             'method' => 'update'
-        ]);
-        $api->addPost('/model/{model}/{id}', [
-            'namespace' => 'Envo\API',
-            'controller' => 'Api',
-            'action' => 'handle',
-            'method' => 'update'
-        ]);
-        $api->addDelete('/model/{model}/{id}', [
+        ], ['POST', 'PUT'])->setName('api-update');
+        
+        //$api->addPost('/{model}/{id}', [
+        //    'namespace' => 'Envo\API',
+        //    'controller' => 'Api',
+        //    'action' => 'handle',
+        //    'method' => 'update'
+        //])->setName('api-update');
+        
+        $api->addDelete('/{model}/{id}', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'handle',
             'method' => 'destroy'
-        ]);
+        ])->setName('api-delete');
 
         $api->addPost('/authenticate', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
             'action' => 'authenticate',
-        ]);
+        ])->setName('api-authenticate');
 
         return $api;
     }

@@ -563,11 +563,11 @@ class Str
      * Minimum length is 'time' + 1 char
      *
      * @param integer $length
-     * @return void
+     * @return string
      */
     public static function identifier($length = 32)
     {
         $time = time();
-        return Str::quickRandom(($length - 1) - strlen((string)$time)) . '.' . $time;
+        return self::quickRandom(($length - 1) - strlen((string)$time)) . '.' . $time;
     }
 }

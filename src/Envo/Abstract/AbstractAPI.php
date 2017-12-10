@@ -58,6 +58,7 @@ abstract class AbstractAPI
 	
 	/**
 	 * Build API class (DTO/mode/Repo)
+	 * @throws Exception\InternalException
 	 */
     public function build()
     {
@@ -72,6 +73,7 @@ abstract class AbstractAPI
 	
 	/**
 	 * @return $this
+	 * @throws Exception\InternalException
 	 */
     public function buildModel()
     {
@@ -151,6 +153,7 @@ abstract class AbstractAPI
 	 * @param $validations
 	 *
 	 * @return bool
+	 * @throws Exception\PublicException
 	 */
     public function check($validations)
     {

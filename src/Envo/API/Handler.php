@@ -2,6 +2,7 @@
 
 namespace Envo\API;
 
+use Envo\AbstractAPI;
 use Envo\Exception\InternalException;
 use Envo\Exception\PublicException;
 use Envo\Support\Paginator;
@@ -9,17 +10,22 @@ use Envo\Support\Paginator;
 class Handler
 {
     public $apis = [];
-    public $name = null;
-    public $api = null;
+    public $name;
+	
+	/**
+	 * @var AbstractAPI
+	 */
+    public $api;
 	public $request;
-	public $user = null;
-
+	public $user;
+	
 	/**
 	 * Add new api endpoint
 	 *
-	 * @param string $name
+	 * @param string             $name
 	 * @param string|AbstractAPI $class
-	 * @return void
+	 *
+	 * @return bool
 	 */
     public function add($name, $class)
     {
@@ -29,12 +35,14 @@ class Handler
 
         $this->apis[$name] = $class;
     }
-
+	
 	/**
 	 * Set api instance
 	 *
 	 * @param string $name
-	 * @return void
+	 *
+	 * @return AbstractAPI
+	 * @throws InternalException
 	 */
     public function setApi($name = null)
     {
@@ -79,15 +87,14 @@ class Handler
 			$request->page = 50;
 		}
 	}
-
-    /**
+	
+	/**
 	 * Get all entries
 	 *
 	 * @param int  $page
 	 * @param null $input
 	 *
-	 * @return \Paginator
-	 * @throws \Exception
+	 * @return Paginator
 	 */
 	public function getAll($page = 1, $input = null)
 	{
@@ -100,41 +107,36 @@ class Handler
 		
 		$builder = $this->api->model->getModelsManager()->createBuilder();
 		$builder->from(['e' => \get_class($this->api->model)]);
-
-	    $index = [];
+		
 	    if( method_exists($this->api, 'index') ) {
 	    	$manipulator = $this->api->index($builder);
 	    }
 
-		$builder->offset(($limit * ($page - 1)));
+		$builder->offset($limit * ($page - 1));
 		$builder->limit($limit);
 
 		$query = $builder->getQuery();
 		$data = $query->execute();
 
-		if( $manipulator ) {
+		if( isset($manipulator) ) {
 			$data = $manipulator($data);
 		}
 		
-		$config = $this->getApiConfig();
+		$this->getApiConfig();
 		
 		if( $data ) {
 			$data = $this->transform(
-				$this->api->getConfig('index.transformation') == 'object' ? $data : $data->toArray()
+				$this->api->getConfig('index.transformation') === 'object' ? $data : $data->toArray()
 			);
 		}
 
-	    if( !isset($countTotal) ) {
-			$builder->columns('COUNT(*)');
-			$builder->limit(null);
-			$builder->offset(null);
-			$counter = $builder->getQuery()->execute();
-	    	$countTotal = $counter->getFirst()->{0};
-	    }
+		$builder->columns('COUNT(*)');
+		$builder->limit(null);
+		$builder->offset(null);
+		$counter = $builder->getQuery()->execute();
+		$countTotal = $counter->getFirst()->{0};
 		
-	    $pages = new Paginator($data, $countTotal, (int)$page, (int)$limit);
-
-	    return $pages;
+		return new Paginator($data, $countTotal, (int)$page, (int)$limit);
 	}
 	
 	/**
@@ -143,6 +145,7 @@ class Handler
 	 * @param $entityId
 	 *
 	 * @return string|array
+	 * @throws PublicException
 	 */
 	public function get($entityId, $data = array())
 	{
@@ -152,13 +155,12 @@ class Handler
 
 		$entity = $this->find($entityId, true, $data);
 		if ( ! $entity ) {
-			return _t('app.notfound');
+			public_exception('api.entityNotFound', 404);
 		}
 
 		return [
 			'data' => $this->transform(
-				// $entity->toArray()
-				$this->api->getConfig('show.transformation') == 'object' ? $entity : $entity->toArray()
+				$this->api->getConfig('show.transformation') === 'object' ? $entity : $entity->toArray()
 			)
 		];
 	}
@@ -170,18 +172,19 @@ class Handler
 	 *
 	 * @param $content
 	 *
-	 * @return bool
+	 * @return array
+	 * @throws PublicException
 	 */
 	public function save($content)
 	{
-		$this->hook('prePersist');
-		$this->hook('preCreate');
-
 		$validation = $this->hook('validate');
 		if( is_array($validation) ) {
 			$this->api->check($validation);
 		}
-
+		
+		$this->hook('prePersist');
+		$this->hook('preCreate');
+		
 		if( ! $this->api->model->save() ) {
 			public_exception('api.failedToCreateEntity', 400, $this->api->model);
 		}
@@ -200,43 +203,36 @@ class Handler
 	 * this method is a huge security risk
 	 *
 	 * @param $entityId
-	 * @param $content
 	 *
-	 * @return bool
+	 * @return array
+	 * @throws PublicException
 	 */
-	public function update($entityId, $content)
+	public function update($entityId)
 	{
 		$entry = $this->find($entityId, false);
 		if( ! $entry ) {
-			return _t('app.notfound');
+			public_exception('api.entityNotFound', 404);
 		}
-
-		$result = $entry->override($content, true, 'update');
-
-		if( ! $result || is_string($result) || is_array($result) ) {
-			return $result;
+		
+		$this->api->model = $entry;
+		$validation = $this->hook('validate');
+		if( is_array($validation) ) {
+			$this->api->check($validation);
 		}
-
-		if( method_exists($entry, 'preSave') ) {
-			$response = $entry->preSave();
-			if( is_string($response) || (is_bool($response) && ! $response) ) {
-				return $response;
-			}
+		
+		$this->hook('prePersist');
+		$this->hook('preUpdate');
+		
+		if( ! $this->api->model->save() ) {
+			public_exception('api.failedToUpdateEntity', 400, $this->api->model);
 		}
-
-		if( $entry->allowUpdate() && ! $entry->update() ) {
-			if( $msgs = $entry->getMessages() ) {
-				return $msgs;
-			}
-		    return false;
-		}
-
-		if( method_exists($entry, 'postSave') ) {
-			// TODO: handle errors
-			return $entry->postSave();
-		}
-
-		return true;
+		
+		$this->hook('postPersist');
+		$this->hook('postUpdate');
+		
+		return [
+			'data' => $this->transform($this->api->model)
+		];
 	}
 	
 	/**
@@ -274,13 +270,12 @@ class Handler
 		if( $force ) {
 			return $entry->delete();
 		}
-		else {
-			if( $entry->isSoftDeletable() ) {
-				$entry->deleted_at = date('Y-m-d H:i:s');
-				return $entry->save();
-			}
-			return $entry->delete();
+		
+		if( $entry->isSoftDeletable() ) {
+			$entry->deleted_at = date('Y-m-d H:i:s');
+			return $entry->save();
 		}
+		return $entry->delete();
 	}
 	
 	/**
@@ -327,6 +322,7 @@ class Handler
 		}
 
 		$query = $builder->getQuery();
+		
 		return $query->getSingleResult();
 	}
 
@@ -334,7 +330,7 @@ class Handler
 	 * Trigger hook
 	 *
 	 * @param [type] $name
-	 * @return void
+	 * @return mixed
 	 */
 	public function hook($name)
 	{
@@ -342,12 +338,13 @@ class Handler
 			return $this->api->$name();
 		}
 	}
-
+	
 	/**
 	 * Transform api response
 	 *
 	 * @param [type] $data
-	 * @return void
+	 *
+	 * @return array
 	 */
 	public function transform($data)
 	{
@@ -366,13 +363,14 @@ class Handler
 		$definition = $definition ? array_flip($definition) : null;
 
 		if( 
-			$this->request->method == 'index' && ($apiTransformation || $definition)
+			$this->request->method === 'index' && ($apiTransformation || $definition)
 		) {
 			return array_map(function($item) use($definition, $context) {
 				return $context->transformItem($item, $definition);
 			}, $data);
 		}
-		else if( $apiTransformation || $definition ) {
+		
+		if( $apiTransformation || $definition ) {
 			return $context->transformItem($data, $definition);
 		}
 
@@ -384,7 +382,7 @@ class Handler
 	 *
 	 * @param array|object $data
 	 * @param array $definition
-	 * @return void
+	 * @return array
 	 */
 	public function transformItem($data, $definition)
 	{

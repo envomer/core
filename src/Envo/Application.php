@@ -192,10 +192,11 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('router', function() use($di, $debug) {
 			$router = new Router(false);
-			//$api = $router->api();
+			$router->apiPrefix = '/api/1.1';
+			$api = $router->api(); // make the api better
 			$router->setHandler($di->get('apiHandler'));
 			require_once APP_PATH . 'app/routes.php';
-			//$router->mount($api);
+			$router->mount($api);
 
 			$router->removeExtraSlashes(true);
 			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
@@ -216,7 +217,7 @@ class Application extends \Phalcon\Mvc\Application
 		$di->setShared('view', function () {
 			$view = new View();
 			$view->setViewsDir(APP_PATH . 'app/Core/views/');
-			$view->registerEngines(array('.volt' => 'volt', 'php' => "Phalcon\Mvc\View\Engine\Php"));
+			$view->registerEngines(array('.volt' => 'volt', 'php' => 'Phalcon\Mvc\View\Engine\Php'));
 			return $view;
 		});
 
