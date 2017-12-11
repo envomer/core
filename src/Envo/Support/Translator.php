@@ -20,7 +20,15 @@ class Translator
 	];
 
 	protected static $alias = [];
-
+	
+	/**
+	 * Translator constructor.
+	 */
+	public function __construct()
+	{
+		self::$locale = config('app.locale');
+	}
+	
 	/**
 	 * Set locale
 	 *

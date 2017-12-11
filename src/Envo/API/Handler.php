@@ -170,12 +170,10 @@ class Handler
 	 * @todo recheck and run thorough tests.
 	 * this method is a huge security risk
 	 *
-	 * @param $content
-	 *
 	 * @return array
 	 * @throws PublicException
 	 */
-	public function save($content)
+	public function save()
 	{
 		$validation = $this->hook('validate');
 		if( is_array($validation) ) {

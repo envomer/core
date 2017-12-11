@@ -4,16 +4,30 @@ namespace Envo;
 
 use Envo\API\Handler;
 use Envo\Foundation\ExceptionHandler;
+use Envo\Foundation\Loader;
 use Envo\Foundation\Permission;
 use Envo\Foundation\Config;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Foundation\Router;
 
+use Envo\Support\Str;
+use Envo\Support\Translator;
+use Phalcon\Cache\Backend\File;
 use Phalcon\Cache\Frontend\Data as FrontendData;
+use Phalcon\Db\Adapter\Pdo\Sqlite;
+use Phalcon\Db\Profiler;
+use Phalcon\Debug;
 use Phalcon\DI;
+use Phalcon\Di\FactoryDefault;
+use Phalcon\Escaper;
+use Phalcon\Events\Event;
+use Phalcon\Events\Manager;
 use Phalcon\Http\Response\Cookies;
 use Phalcon\Http\Response;
 use Phalcon\Http\Request;
+use Phalcon\Mvc\Dispatcher;
+use Phalcon\Mvc\Model\Metadata\Files;
+use Phalcon\Mvc\Url;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\Model\Manager as ModelManager;
 use Phalcon\Session\Adapter\Files as SessionAdapter;
@@ -22,6 +36,7 @@ use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
 
 use Envo\Support\IP;
 use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\Mvc\View\Engine\Php;
 
 /**
  * Class Application
@@ -73,13 +88,8 @@ class Application extends \Phalcon\Mvc\Application
 		
 		$this->setup();
 		$this->setupConfig();
-		$di = $this->registerServices();
+		$this->registerServices();
 		$this->isInMaintenance();
-		
-		if(env('APP_DEBUGBAR', false)) {
-			$di->setShared('app', $this);
-			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
-		}
 	}
 	
 	/**
@@ -91,6 +101,21 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		if($initialize) {
 			$this->initialize();
+		}
+		
+		if(env('APP_DEBUGBAR', false)) {
+			$this->di->setShared('app', $this);
+			
+			/** @var Loader $loader */
+			$loader = $this->di->get('autoloader');
+			$loader->loadNamespace([
+				'Snowair\Debugbar' => APP_PATH.'vendor/envome/debugbar/src/',
+				'DebugBar' => APP_PATH.'vendor/maximebf/debugbar/src/Debugbar/',
+				'Psr' => APP_PATH.'vendor/psr/log/Psr/',
+				'Symfony\Component\VarDumper' => APP_PATH.'vendor/symfony/var-dumper/',
+			]);
+			
+			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
 		}
 		
 		echo $this->handle()->getContent();
@@ -107,13 +132,16 @@ class Application extends \Phalcon\Mvc\Application
 		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG');
 		
 		$this->registerNamespaces($di);
+		
+		$config = new Config();
 
 		/**
 		 * Start the session the first time some component request the session service
 		 */
-		$di->setShared('session', function () {
-			session_save_path(APP_PATH.'storage/framework/sessions');
-			$session = new SessionAdapter(['uniqueId' => 'envo-session']);
+		$di->setShared('session', function () use($config) {
+			/** TODO: implement different session types [files, database, etc...found in config('session.driver')] **/
+			session_save_path($config->get('session.files', APP_PATH.'storage/framework/sessions'));
+			$session = new SessionAdapter(['uniqueId' => $config->get('session.prefix', 'envo')]);
 			$session->start();
 			return $session;
 		});
@@ -130,7 +158,6 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set config
 		 */
-		$config = new Config();
 		$di->setShared('config', $config);
 
 		/**
@@ -146,7 +173,7 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set permission
 		 */
-		if(config('app.permissions.enabled')) {
+		if($config->get('app.permissions.enabled')) {
 			$di->setShared('permission', Permission::class);
 		}
 
@@ -161,10 +188,15 @@ class Application extends \Phalcon\Mvc\Application
 		$di->setShared('auth', Auth::class);
 		
 		/**
+		 * Translator
+		 */
+		$di->setShared('translator', Translator::class);
+		
+		/**
 		 * Events manager
 		 */
 		$di->setShared('eventsManager', function() use($debug) {
-			$eventManager = new \Phalcon\Events\Manager();
+			$eventManager = new Manager();
 			if( ! $debug ) {
 				$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
 			}
@@ -176,7 +208,7 @@ class Application extends \Phalcon\Mvc\Application
 		 * Listen to dispatch
 		 */
 		$di->setShared('dispatcher', function() {
-			$dispatcher = new \Phalcon\Mvc\Dispatcher();
+			$dispatcher = new Dispatcher();
 			$dispatcher->setEventsManager($this->get('eventsManager'));
 			$dispatcher->setDefaultNamespace("Core\Controller\\");
 			return $dispatcher;
@@ -190,10 +222,10 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Register the router
 		 */
-		$di->setShared('router', function() use($di, $debug) {
+		$di->setShared('router', function() use($di, $config, $debug) {
 			$router = new Router(false);
-			$router->apiPrefix = '/api/1.1';
-			$api = $router->api(); // make the api better
+			$router->apiPrefix = $config->get('app.api.prefix', 'api/v1');
+			$api = $router->api(); // @TODO make the api better
 			$router->setHandler($di->get('apiHandler'));
 			require_once APP_PATH . 'app/routes.php';
 			$router->mount($api);
@@ -207,17 +239,10 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Register the VIEW component
 		 */
-		//$di->setShared('view', function () {
-		//	$view = new View();
-		//	$view->setViewsDir(APP_PATH . 'app/Core/View/');
-		//	// $view->registerEngines(array('php' => "Phalcon\Mvc\View\Engine\Php"));
-		//	return $view;
-		//});
-		
 		$di->setShared('view', function () {
 			$view = new View();
 			$view->setViewsDir(APP_PATH . 'app/Core/views/');
-			$view->registerEngines(array('.volt' => 'volt', 'php' => 'Phalcon\Mvc\View\Engine\Php'));
+			$view->registerEngines(array('.volt' => 'volt', 'php' => Php::class));
 			return $view;
 		});
 
@@ -230,7 +255,7 @@ class Application extends \Phalcon\Mvc\Application
 		* If the configuration specify the use of metadata adapter use it or use memory otherwise
 		*/
 		$di->setShared('modelsMetadata', function () {
-			$metaData = new \Phalcon\Mvc\Model\Metadata\Files(array(
+			$metaData = new Files(array(
 				'metaDataDir' => APP_PATH . 'storage/framework/cache/'
 			));
 
@@ -244,19 +269,25 @@ class Application extends \Phalcon\Mvc\Application
 			// Cache data for one day by default
 			$frontCache = new FrontendData(['lifetime' => 86400]);
 
-			$cache = new \Phalcon\Cache\Backend\File($frontCache, array(
+			$cache = new File($frontCache, array(
 				'cacheDir' => APP_PATH . 'storage/framework/cache/'
 			));
 
 			return $cache;
 		});
-
+		
+		/**
+		 * Set URL component
+		 */
+		$url = new Url();
+		$url->setBaseUri('/');
+		$di->setShared('url', $url);
+		
 		if( $debug ) {
-			$di->set('url', \Phalcon\Mvc\Url::class);
-			$di->set('escaper', \Phalcon\Escaper::class);
-			$di->set('profiler', \Phalcon\Db\Profiler::class, true);
+			$di->set('escaper', Escaper::class, true);
+			$di->set('profiler', Profiler::class, true);
 			
-			$debug = new \Phalcon\Debug();
+			$debug = new Debug();
 			$debug->listen();
 		}
 
@@ -275,25 +306,20 @@ class Application extends \Phalcon\Mvc\Application
 		error_reporting(-1);
 		set_exception_handler('envo_exception_handler');
 		set_error_handler('envo_error_handler');
+		ini_set('error_log', APP_PATH . 'storage/logs/errors/'.date('Y-m.W').'.log');
 		
-		//define('APP_START', microtime(true));
 		define('ENVO_PATH', __DIR__ . '/../');
 		
 		if( ! defined('APP_PATH') ) {
-			exit('APP_PATH not defined');
+			internal_exception('app.pathNotDefined', 500);
 		}
 		
 		/**
 		 * Read configuration file
 		 */
 		if(! file_exists(APP_PATH . '.env') ) {
-			throw new \Exception('Configuration file not set. Contact support team.', 500);
+			internal_exception('app.configurationFileNotFound', 500);
 		}
-		
-		ini_set('error_log', APP_PATH . 'storage/logs/errors/'.date('Y-m.W').'.log');
-		
-		// IP check
-		//(new IP())->isBlocked();
 	}
 	
 	/**
@@ -319,18 +345,19 @@ class Application extends \Phalcon\Mvc\Application
 	 * Debug database
 	 *
 	 * @param $databaseName
-	 * @param $di
+	 * @param \Phalcon\Di $di
 	 *
 	 * @return EventManager
 	 */
 	public function dbDebug($databaseName, $di)
 	{
 		// log the mysql queries if APP_DEBUG is set to true
-		// $logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/logs/db-'.date('Y-m-d').'.log');
-		$profiler = $di->getProfiler();
+		/** @var Profiler $profiler */
+		$profiler = $di->get('profiler');
 		$eventsManager = new EventManager();
+		
 		// Listen all the database events
-		$eventsManager->attach($databaseName, function($event, $connection) use ($profiler) {
+		$eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler) {
 			if ($event->getType() === 'beforeQuery') {
 				// $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				$profiler->startProfile($connection->getSQLStatement());
@@ -380,7 +407,7 @@ class Application extends \Phalcon\Mvc\Application
 				$data = $databaseConfig['connections'][$connectionName];
 				
 				if( $data['driver'] === 'sqlite' ) {
-					$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($data);
+					$connection = new Sqlite($data);
 				} else {
 					$connection = new Mysql($data);
 				}
@@ -400,9 +427,7 @@ class Application extends \Phalcon\Mvc\Application
 	public function registerNamespaces(Di $di)
 	{
 		$loader = new \Phalcon\Loader();
-		//$loader->registerDirs([ APP_PATH . 'library', APP_PATH . 'services']);
 		$namespaces = [];
-		//$namespaces['Phalcon\Http'] = APP_PATH . 'vendor/phalcon/incubator/Library/Phalcon/Http';
 		$namespaces['Envo'] = [
 			ENVO_PATH . 'Envo',
 			ENVO_PATH . 'Envo/Abstract'

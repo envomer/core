@@ -4,7 +4,6 @@ namespace Envo;
 
 use Envo\Model\Eagerload\EagerloadTrait;
 use Envo\Support\Arr;
-use Envo\Support\Validator;
 
 class AbstractModel extends \Phalcon\Mvc\Model
 {
@@ -92,18 +91,6 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	}
 
 	/**
-	 * Override the validate method of the model
-	 * 
-	 * @param  array $data
-	 * @param  string $rules
-	 * @return array|bool
-	 */
-	public function runValidation($data, $rules = 'rules')
-	{
-		return new Validator;
-	}
-
-	/**
 	 * Whether the model is soft deletable
 	 * 
 	 * @return bool
@@ -188,7 +175,8 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		if(!isset(self::$repos[$className])) {
 			$parts = explode('\\', $className);
 			
-			array_splice($parts, count($parts) - 1, 0, 'Repository'); // splice in at position 3
+			// splice in at position 3
+			array_splice($parts, count($parts) - 1, 0, 'Repository');
 			$repoClass = implode('\\', $parts);
 			
 			// Model repository class does not exist.
@@ -235,12 +223,13 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	{
 		return isset($this->id) ? $this->id : null;
 	}
-
+	
 	/**
 	 * Create builder
 	 *
 	 * @param string $alias
-	 * @return void
+	 *
+	 * @return \Phalcon\Mvc\Model\Query\BuilderInterface
 	 */
 	public function createBuilder($alias = 'e')
 	{

@@ -18,7 +18,14 @@ class AbstractException extends Exception
     public $messageCode = null;
     public $exception = [];
     public $trace = false;
-
+	
+	/**
+	 * AbstractException constructor.
+	 *
+	 * @param null           $messageCode
+	 * @param int            $code
+	 * @param Exception|null $previous
+	 */
     public function __construct($messageCode = null, $code = 0, Exception $previous = null)
     {
         $this->reference = Str::quickRandom() . '.' . time();
@@ -26,14 +33,18 @@ class AbstractException extends Exception
 		
         parent::__construct(\_t($messageCode), $code, $previous);
     }
-
+	
+	/**
+	 * @param $data
+	 */
     public function setData($data)
     {
         if( $data instanceof AbstractModel && ($messages = $data->getMessages()) ) {
             foreach ($messages as $message) {
                 $this->internalData[] = [
                     'field' => $message->getField(),
-                    'type' => $message->getType()
+                    'type' => $message->getType(),
+					'message' => $message->getMessage()
                 ];
             }
         }
@@ -50,12 +61,18 @@ class AbstractException extends Exception
             $this->internalData = $data;
         }
     }
-
+	
+	/**
+	 * @return array
+	 */
     public function getInternalData()
     {
         return $this->internalData;
     }
-
+	
+	/**
+	 * @return array
+	 */
     public function json()
     {
         $publicException = ($this instanceof PublicException);

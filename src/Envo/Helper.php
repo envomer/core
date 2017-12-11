@@ -24,10 +24,10 @@ if( ! function_exists('_t') )
 	function _t($val, $params = null, $amount = null, $lang = null)
 	{
 		if( $amount ) {
-			return resolve(Translator::class)->choice($val, $amount, $lang);
+			return resolve('translator')->choice($val, $amount, $lang);
 		}
 		
-		return resolve(Translator::class)->lang($val, $params, $lang);
+		return resolve('translator')->lang($val, $params, $lang);
 	}
 }
 

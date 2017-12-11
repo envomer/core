@@ -2,32 +2,55 @@
 
 namespace Envo\Foundation;
 
+use Envo\API\Handler;
+use Phalcon\Mvc\Router\Group;
+
 class Router extends \Phalcon\Mvc\Router
 {
+	/**
+	 * @var self
+	 */
     private static $router;
-    private $apiHandler = null;
-    
-    //public $version = 'v.1';
-    public $apiPrefix = '/api/1';
-
+	
+	/**
+	 * @var Handler
+	 */
+    private $apiHandler;
+	
+	/**
+	 * @var string
+	 */
+    public $apiPrefix = 'api/1';
+	
+	/**
+	 * @return Router
+	 */
     public static function getInstance()
     {
         if( self::$router ) {
             return self::$router;
         }
+		
         return self::$router = new self();
     }
-
+	
+	/**
+	 * @param $name
+	 * @param $path
+	 */
     public function get($name, $path)
     {
         $this->add($name, $path);
     }
-
+	
+	/**
+	 * @return Group
+	 */
     public function api()
     {
-        $api = new \Phalcon\Mvc\Router\Group();
+        $api = new Group();
         
-		$api->setPrefix($this->apiPrefix);
+		$api->setPrefix('/' . $this->apiPrefix);
 		
         $api->add('/:params', [
             'namespace' => 'Envo\API',
@@ -70,13 +93,6 @@ class Router extends \Phalcon\Mvc\Router
             'method' => 'update'
         ], ['POST', 'PUT'])->setName('api-update');
         
-        //$api->addPost('/{model}/{id}', [
-        //    'namespace' => 'Envo\API',
-        //    'controller' => 'Api',
-        //    'action' => 'handle',
-        //    'method' => 'update'
-        //])->setName('api-update');
-        
         $api->addDelete('/{model}/{id}', [
             'namespace' => 'Envo\API',
             'controller' => 'Api',
@@ -92,12 +108,19 @@ class Router extends \Phalcon\Mvc\Router
 
         return $api;
     }
-
+	
+	/**
+	 * @param string $name
+	 * @param string $class
+	 */
     public function addApi($name, $class)
     {
         $this->apiHandler->add($name, $class);
     }
-
+	
+	/**
+	 * @param Handler $handler
+	 */
     public function setHandler($handler)
     {
         $this->apiHandler = $handler;

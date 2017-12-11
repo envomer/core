@@ -128,7 +128,7 @@ class Auth extends Component
 		}
 
 		 if( $user->isLoggedIn() && $user->getLanguage() ) {
-			 Translator::setLocale($user->getLanguage());
+			 resolve('translator')->setLocale($user->getLanguage());
 		 }
 		
 		return $this->user = $user;
@@ -158,6 +158,7 @@ class Auth extends Component
 	 * @param bool $remember
 	 *
 	 * @return bool
+	 * @throws \RuntimeException
 	 * @throws Exception\PublicException
 	 */
 	public function check($email, $password, $remember = false)
@@ -264,7 +265,8 @@ class Auth extends Component
 			$user->remember_token = Str::random(32);
 			$user->save();
 		}
-		$expire = time() + (86400 * 365);
+		//$expire = time() + (86400 * 365);
+		$expire = time() + 31531000; // a year
 
 		$this->cookies->set(self::COOKIE_REMEMBER, $user->identifier, $expire );
 		$this->cookies->set(self::COOKIE_TOKEN, $user->remember_token, $expire );

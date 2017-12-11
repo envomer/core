@@ -54,15 +54,11 @@ class Loader
 	}
 	
 	/**
-	 * @param string|array $namespace
+	 * @param array $namespaces
 	 * @param bool $merge
 	 */
-	public function loadNamespace($namespace, $merge = true)
+	public function loadNamespace(array $namespaces, $merge = true)
 	{
-		if(!is_array($namespace)) {
-			$namespace = [$namespace];
-		}
-		
-		$this->loader->registerNamespaces($namespace, $merge);
+		$this->loader->registerNamespaces($namespaces, $merge);
 	}
 }

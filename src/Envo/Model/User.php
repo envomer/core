@@ -87,7 +87,7 @@ class User extends AbstractModel
 	/**
 	 * @var string
 	 */
-    protected $remember_token;
+    public $remember_token;
 	
 	/**
 	 * @var string
