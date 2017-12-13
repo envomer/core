@@ -177,7 +177,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 			
 			// splice in at position 3
 			array_splice($parts, count($parts) - 1, 0, 'Repository');
-			$repoClass = implode('\\', $parts);
+			$repoClass = implode('\\', $parts) . 'Repository';
 			
 			// Model repository class does not exist.
 			// Use the AbstractRepository class as fallback

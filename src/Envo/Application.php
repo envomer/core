@@ -129,6 +129,7 @@ class Application extends \Phalcon\Mvc\Application
 	public function registerServices()
 	{
 		$di = new DI();
+		//$di = new FactoryDefault();
 		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG');
 		
 		$this->registerNamespaces($di);
@@ -287,8 +288,8 @@ class Application extends \Phalcon\Mvc\Application
 			$di->set('escaper', Escaper::class, true);
 			$di->set('profiler', Profiler::class, true);
 			
-			$debug = new Debug();
-			$debug->listen();
+			//$debug = new Debug();
+			//$debug->listen();
 		}
 
 		$this->setDI($di);
