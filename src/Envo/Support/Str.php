@@ -476,7 +476,7 @@ class Str
     {
         $alpha = ucfirst(self::quickRandom(1, true, false));
 
-        while ($alpha == 'O') {
+        while ($alpha === 'O') {
             $alpha = ucfirst(self::quickRandom(1, true, false));
         }
 

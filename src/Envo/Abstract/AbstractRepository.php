@@ -23,9 +23,9 @@ class AbstractRepository
 	/**
 	 * AbstractRepository constructor.
 	 *
-	 * @param AbstractModel|null $model
+	 * @param Model $model
 	 */
-	public function __construct(Model $model)
+	public function __construct(Model $model = null)
 	{
 		$this->model = $model;
 	}
