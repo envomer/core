@@ -36,10 +36,11 @@ class Smpt
 		$mailer = new Swift_Mailer($transport);
 		
 		// Create a message
-		$message = (new Swift_Message('Wonderful Subject'))
+		$message = (new Swift_Message('Rechnung #7763'))
 			->setFrom(['john@doe.com' => 'John Doe'])
 			->setTo(['receiver@domain.org', 'other@domain.org' => 'A name'])
-			->setBody('Here is the message itself')
+			->setBody('Guten Tag, {FirstName} {LastName}!')
+			->attach(\Swift_Attachment::fromPath(APP_PATH . 'public/uploads/receipts/1/0a/94/0a94f4a44d917eebfa5210fa38d352fd.pdf'))
 		;
 		
 		// Send the message

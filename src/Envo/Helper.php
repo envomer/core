@@ -1,6 +1,5 @@
 <?php
 
-use Envo\Support\Translator;
 use Envo\AbstractException;
 use Envo\Exception\PublicException;
 
@@ -186,8 +185,10 @@ if(!function_exists('envo_exception_handler'))
 {
 	function envo_exception_handler($error)
 	{
+		$trace = true;
 		if ( $error instanceof PublicException ) {
 			http_response_code($error->getCode());
+			$trace = false;
 		} else {
 			http_response_code(500);
 		}
@@ -195,15 +196,23 @@ if(!function_exists('envo_exception_handler'))
 		//TODO: sure about this??
 		if ( $error instanceof AbstractException ) {
 			try {
+				if($trace) {
+					$error->trace = true;
+				}
+				$json = $error->json();
+				new \Envo\Event\Exception($error->getMessage(), true, null, $json);
 				$router = resolve('router');
-				if ( $router && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/v1') === 0 ) {
+				if ( $router && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/') === 0 ) {
 					header('Content-Type: application/json');
-					echo json_encode($error->json());
+					echo json_encode($json);
 					exit;
 				}
 			} catch (\Exception $e) {
-			
+				die(var_dump($e));
 			}
+			
+		} else {
+			new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
 		}
 		
 		require_once __DIR__ . '/View/html/errors.php';

@@ -201,7 +201,7 @@ class AbstractModel extends \Phalcon\Mvc\Model
 		$className = static::class;
 		
 		if(!isset(self::$services[$className])) {
-			$serviceClass = str_replace('\\Model\\', '\\Service\\', static::class);
+			$serviceClass = str_replace('\\Model\\', '\\Service\\', static::class) . 'Service';
 			
 			// Model service class does not exist.
 			// Use the AbstractService class as fallback

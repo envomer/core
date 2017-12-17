@@ -56,11 +56,12 @@ class Auth extends Component
 		$this->userClass = config('app.user', User::class);
 		$this->teamClass = config('app.team', Team::class);
 	}
-
+	
 	/**
 	 * Get current team
 	 *
 	 * @return Team
+	 * @throws AbstractException
 	 */
 	public function team()
 	{
@@ -291,7 +292,7 @@ class Auth extends Component
 	 * @return bool|User
 	 * @throws AbstractException
 	 */
-	public function loginWithRememberMe($userId)
+	public function loginWithRememberMe($userId = null)
 	{
 		$userId = $userId ?: $this->cookies->get(self::COOKIE_REMEMBER)->getValue();
 		$token = $this->cookies->get(self::COOKIE_TOKEN)->getValue();

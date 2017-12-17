@@ -12,10 +12,10 @@ use Exception;
 
 class AbstractException extends Exception
 {
-    public $reference = null;
-    public $data = null;
     protected $internalData = [];
-    public $messageCode = null;
+    public $reference;
+    public $data;
+    public $messageCode;
     public $exception = [];
     public $trace = false;
 	
@@ -104,6 +104,8 @@ class AbstractException extends Exception
                 // 'message' => $this->getMessage(),
                 'data' => $this->getInternalData(),
                 'code' => $this->messageCode,
+				'line' => $this->getLine(),
+				'file' => $this->getFile(),
             ];
 
             if( $this->trace ) {

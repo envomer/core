@@ -32,7 +32,7 @@
 		<?php
 			$messages = [
 				'400' => 'badRequest',
-				'403' => 'notallowed',
+				'403' => 'notAllowed',
 				'404' => 'notfound',
 				'500' => 'internalServerError'
 			];
@@ -46,7 +46,7 @@
 			$message = $messages[$code];
 		?>
 	    <b><?php echo $code ?></b>
-	    <?php echo ('app.' . $message); ?>
+	    <?php echo \_t('app.' . $message); ?>
 	</div>
 
 	<a href="/" class="center" id="back-home">
@@ -58,7 +58,7 @@
 	<div style="text-align:left; max-width: 1200px; margin: 50px auto 50px; border-left: 4px solid #E75A5C; padding: 20px; font-size: 8pt; background: #f5f5f5">
 		<?php
 			 /** @var \Exception $error */
- 			$message = 'Runtime: ' . (microtime(true) - APP_START) . " ms\n";
+ 			$message = 'Runtime: ' . (microtime(true) - APP_START) . " s\n";
  			$message .= 'Memory peak usage: ' . (memory_get_peak_usage(true)/1024/1024) . " MiB\n";
  			$message .= 'Memory usage: ' . (memory_get_usage(true)/1024/1024) . " MiB\n";
 
@@ -73,11 +73,19 @@
 	        echo '<pre style="word-wrap:break-word">' .  $message . "\n";
 
             echo $error->getTraceAsString();
+		
+            if($error instanceof \Envo\AbstractException) {
+                echo "\n\n";
+                print_r($error->json());
+            }
 
 			var_dump($_SERVER);
 		
-		echo '<h3>Included files</h3>';
-		print_r(get_included_files());
+            echo '<h3>Included files</h3>';
+            print_r(get_included_files());
+            
+            var_dump(resolve('eventsManager')->getResponses());
+            var_dump(resolve('profiler')->getProfiles());
 
             //  foreach($error->getTrace() as $trace) {
             //      echo isset($trace['class']) ? $trace['class'] : '';

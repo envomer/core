@@ -26,6 +26,7 @@ use Phalcon\Http\Response\Cookies;
 use Phalcon\Http\Response;
 use Phalcon\Http\Request;
 use Phalcon\Mvc\Dispatcher;
+use Phalcon\Mvc\Model;
 use Phalcon\Mvc\Model\Metadata\Files;
 use Phalcon\Mvc\Url;
 use Phalcon\Mvc\View;
@@ -356,6 +357,7 @@ class Application extends \Phalcon\Mvc\Application
 		/** @var Profiler $profiler */
 		$profiler = $di->get('profiler');
 		$eventsManager = new EventManager();
+		$eventsManager->collectResponses(true);
 		
 		// Listen all the database events
 		$eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler) {
@@ -420,6 +422,15 @@ class Application extends \Phalcon\Mvc\Application
 				return $connection;
 			});
 		}
+		
+		// @see https://docs.phalconphp.com/en/3.2/db-models#disabling-enabling-features
+		Model::setup(
+			[
+				'disableAssignSetters' => true,
+				'columnRenaming' => false,
+				'exceptionOnFailedSave' => true
+			]
+		);
 	}
 	
 	/**
