@@ -50,7 +50,7 @@
 	</div>
 
 	<a href="/" class="center" id="back-home">
-		<?php echo ('app.backToHomepage'); ?>
+		<?php echo \_t('app.backToHomepage'); ?>
 	</a>
 
     <?php
