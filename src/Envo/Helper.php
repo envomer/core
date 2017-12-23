@@ -22,7 +22,7 @@ if( ! function_exists('_t') )
 {
 	function _t($val, $params = null, $amount = 1, $lang = null)
 	{
-		if( $amount ) {
+		if( $amount && ! is_bool($params) ) {
 			return resolve('translator')->choice($val, $amount, $lang);
 		}
 		

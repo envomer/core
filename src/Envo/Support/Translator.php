@@ -91,6 +91,9 @@ class Translator
 	public static function choice($name, $count = 1, $locale = null)
 	{
 		$name = self::get($name, $count, $locale);
+		if(is_array($name)) {
+			return $name;
+		}
 		$names = explode('|', $name);
 		if( $count > 1 && isset($names[1]) ) {
 			return $names[1];
@@ -105,7 +108,7 @@ class Translator
 	 * @param string $name
 	 * @param boolean $all
 	 * @param string $locale
-	 * @return mixed
+	 * @return mixed|array
 	 */
 	public static function get($name, $all = false, $locale = null)
 	{

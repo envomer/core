@@ -244,7 +244,7 @@ class Application extends \Phalcon\Mvc\Application
 		$di->setShared('view', function () {
 			$view = new View();
 			$view->setViewsDir(APP_PATH . 'app/Core/views/');
-			$view->registerEngines(array('.volt' => 'volt', 'php' => Php::class));
+			$view->registerEngines(array('.volt' => 'volt', '.php' => Php::class));
 			return $view;
 		});
 
