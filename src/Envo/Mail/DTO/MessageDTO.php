@@ -56,6 +56,22 @@ class MessageDTO extends AbstractDTO
 	public $attachments;
 	
 	/**
+	 * MessageDTO constructor.
+	 *
+	 * @param array|\stdClass       $data
+	 * @param array|null $mapping
+	 */
+	public function __construct($data = null, array $mapping = null)
+	{
+		$from = config('mail.from');
+		
+		$this->from = $from['address'];
+		$this->fromName = $from['name'];
+		
+		parent::__construct($data, $mapping);
+	}
+	
+	/**
 	 * @param string $path
 	 * @param string $fileName
 	 */

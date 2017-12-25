@@ -37,13 +37,15 @@ class Smpt implements TransportInterface
 			$to = [$this->message->to];
 		}
 		
-		$from = [$this->message->from => $this->message->from ?: $this->message->fromName];
+		$from = [
+			$this->message->from => $this->message->from ?: $this->message->fromName
+		];
 		
 		// Create a message
 		$message = new \Swift_Message($this->message->subject);
 		$message->setFrom($from);
 		$message->setTo($to);
-		$message->setBody($this->message->body);
+		$message->setBody($this->message->body, 'text/html');
 		
 		//$message->setFrom(['om@anx.io']);
 		//$message->setTo(['om@anx.io']);

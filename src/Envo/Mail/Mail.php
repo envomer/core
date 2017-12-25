@@ -50,6 +50,11 @@ class Mail
 		$this->driver = $driver;
 	}
 	
+	/**
+	 * @return mixed
+	 * @throws \Envo\Exception\InternalException
+	 * @throws \Envo\Exception\PublicException
+	 */
 	public function send()
 	{
 		if(!$this->transport) {

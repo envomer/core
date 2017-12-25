@@ -13,6 +13,8 @@
 		h1 b { color: #E04157; }
 		p { color: rgba(0,0,0,0.8); font-size: 14pt; margin: 0; }
 		p span { color: #2ABB9B; }
+        h3 { margin-bottom: 0; padding-bottom: 0; font-size: 12pt }
+        .xdebug-var-dump { margin-top: 0 }
 
 		#back-home{ color: green; text-decoration: none; font-size: 15pt; margin-top: 20px; display: block; }
 
@@ -78,13 +80,20 @@
                 echo "\n\n";
                 print_r($error->json());
             }
-
+        
+            echo '<h3>Request</h3>';
+			var_dump($_REQUEST);
+			
+		    echo '<h3>Server</h3>';
 			var_dump($_SERVER);
 		
             echo '<h3>Included files</h3>';
             print_r(get_included_files());
-            
+		
+		    echo '<h3>Event manager</h3>';
             var_dump(resolve('eventsManager')->getResponses());
+		
+		    echo '<h3>Profiles</h3>';
             var_dump(resolve('profiler')->getProfiles());
 
             //  foreach($error->getTrace() as $trace) {
