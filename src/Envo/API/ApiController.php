@@ -14,8 +14,8 @@ class ApiController extends AbstractController
     /**
      * Authenticate user
      *
-     * @return array
-     */
+     * @return array|string
+	 */
     public function authenticateAction()
     {
         $email = $this->get('email');

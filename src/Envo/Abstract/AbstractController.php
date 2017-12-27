@@ -58,7 +58,7 @@ class AbstractController extends Controller
 	 * @param null $name
 	 * @param null $default
 	 *
-	 * @return array|null
+	 * @return array|null|string|mixed
 	 */
 	public function get($name = null, $default = null)
 	{
