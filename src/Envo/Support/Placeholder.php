@@ -11,14 +11,14 @@ class Placeholder
 	
 	public function __construct()
 	{
-		$this->backgroundColor = 'eeeeee';
+		$this->backgroundColor = 'EEEEEE';
 		$this->cache           = false;
 		$this->cacheDir        = APP_PATH . 'storage/framework/cache';
 		$this->expires         = 604800;
 		$this->font            = ENVO_PATH . 'Envo/View/fonts/Roboto-Regular.ttf';
 		$this->maxHeight       = 2000;
 		$this->maxWidth        = 2000;
-		$this->textColor       = 'cccccc';
+		$this->textColor       = 'CCCCCC';
 	}
 	
 	/**
@@ -277,7 +277,6 @@ class Placeholder
 	 */
 	public function render()
 	{
-		//die(var_dump($this->font));
 		if ($this->width <= $this->maxWidth && $this->height <= $this->maxHeight) {
 			$cachePath = $this->cacheDir . '/' . $this->width . '_' . $this->height . '_' . (strlen($this->backgroundColor) === 3 ? $this->backgroundColor[0] . $this->backgroundColor[0] . $this->backgroundColor[1] . $this->backgroundColor[1] . $this->backgroundColor[2] . $this->backgroundColor[2] : $this->backgroundColor) . '_' . (strlen($this->textColor) === 3 ? $this->textColor[0] . $this->textColor[0] . $this->textColor[1] . $this->textColor[1] . $this->textColor[2] . $this->textColor[2] : $this->textColor) . '.png';
 			header('Content-type: image/png');

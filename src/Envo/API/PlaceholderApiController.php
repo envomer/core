@@ -4,7 +4,6 @@ namespace Envo\API;
 
 use Envo\AbstractController;
 use Envo\Support\Placeholder;
-use Phalcon\Mvc\Controller;
 
 class PlaceholderApiController extends AbstractController
 {
@@ -20,21 +19,23 @@ class PlaceholderApiController extends AbstractController
 		}
 		
 		// Get variables from $_GET
-		$backgroundColor = isset($_GET['bgColor']) ? strtolower(trim($_GET['bgColor'])) : null;
-		$textColor       = isset($_GET['textColor']) ? strtolower(trim($_GET['textColor'])) : null;
+		$backgroundColor = isset($_GET['bg']) ? strtolower(trim($_GET['bg'])) : null;
+		$textColor       = isset($_GET['color']) ? strtolower(trim($_GET['color'])) : null;
 		try {
 			$placeholder = new Placeholder();
 			$placeholder->setWidth($width);
 			$placeholder->setHeight($height);
-			if ($backgroundColor) $placeholder->setBackgroundColor($backgroundColor);
-			if ($textColor) $placeholder->setTextColor($textColor);
+			if ($backgroundColor) {
+				$placeholder->setBackgroundColor($backgroundColor);
+			}
+			if ($textColor) {
+				$placeholder->setTextColor($textColor);
+			}
 			$placeholder->render();
 		} catch (\Exception $e){
 			die($e->getMessage());
 		}
 		
 		exit;
-		
-		die(var_dump($height, $width));
 	}
 }
