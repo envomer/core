@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Support;
+namespace Envo\Extension\Placeholder;
 
 use InvalidArgumentException;
 use RuntimeException;

@@ -1,9 +1,8 @@
 <?php
 
-namespace Envo\API;
+namespace Envo\Extension\Placeholder;
 
 use Envo\AbstractController;
-use Envo\Support\Placeholder;
 
 class PlaceholderApiController extends AbstractController
 {
