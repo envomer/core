@@ -16,6 +16,8 @@ use Envo\Database\Console\MigrationScaffold;
 use Envo\Foundation\Console\UpCommand;
 use Envo\Queue\Console\WorkCommand;
 
+use Phalcon\Db\Adapter\Pdo\Mysql;
+use Phalcon\Db\Adapter\Pdo\Sqlite;
 use Phalcon\Di;
 use Phalcon\DI\FactoryDefault;
 use Symfony\Component\Console\Application;
@@ -46,7 +48,8 @@ class Console extends \Phalcon\Application
 	 */
     public function start()
     {
-		$di = new Di();
+		//$di = new Di();
+		$di = new FactoryDefault();
 		
 		/** Set config */
 		$di->setShared('config', Config::class);
@@ -58,7 +61,7 @@ class Console extends \Phalcon\Application
 
         define('APP_CLI', true);
 	
-		if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate') === 0  ) {
+		if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate') === 0 ) {
 			$this->registerDatabases($di);
 		}
 
@@ -77,7 +80,7 @@ class Console extends \Phalcon\Application
 		$app->add(new MigrationRollback);
 		$app->add(new MigrationStatus);
 		$app->add(new MigrationCreate);
-
+		
         $app->run();
     }
 	
@@ -173,9 +176,9 @@ class Console extends \Phalcon\Application
 				$data = $databaseConfig['connections'][$connectionName];
 				
 				if( $data['driver'] === 'sqlite' ) {
-					$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($data);
+					$connection = new Sqlite($data);
 				} else {
-					$connection = new Database($data);
+					$connection = new Mysql($data);
 				}
 				
 				if( $debug ) {

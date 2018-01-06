@@ -232,7 +232,7 @@ class Application extends \Phalcon\Mvc\Application
 			$router->setHandler($di->get('apiHandler'));
 			require_once APP_PATH . 'app/routes.php';
 			$router->mount($api);
-			$router->placeholder();
+			$router->extensions();
 
 			$router->removeExtraSlashes(true);
 			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);

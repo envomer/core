@@ -42,6 +42,7 @@ class MigrationScaffold extends BaseCommand
             'team',
             'event',
             'mail',
+            'extension_email_template',
             'permissions',
         ];
 
@@ -62,28 +63,31 @@ class MigrationScaffold extends BaseCommand
     {
         $files = [
             'user' => [
-                ENVO_PATH . '../../migrations/20170712093749_create_users.php'
+                ENVO_PATH . '../migrations/20170712093749_create_users.php'
             ],
             'team' => [
-                ENVO_PATH . '../../migrations/20170712182747_create_teams.php',
-                //ENVO_PATH . '../../migrations/20170712093750_create_user_team.php',
+                ENVO_PATH . '../migrations/20170712182747_create_teams.php',
+                //ENVO_PATH . '../migrations/20170712093750_create_user_team.php',
             ],
             'event' => [
-                ENVO_PATH . '../../migrations/20170713083404_create_events.php',
-                ENVO_PATH . '../../migrations/20170713084109_create_event_types.php',
-                ENVO_PATH . '../../migrations/20170713084113_create_event_models.php',
-                ENVO_PATH . '../../migrations/20170713084114_create_ips.php',
+                ENVO_PATH . '../migrations/20170713083404_create_events.php',
+                ENVO_PATH . '../migrations/20170713084109_create_event_types.php',
+                ENVO_PATH . '../migrations/20170713084113_create_event_models.php',
+                ENVO_PATH . '../migrations/20170713084114_create_ips.php',
             ],
             'mail' => [
-                ENVO_PATH . '../../migrations/20170713093749_create_mails.php',
+                ENVO_PATH . '../migrations/20170713093749_create_mails.php',
             ],
             'permissions' => [
-                ENVO_PATH . '../../migrations/20170712093753_create_permission_roles.php',
-                ENVO_PATH . '../../migrations/20170712093754_create_permission_rules.php',
-                ENVO_PATH . '../../migrations/20170712093755_create_legal_entities.php',
-                ENVO_PATH . '../../migrations/20170712093756_create_legal_entities_self.php',
-                ENVO_PATH . '../../migrations/20170712093757_create_module_units.php',
+                ENVO_PATH . '../migrations/20170712093753_create_permission_roles.php',
+                ENVO_PATH . '../migrations/20170712093754_create_permission_rules.php',
+                ENVO_PATH . '../migrations/20170712093755_create_legal_entities.php',
+                ENVO_PATH . '../migrations/20170712093756_create_legal_entities_self.php',
+                ENVO_PATH . '../migrations/20170712093757_create_module_units.php',
             ],
+			'extension_email_template' => [
+				ENVO_PATH . '../migrations/20180106203020_create_extensionEmailTemplate_table.php',
+			]
         ];
 
         if( $group === 'ALL' ) {
@@ -101,8 +105,7 @@ class MigrationScaffold extends BaseCommand
 	public function handle()
 	{
 		// Ask the user which of their defined paths they'd like to use:
-		//$answer = $this->askWhichMigration();
-		$answer = 'ALL';
+		$answer = $this->askWhichMigration();
 		if( $answer === 'none' ) {
 			return true;
 		}

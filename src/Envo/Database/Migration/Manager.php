@@ -465,7 +465,7 @@ class Manager
 		
 		$commands = ['migrate:rollback', 'migrate:status', 'migrate:reset', 'migrate:refresh'];
 		if(in_array($this->command, $commands, false)) {
-			$paths[] = ENVO_PATH . '../../migrations';
+			$paths[] = ENVO_PATH . '../migrations';
 		}
 		
 		$files = $this->migrationFiles ?: [];
@@ -579,6 +579,9 @@ class Manager
 		return $query->fetch()['batch'];
 	}
 	
+	/**
+	 * @return array|\Phalcon\Mvc\Model\Resultset\Simple
+	 */
 	public function getLast()
 	{
 		if(! ($lastBatch = $this->getLastBatchNumber())) {

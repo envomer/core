@@ -6,6 +6,7 @@ use Phalcon\Db\Index;
 /**
  * Class Column
  * @package lib\Database
+ * @method default($value)
  */
 class Column extends \Phalcon\Db\Column
 {
@@ -14,6 +15,11 @@ class Column extends \Phalcon\Db\Column
 	 */
 	public $table;
 	
+	/**
+	 * @param bool $unique
+	 *
+	 * @return $this
+	 */
 	public function index($unique = false)
 	{
 		$this->table->indexes[] = new Index(
@@ -25,6 +31,9 @@ class Column extends \Phalcon\Db\Column
 		return $this;
 	}
 	
+	/**
+	 * @return $this
+	 */
 	public function nullable()
 	{
 		$this->_notNull = false;
@@ -32,11 +41,17 @@ class Column extends \Phalcon\Db\Column
 		return $this;
 	}
 	
+	/**
+	 * @return Column
+	 */
 	public function unique()
 	{
 		return $this->index(true);
 	}
 	
+	/**
+	 * @return $this
+	 */
 	public function unsigned()
 	{
 		$this->_unsigned = true;
@@ -44,10 +59,16 @@ class Column extends \Phalcon\Db\Column
 		return $this;
 	}
 	
+	/**
+	 * @param $name
+	 * @param $value
+	 *
+	 * @return $this
+	 */
 	public function __call($name, $value)
 	{
 		if($name === 'default') {
-			$this->_default = $value;
+			$this->_default = reset($value);
 		}
 		
 		return $this;

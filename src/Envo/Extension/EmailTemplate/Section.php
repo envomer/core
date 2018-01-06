@@ -1,6 +1,6 @@
 <?php
 
-namespace Envo\Plugin\EmailTemplate;
+namespace Envo\Extension\EmailTemplate;
 
 use Envo\AbstractDTO;
 

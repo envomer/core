@@ -3,6 +3,7 @@
 namespace Envo\Foundation;
 
 use Envo\API\Handler;
+use Envo\Extension\EmailTemplate\API;
 use Phalcon\Mvc\Router\Group;
 
 class Router extends \Phalcon\Mvc\Router
@@ -129,12 +130,14 @@ class Router extends \Phalcon\Mvc\Router
 	/**
 	 * @TODO refactor to extension/placeholder
 	 */
-	public function placeholder()
+	public function extensions()
 	{
 		$this->addGet('/placeholder/{size}', [
 			'namespace' => 'Envo\Extension\Placeholder',
 			'controller' => 'PlaceholderApi',
 			'action' => 'render'
 		]);
+		
+		$this->apiHandler->add('ex-email-template', API::class);
 	}
 }
