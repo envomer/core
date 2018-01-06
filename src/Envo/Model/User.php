@@ -280,4 +280,12 @@ class User extends AbstractModel
 		
 		return $this->permissionString;
 	}
+	
+	/**
+	 * @return string
+	 */
+	public function getTeamIdentifierKey()
+	{
+		return 'team_id';
+	}
 }

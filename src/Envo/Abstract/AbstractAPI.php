@@ -107,8 +107,8 @@ abstract class AbstractAPI
             }
 
             $data = null;
-            if( $this->request && isset($this->request->parameters[$this->getName()]) ) {
-                $data = $this->request->parameters[$this->getName()];
+            if( $this->request && isset($this->request->parameters['data']) ) {
+                $data = $this->request->parameters['data'];
             }
 
             $this->dto = new $this->dto($data);

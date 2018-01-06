@@ -104,11 +104,8 @@ class Handler
 
 		$this->requestValidate();
 		$limit = $this->api->request->limit;
-		$className = get_class($this->api->model);
-		$alias = strtolower(substr($className, strrpos($className, '\\') + 1)[0]);
 		
-		$builder = $this->api->model->getModelsManager()->createBuilder();
-		$builder->from([$alias => $className]);
+		$builder = $this->api->model->createBuilder();
 		
 	    if( method_exists($this->api, 'index') ) {
 	    	$manipulator = $this->api->index($builder);
@@ -144,12 +141,14 @@ class Handler
 	/**
 	 * Get database entry
 	 *
-	 * @param $entityId
+	 * @param       $entityId
+	 *
+	 * @param array $data
 	 *
 	 * @return string|array
 	 * @throws PublicException
 	 */
-	public function get($entityId, $data = array())
+	public function get($entityId, array $data = [])
 	{
 		if( method_exists($this->api, 'get') ) {
 			return $this->api->get();
@@ -253,7 +252,7 @@ class Handler
 		 */
 		$entry = $this->find($entityId, false, $data);
 		if( ! $entry || ! $entry->isDeletable() ) {
-			return _t('app.notfound');
+			return _t('app.notFound');
 		}
 
 		if( method_exists($entry, 'preDelete') ) {
@@ -287,7 +286,7 @@ class Handler
 	 */
 	public function restore($entityId)
 	{
-		$entry = $this->api->onlyTrashed()->where($this->identifier, $entityId)->first();
+		$entry = $this->api->onlyTrashed()->where($this->api->identifier, $entityId)->first();
 		if( ! $entry ) {
 			return _t('app.notfound');
 		}
@@ -305,14 +304,15 @@ class Handler
 	 */
 	public function find($entityId, $isApi = true, $data = array())
 	{
-		$builder = $this->api->model->getModelsManager()->createBuilder();
-		$builder->from(['e' => \get_class($this->api->model)]);
+		$builder = $this->api->model->createBuilder();
 
 		if( method_exists($this->api, 'show') ) {
-			$this->api->show($builder);
+			$this->api->show($builder, $entityId);
 		}
 		else {
-			$builder->where('e.'.$this->api->identifier . ' = :val:', [
+			$className = get_class($this->api->model);
+			$alias = strtolower(substr($className, strrpos($className, '\\') + 1)[0]);
+			$builder->where($alias. '.'.$this->api->identifier . ' = :val:', [
 				'val' => $entityId
 			]);
 		}
@@ -380,7 +380,7 @@ class Handler
 	/**
 	 * Transform on item
 	 *
-	 * @param array|object $data
+	 * @param array|\stdClass $data
 	 * @param array $definition
 	 * @return array
 	 */

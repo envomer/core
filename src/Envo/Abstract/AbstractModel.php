@@ -4,8 +4,9 @@ namespace Envo;
 
 use Envo\Model\Eagerload\EagerloadTrait;
 use Envo\Support\Arr;
+use Phalcon\Mvc\Model;
 
-class AbstractModel extends \Phalcon\Mvc\Model
+class AbstractModel extends Model
 {
 	use EagerloadTrait;
 
@@ -30,19 +31,16 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	protected static $services;
 	
 	/**
-	 * ???
+	 * Get the table name
 	 *
-	 * @var
+	 * @return string table name
+	 * @throws Exception\InternalException
 	 */
-	public $reference;
-
-	/**
-	* Get the table name
-	*
-	* @return string table name
-	*/
 	public function getSource()
 	{
+		if(!isset($this->table)) {
+			internal_exception('app.tableNameMissing', 500);
+		}
 		return $this->table;
 	}
 	
@@ -231,10 +229,13 @@ class AbstractModel extends \Phalcon\Mvc\Model
 	 *
 	 * @return \Phalcon\Mvc\Model\Query\BuilderInterface
 	 */
-	public function createBuilder($alias = 'e')
+	public function createBuilder($alias = null)
 	{
+		$className = static::class;
+		$alias = $alias ?: strtolower(substr($className, strrpos($className, '\\') + 1)[0]);
+		
 		$builder = $this->getModelsManager()->createBuilder();
-		$builder->from([$alias => \get_class($this)]);
+		$builder->from([$alias => $className]);
 
 		return $builder;
 	}

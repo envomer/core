@@ -28,7 +28,6 @@ class AbstractEvent
 	 * @param bool $save
 	 * @param null $model
 	 * @param null $data
-	 *
 	 */
 	public function __construct($message = null, $save = true, $model = null, $data = null)
 	{
@@ -40,7 +39,8 @@ class AbstractEvent
 		// then just set the event instance without creating
 		// a new event instance
 		if( is_a($message, self::class) ) {
-			return $this->event = $message;
+			$this->event = $message;
+			return;
 		}
 
 		if( is_a($message, AbstractModel::class) ) {
@@ -49,12 +49,15 @@ class AbstractEvent
 		}
 		
 		$eventClass = config('app.classmap.event', Event::class);
+		/** @var Event $event */
 		$event = new $eventClass;
 		$user = ! defined('APP_CLI') ? user() : null;
 		if( $user && $user->loggedIn ) {
 			$event->user_id = $user->id;
-			if( isset($user->team_id) ) {
-				$event->team_id = $user->team_id;
+			
+			$teamIdentifier = $user->getTeamIdentifierKey() ?: 'team_id';
+			if( isset($user->$teamIdentifier) ) {
+				$event->$teamIdentifier = $user->$teamIdentifier;
 			}
 		}
 
@@ -63,6 +66,7 @@ class AbstractEvent
 
 		 if( $ip ) {
 		 	$ipModel = config('app.classmap.ip', IPModel::class);
+		 	/** @var IPModel $userIP */
 		 	$userIP = $ipModel::repo()->where('ip', $ip)->getOne();
 		 	if( ! $userIP ) {
 		 		$userIP = new $ipModel();
@@ -88,8 +92,6 @@ class AbstractEvent
 
 		$filePath = APP_PATH . 'storage/logs/events/events-' . date('Y-m-d').'.log';
 		File::append($filePath, "\n\r" . $event->toReadableString(static::class));
-
-		return $event;
 	}
 
 	/**

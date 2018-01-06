@@ -3,13 +3,16 @@
 namespace Envo;
 
 use JsonSerializable;
-
 use Envo\Support\Arr;
 
+/**
+ * Class AbstractDTO
+ * @package Envo
+ */
 class AbstractDTO implements JsonSerializable
 {
 	/**
-	 * Construct abstract DTO
+	 * Construct an abstract DTO
 	 *
 	 * @param mixed $data
 	 * @param array $mapping
@@ -17,7 +20,7 @@ class AbstractDTO implements JsonSerializable
 	public function __construct($data = null, $mapping = null)
 	{
 		if( ! $data ) {
-			return true;
+			return;
 		}
 		
 		if(is_string($data)) {
@@ -29,7 +32,7 @@ class AbstractDTO implements JsonSerializable
 		}
 		
 		if( is_a($data, AbstractModel::class) ) {
-			$data = Arr::getPublicProperties($data);
+			$data = get_object_vars($data);
 		}
 		
 		if(!$mapping) {
@@ -63,7 +66,18 @@ class AbstractDTO implements JsonSerializable
 	 */
 	public function jsonSerialize()
 	{
-		return Arr::getPublicProperties($this);
+		$data = get_object_vars($this);
+		
+		/** @var array $mapping */
+		$mapping = $this->getMapping();
+		if($mapping) {
+			foreach ($mapping as $key => $value) {
+				$data[$key] = $data[$value];
+				unset($data[$value]);
+			}
+		}
+		
+		return $data;
 	}
 
 	/**
@@ -77,7 +91,7 @@ class AbstractDTO implements JsonSerializable
 	}
 	
 	/**
-	 * @return mixed|array|bool
+	 * @return mixed
 	 */
 	public function getMapping()
 	{

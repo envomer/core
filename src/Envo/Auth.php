@@ -53,8 +53,8 @@ class Auth extends Component
 	 */
 	public function __construct()
 	{
-		$this->userClass = config('app.user', User::class);
-		$this->teamClass = config('app.team', Team::class);
+		$this->userClass = config('app.classmap.user', User::class);
+		$this->teamClass = config('app.classmap.team', Team::class);
 	}
 	
 	/**
