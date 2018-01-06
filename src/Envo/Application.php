@@ -88,7 +88,7 @@ class Application extends \Phalcon\Mvc\Application
 		require 'Helper.php';
 		
 		$this->setup();
-		$this->setupConfig();
+		$this->setupEnv();
 		$this->registerServices();
 		$this->isInMaintenance();
 	}
@@ -136,6 +136,7 @@ class Application extends \Phalcon\Mvc\Application
 		$this->registerNamespaces($di);
 		
 		$config = new Config();
+		putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
 
 		/**
 		 * Start the session the first time some component request the session service
@@ -245,7 +246,7 @@ class Application extends \Phalcon\Mvc\Application
 		$di->setShared('view', function () {
 			$view = new View();
 			$view->setViewsDir(APP_PATH . 'app/Core/views/');
-			$view->registerEngines(array('.volt' => 'volt', '.php' => Php::class));
+			$view->registerEngines(['.volt' => 'volt', '.php' => Php::class]);
 			return $view;
 		});
 
@@ -328,7 +329,7 @@ class Application extends \Phalcon\Mvc\Application
 	/**
 	 * Setup .env configuration
 	 */
-	public function setupConfig()
+	public function setupEnv()
 	{
 		$config = parse_ini_file(APP_PATH . '.env');
 		

@@ -22,7 +22,7 @@ use Symfony\Component\Console\Application;
 
 class Console extends \Phalcon\Application
 {
-    //use ApplicationTrait;
+    use ApplicationTrait;
 	
 	/**
 	 * @var array
@@ -47,9 +47,8 @@ class Console extends \Phalcon\Application
     public function start()
     {
 		$di = new Di();
-		/**
-		 * Set config
-		 */
+		
+		/** Set config */
 		$di->setShared('config', Config::class);
 	
 		$this->setDI($di);

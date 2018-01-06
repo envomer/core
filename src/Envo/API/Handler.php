@@ -104,9 +104,11 @@ class Handler
 
 		$this->requestValidate();
 		$limit = $this->api->request->limit;
+		$className = get_class($this->api->model);
+		$alias = strtolower(substr($className, strrpos($className, '\\') + 1)[0]);
 		
 		$builder = $this->api->model->getModelsManager()->createBuilder();
-		$builder->from(['e' => \get_class($this->api->model)]);
+		$builder->from([$alias => $className]);
 		
 	    if( method_exists($this->api, 'index') ) {
 	    	$manipulator = $this->api->index($builder);
