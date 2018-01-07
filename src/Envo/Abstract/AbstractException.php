@@ -39,7 +39,9 @@ class AbstractException extends Exception
 	 */
     public function setData($data)
     {
-        if( $data instanceof AbstractModel && ($messages = $data->getMessages()) ) {
+        if( $data instanceof AbstractModel ) {
+			$messages = $data->getMessages() ?: [];
+			
             foreach ($messages as $message) {
                 $this->internalData[] = [
                     'field' => $message->getField(),

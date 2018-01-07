@@ -60,6 +60,54 @@ class Column extends \Phalcon\Db\Column
 	}
 	
 	/**
+	 * @param $columnName
+	 *
+	 * @return $this
+	 */
+	public function after($columnName)
+	{
+		$this->_after = $columnName;
+		
+		return $this;
+	}
+	
+	/**
+	 * @param bool $set
+	 *
+	 * @return $this
+	 */
+	public function primary($set = true)
+	{
+		$this->_primary = $set;
+		
+		return $this;
+	}
+	
+	/**
+	 * @param bool $set
+	 *
+	 * @return $this
+	 */
+	public function first($set = true)
+	{
+		$this->_first = $set;
+		
+		return $this;
+	}
+	
+	/**
+	 * @param bool $set
+	 *
+	 * @return $this
+	 */
+	public function autoIncrement($set = true)
+	{
+		$this->_autoIncrement = $set;
+		
+		return $this;
+	}
+	
+	/**
 	 * @param $name
 	 * @param $value
 	 *

@@ -12,7 +12,7 @@ class CreateExtensionEmailTemplateTable extends AbstractMigration
      */
     public function up()
     {
-        $this->create('ex_email_template', function (Table $table) {
+        $this->create('ex_email_templates', function (Table $table) {
             $table->increments('id');
             
             $table->unsignedInteger('team_id')->index();
@@ -37,6 +37,6 @@ class CreateExtensionEmailTemplateTable extends AbstractMigration
      */
     public function down()
     {
-        $this->dropIfExists('ex_email_template');
+        $this->dropIfExists('ex_email_templates');
     }
 }

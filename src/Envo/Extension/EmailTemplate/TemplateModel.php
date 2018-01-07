@@ -6,5 +6,5 @@ use Envo\AbstractModel;
 
 class TemplateModel extends AbstractModel
 {
-	protected $table = 'ex_templates';
+	protected $table = 'ex_email_templates';
 }
