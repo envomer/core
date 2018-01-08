@@ -215,7 +215,7 @@ class AbstractModel extends Model
 	/**
 	 * Get id
 	 *
-	 * @return integer|null
+	 * @return integer|null|mixed
 	 */
 	public function getId()
 	{
@@ -227,7 +227,7 @@ class AbstractModel extends Model
 	 *
 	 * @param string $alias
 	 *
-	 * @return \Phalcon\Mvc\Model\Query\BuilderInterface
+	 * @return Model\Query\Builder|Model\Query\BuilderInterface
 	 */
 	public function createBuilder($alias = null)
 	{

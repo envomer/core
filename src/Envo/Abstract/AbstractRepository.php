@@ -31,14 +31,18 @@ class AbstractRepository
 	}
 	
 	/**
+	 * @param null $alias
+	 *
 	 * @return QueryBuilder
 	 */
-	public function createBuilder()
+	public function createBuilder($alias = null)
 	{
-		$class = get_class($this->model);
+		$className = get_class($this->model);
+		$alias = $alias ?: strtolower(substr($className, strrpos($className, '\\') + 1)[0]);
+		
 		$queryBuilder = new QueryBuilder();
 		$queryBuilder->from([
-			lcfirst($class[0]) => $class
+			$alias => $className
 		]);
 		
 		return $queryBuilder;

@@ -3,9 +3,12 @@
 namespace Envo\API;
 
 use Envo\AbstractAPI;
+use Envo\AbstractModel;
 use Envo\Exception\InternalException;
 use Envo\Exception\PublicException;
 use Envo\Support\Paginator;
+use Phalcon\Mvc\Model;
+use Phalcon\Mvc\Model\Resultset;
 
 class Handler
 {
@@ -104,29 +107,31 @@ class Handler
 
 		$this->requestValidate();
 		$limit = $this->api->request->limit;
+		$manipulator = null;
 		
 		$builder = $this->api->model->createBuilder();
 		
 	    if( method_exists($this->api, 'index') ) {
+	    	/** @var mixed $manipulator */
 	    	$manipulator = $this->api->index($builder);
 	    }
 
 		$builder->offset($limit * ($page - 1));
 		$builder->limit($limit);
 
+		/** @var \Phalcon\Mvc\Model\Query $query */
 		$query = $builder->getQuery();
+		/** @var \Phalcon\Mvc\Model\Resultset\Simple $data */
 		$data = $query->execute();
-
-		if( isset($manipulator) ) {
+		
+		if( $manipulator ) {
 			$data = $manipulator($data);
 		}
 		
-		$this->getApiConfig();
+		$data = $this->hydrateResultItems($data, 'index.hydrate');
 		
 		if( $data ) {
-			$data = $this->transform(
-				$this->api->getConfig('index.transformation') === 'object' ? $data : $data->toArray()
-			);
+			$data = $this->transform($data);
 		}
 
 		$builder->columns('COUNT(*)');
@@ -136,6 +141,27 @@ class Handler
 		$countTotal = $counter->getFirst()->{0};
 		
 		return new Paginator($data, $countTotal, (int)$page, (int)$limit);
+	}
+	
+	/**
+	 * @param \Phalcon\Mvc\Model\Resultset\Simple $data
+	 * @param $configKey
+	 *
+	 * @return mixed
+	 */
+	protected function hydrateResultItems($data, $configKey)
+	{
+		$mode = $this->api->getConfig($configKey, AbstractAPI::HYDRATE_MODEL);
+		
+		switch ($mode) {
+			case AbstractAPI::HYDRATE_ARRAY:
+				$data->setHydrateMode(Resultset::HYDRATE_ARRAYS);
+				return $data->toArray();
+			case AbstractAPI::HYDRATE_MODEL:
+				return $data->setHydrateMode(Resultset::HYDRATE_RECORDS);
+			case AbstractAPI::HYDRATE_OBJECT:
+				return $data->setHydrateMode(Resultset::HYDRATE_OBJECTS);
+		}
 	}
 	
 	/**
@@ -161,7 +187,7 @@ class Handler
 
 		return [
 			'data' => $this->transform(
-				$this->api->getConfig('show.transformation') === 'object' ? $entity : $entity->toArray()
+				$this->api->getConfig('show.hydration') === AbstractAPI::HYDRATE_OBJECT ? $entity : $entity->toArray()
 			)
 		];
 	}
@@ -297,12 +323,11 @@ class Handler
 	/**
 	 * Find model entity
 	 *
-	 * @param      $entityId
-	 * @param bool $isApi
+	 * @param mixed $entityId
 	 *
 	 * @return \AbstractModel
 	 */
-	public function find($entityId, $isApi = true, $data = array())
+	public function find($entityId)
 	{
 		$builder = $this->api->model->createBuilder();
 
@@ -365,9 +390,14 @@ class Handler
 		if( 
 			$this->request->method === 'index' && ($apiTransformation || $definition)
 		) {
-			return array_map(function($item) use($definition, $context) {
-				return $context->transformItem($item, $definition);
-			}, $data);
+			$result = [];
+			foreach ($data as $item) {
+				$result[] = $context->transformItem($item, $definition);
+			}
+			return $result;
+			//return array_map(function($item) use($definition, $context) {
+			//	return $context->transformItem($item, $definition);
+			//}, $data);
 		}
 		
 		if( $apiTransformation || $definition ) {
@@ -386,13 +416,23 @@ class Handler
 	 */
 	public function transformItem($data, $definition)
 	{
+		if(!$definition) {
+			return $data;
+		}
+		
+		if(is_a($data, Model::class)) {
+			$data = $data->toArray();
+		}
+		
 		if( is_object($data) ) {
 			$data = (array) $data;
 		}
-
-		if( is_array($data) ) {
+		
+		if( is_array($data) && $definition ) {
 			return array_intersect_key($data, $definition);
 		}
+		
+		return $data;
 	}
 
 	/**

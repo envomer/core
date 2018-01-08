@@ -13,6 +13,10 @@ use Envo\Support\Validator;
  */
 abstract class AbstractAPI
 {
+	const HYDRATE_OBJECT = 1;
+	const HYDRATE_MODEL = 2;
+	const HYDRATE_ARRAY = 3;
+	
 	/**
 	 * @var AbstractModel
 	 */
@@ -69,6 +73,10 @@ abstract class AbstractAPI
         $this->buildModel();
         $this->buildDTO();
         $this->buildRepo();
+        
+        if(method_exists($this, 'config')) {
+        	$this->config = $this->config();
+		}
     }
 	
 	/**
@@ -176,7 +184,7 @@ abstract class AbstractAPI
      * @return mixed
      */
     public function getConfig($key, $default = null)
-    {        
+    {
         if( $this->config && array_key_exists($key, $this->config) ) {
             return $this->config[$key];
         }
