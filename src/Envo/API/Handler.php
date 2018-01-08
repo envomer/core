@@ -187,7 +187,8 @@ class Handler
 
 		return [
 			'data' => $this->transform(
-				$this->api->getConfig('show.hydration') === AbstractAPI::HYDRATE_OBJECT ? $entity : $entity->toArray()
+				//$this->api->getConfig('show.hydrate') === AbstractAPI::HYDRATE_MODEL ? $entity : $entity->toArray()
+				$this->hydrateResultItems($entity, 'show.hydrate')
 			)
 		];
 	}
@@ -325,7 +326,7 @@ class Handler
 	 *
 	 * @param mixed $entityId
 	 *
-	 * @return \AbstractModel
+	 * @return AbstractModel
 	 */
 	public function find($entityId)
 	{
