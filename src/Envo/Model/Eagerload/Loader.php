@@ -277,7 +277,7 @@ MSG;
                 }
                 $parent      = $nestingLevel > 0 ? $eagerLoads[$parentName] : $this;
                 $constraints = $nestingLevel + 1 === $nestingLevels ? $queryConstraints : null;
-                $eagerLoads[$name] = new EagerLoad($relation, $constraints, $parent);
+                $eagerLoads[$name] = new Eagerload($relation, $constraints, $parent);
             } while (++$nestingLevel < $nestingLevels);
         }
         return $eagerLoads;
