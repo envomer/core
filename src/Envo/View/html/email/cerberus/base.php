@@ -191,8 +191,8 @@
 	<![endif]-->
 
 </head>
-<body width="100%" bgcolor="<?php echo $this->getStyle('backgroundColor', '#222222') ?>" style="margin: 0; mso-line-height-rule: exactly;">
-<div style="width: 100%; background: <?php echo $this->getStyle('backgroundColor', '#222222') ?>; text-align: left; text-align: center;">
+<body width="100%" bgcolor="<?php echo $this->getStyle('backgroundColor', '#d7d7d7') ?>" style="margin: 0; mso-line-height-rule: exactly;">
+<div style="width: 100%; background: <?php echo $this->getStyle('backgroundColor', '#d7d7d7') ?>; text-align: left; text-align: center;">
 	
     <?php if($this->excerpt): ?>
 	<!-- Visually Hidden Preheader Text : BEGIN -->
