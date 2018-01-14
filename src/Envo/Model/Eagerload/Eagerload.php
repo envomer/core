@@ -9,7 +9,7 @@ use Phalcon\Version;
 /**
  * Represents a level in the relations tree to be eagerly loaded
  */
-final class EagerLoad
+final class Eagerload
 {
     /** @var RelationInterface */
     private $relation;
