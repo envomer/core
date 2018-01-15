@@ -5,6 +5,7 @@ namespace Envo\Mail\Transport;
 use Envo\Foundation\Loader;
 use Envo\Mail\DTO\MessageDTO;
 use SendGrid as SendGridMailer;
+use SendGrid\Attachment;
 use SendGrid\Content;
 use SendGrid\Email;
 use SendGrid\Mail as SendGridMail;
@@ -29,7 +30,7 @@ class SendGrid implements TransportInterface
 	
 	public $batchSize = 500;
 	
-	public $test = true;
+	public $simulate = true;
 	
 	/**
 	 * Pushover construct
@@ -89,13 +90,27 @@ class SendGrid implements TransportInterface
 		$mail->addContent($content);
 		$mail->addCustomArg('newsletterid', 'testing'); // ???
 		
-		if( $this->test ) {
+		if($this->message->attachments) {
+			foreach ($this->message->attachments as $file){
+				$attachment = new Attachment();
+				$attachment->setFilename($file->fileName);
+				$attachment->setContent(base64_encode(file_get_contents($file->path)));
+				$attachment->setType(mime_content_type($file->path));
+				$attachment->setDisposition('attachment');
+				$attachment->setContentID($file->fileName);
+				$mail->addAttachment($attachment);
+			}
+		}
+		
+		if( $this->simulate ) {
 			$mail_settings = new MailSettings();
 			$sandbox_mode = new SandBoxMode();
 			$sandbox_mode->setEnable(true);
 			$mail_settings->setSandboxMode($sandbox_mode);
 			$mail->setMailSettings($mail_settings); // enable testing
 		}
+		
+		//die(var_dump($mail));
 		
 		return $mail;
 	}
@@ -149,6 +164,8 @@ class SendGrid implements TransportInterface
 		if( ! $this->token ) {
 			internal_exception('notification.sendGridTokenNotFound', 500);
 		}
+		
+		$this->simulate = env('MAIL_SIMULATE', true);
 		
 		return true;
 	}

@@ -21,11 +21,10 @@ class Loader
 	
 	/**
 	 * @param      $name
-	 * @param bool $register
 	 *
 	 * @return mixed
 	 */
-	public function load($name, $register = false)
+	public function load($name)
 	{
 		$repositories = array(
 			'Cron' => array(
@@ -34,9 +33,6 @@ class Loader
 		);
 		
 		$this->loader->registerNamespaces($repositories[$name]);
-		if( $register ) {
-			$this->register();
-		}
 		return $this;
 	}
 	
