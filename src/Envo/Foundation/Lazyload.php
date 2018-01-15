@@ -56,6 +56,6 @@ class Lazyload
 
     public static function fromResultset($a, $b)
     {
-        return \Envo\Model\EagerLoad\Loader::fromResultset($a, $b);
+        return \Envo\Model\Eagerload\Loader::fromResultset($a, $b);
     }
 }

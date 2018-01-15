@@ -277,7 +277,7 @@ class Handler
 		 * Make sure all models have a show method with a condition set
 		 * SECURITY BREACH
 		 */
-		$entry = $this->find($entityId, false, $data);
+		$entry = $this->find($entityId);
 		if( ! $entry || ! $entry->isDeletable() ) {
 			return _t('app.notFound');
 		}
@@ -331,8 +331,8 @@ class Handler
 	public function find($entityId)
 	{
 		$builder = $this->api->model->createBuilder();
-
-		if( method_exists($this->api, 'show') ) {
+		
+		if( $this->api->request->method === 'show' && method_exists($this->api, 'show') ) {
 			$this->api->show($builder, $entityId);
 		}
 		else {
