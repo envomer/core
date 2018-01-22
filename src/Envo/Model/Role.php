@@ -5,19 +5,20 @@ namespace Envo\Model;
 use Envo\AbstractModel;
 
 /**
- * @property string      name
- * @property integer     id
- * @property string      type
- * @property LegalEntity parent
+ * @property integer id
+ * @property string  type
+ * @property Role[]  parents
+ * @property Role[]  children
+ * @property string  name
  */
-class LegalEntity extends AbstractModel
+class Role extends AbstractModel
 {
 	/**
 	 * Table name
 	 *
 	 * @var string
 	 */
-	protected $table = 'core_legal_entities';
+	protected $table = 'core_roles';
 	
 	/**
 	 * @var integer
@@ -30,12 +31,12 @@ class LegalEntity extends AbstractModel
 	protected $type;
 	
 	/**
-	 * @var LegalEntity[]
+	 * @var Role[]
 	 */
 	protected $parents;
 	
 	/**
-	 * @var LegalEntity[]
+	 * @var Role[]
 	 */
 	protected $children;
 	
@@ -52,7 +53,7 @@ class LegalEntity extends AbstractModel
 		/* defines the children */
 		$this->hasManyToMany(
 			'id',
-			LegalEntities::class,
+			RoleRelation::class,
 			'parent_id',
 			'child_id',
 			static::class,
@@ -62,8 +63,7 @@ class LegalEntity extends AbstractModel
 		
 		/* defines the parents */
 		$this->hasManyToMany(
-			'id',
-			LegalEntities::class,
+			'id', RoleRelation::class,
 			'child_id',
 			'parent_id',
 			static::class,
@@ -73,7 +73,7 @@ class LegalEntity extends AbstractModel
 		
 		$this->hasManyToMany(
 			'id',
-			PermissionRole::class,
+			Rule::class,
 			'legal_entity_id',
 			'permission_rule_id',
 			static::class,

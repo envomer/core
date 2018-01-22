@@ -3,7 +3,7 @@
 namespace Envo\Model;
 
 use Envo\AbstractModel;
-use Envo\Model\Traits\LegalEntityTrait;
+use Envo\Model\Traits\RoleTrait;
 use Envo\Support\Translator;
 
 class User extends AbstractModel
@@ -15,7 +15,7 @@ class User extends AbstractModel
     const STATUS_BANNED = 5;
     const STATUS_SUSPENDED = 6;
 
-    use LegalEntityTrait;
+    use RoleTrait;
     
     /**
      * Table name

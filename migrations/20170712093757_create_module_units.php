@@ -11,10 +11,13 @@ class CreateModuleUnits extends AbstractMigration
 			$table->increments('id');
 			$table->string('name');
 			$table->string('slug');
+			$table->integer('module_id')->unsigned();
 	
 			$table->softDeletes();
 			$table->nullableTimestamps();
         });
+        
+        $this->table('core_module_units')->unique('module_id', 'slug');
     }
 
     public function down()

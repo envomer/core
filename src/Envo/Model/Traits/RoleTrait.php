@@ -2,14 +2,14 @@
 
 namespace Envo\Model\Traits;
 
-use Envo\Model\LegalEntity;
+use Envo\Model\Role;
 use Phalcon\Mvc\Model\MetaDataInterface;
 
 /**
  * Trait LegalEntityTrait
  * @package Envo\Model
  */
-trait LegalEntityTrait
+trait RoleTrait
 {
 	/**
 	 * @param MetaDataInterface $metaData
@@ -22,7 +22,7 @@ trait LegalEntityTrait
 	{
 		if(! $exists){
 			/* create a new legal entity if it is a new model */
-			$legalEntity = new LegalEntity();
+			$legalEntity = new Role();
 			$legalEntity->name   = $this->getName();
 			$legalEntity->type   = str_replace('\\', '_' , static::class);
 			$legalEntity->parent = $this->parent;
@@ -35,33 +35,33 @@ trait LegalEntityTrait
 	}
 	
 	/**
-	 * @param LegalEntity $child
+	 * @param Role $child
 	 */
-	public function addChild( LegalEntity $child)
+	public function addChild( Role $child)
 	{
 		//todo implement me
 	}
 	
 	/**
-	 * @param LegalEntity $parent
+	 * @param Role $parent
 	 */
-	public function addParent( LegalEntity $parent)
+	public function addParent( Role $parent)
 	{
 		//todo implement me
 	}
 	
 	/**
-	 * @param LegalEntity $child
+	 * @param Role $child
 	 */
-	public function removeChild( LegalEntity $child)
+	public function removeChild( Role $child)
 	{
 		//todo implement me
 	}
 	
 	/**
-	 * @param LegalEntity $parent
+	 * @param Role $parent
 	 */
-	public function removeParent( LegalEntity $parent)
+	public function removeParent( Role $parent)
 	{
 		//todo implement me
 	}

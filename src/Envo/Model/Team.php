@@ -2,7 +2,7 @@
 
 namespace Envo\Model;
 use Envo\AbstractModel;
-use Envo\Model\Traits\LegalEntityTrait;
+use Envo\Model\Traits\RoleTrait;
 
 /**
  * Class Team
@@ -15,7 +15,7 @@ use Envo\Model\Traits\LegalEntityTrait;
  */
 class Team extends AbstractModel
 {
-	use LegalEntityTrait;
+	use RoleTrait;
 	
 	/**
 	 * Table name
