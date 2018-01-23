@@ -26,7 +26,7 @@
 										</tr>
 										<tr>
 											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding-top: 10px;" class="stack-column-center">
-												<?php echo isset($section->paragraphs[0]) ? '<p style="margin: 0;">'.$section->paragraphs[0] .'</p>' : '' ?>
+												<?php echo isset($section->paragraphs[0]) ? '<p style="margin: 0;">'. nl2br($section->paragraphs[0]) .'</p>' : '' ?>
 											</td>
 										</tr>
 									</table>
@@ -50,7 +50,7 @@
 										</tr>
 										<tr>
 											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding-top: 10px;" class="stack-column-center">
-												<?php echo isset($section->paragraphs[1]) ? '<p style="margin: 0;">'.$section->paragraphs[1] .'</p>' : '' ?>
+												<?php echo isset($section->paragraphs[1]) ? '<p style="margin: 0;">'. nl2br($section->paragraphs[1]) .'</p>' : '' ?>
 											</td>
 										</tr>
 									</table>
