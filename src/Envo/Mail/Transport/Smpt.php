@@ -2,6 +2,7 @@
 
 namespace Envo\Mail\Transport;
 
+use Envo\Extension\EmailTemplate\ResponseDTO;
 use Envo\Foundation\Loader;
 use Envo\Mail\DTO\MessageDTO;
 use Envo\Support\File;
@@ -16,6 +17,9 @@ class Smpt implements TransportInterface
 	 */
 	public $message;
 	
+	/**
+	 * @return ResponseDTO
+	 */
 	public function send()
 	{
 		/** @var Loader $autoloader */
@@ -47,10 +51,6 @@ class Smpt implements TransportInterface
 		$message->setTo($to);
 		$message->setBody($this->message->body, 'text/html');
 		
-		//$message->setFrom(['om@anx.io']);
-		//$message->setTo(['om@anx.io']);
-		//$message->setBody($this->message->body);
-		
 		if($this->message->attachments) {
 			foreach ($this->message->attachments as $attachment) {
 				$attach = \Swift_Attachment::fromPath($attachment->path);
@@ -60,18 +60,17 @@ class Smpt implements TransportInterface
 				$message->attach($attach);
 			}
 		}
-			//->attach(\Swift_Attachment::fromPath(APP_PATH . 'public/uploads/receipts/1/0a/94/0a94f4a44d917eebfa5210fa38d352fd.pdf'))
-		
 		
 		// Send the message
 		// Create the Mailer using your created Transport
 		$mailer = new \Swift_Mailer($transport);
 		$mailLogger = new \Swift_Plugins_Loggers_ArrayLogger();
 		$mailer->registerPlugin(new \Swift_Plugins_LoggerPlugin($mailLogger));
-		//die(var_dump($mailer, $message, $this->message));
 		$result = $mailer->send($message);
 		
+		$response = new ResponseDTO();
+		$response->state = $result ? 'success' : 'error';
 		
-		die(var_dump($result, $mailLogger->dump()));
+		return $response;
 	}
 }

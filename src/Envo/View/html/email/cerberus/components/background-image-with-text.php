@@ -19,7 +19,7 @@
 						<?php
 						/** @var \Core\Controller\EmailSection $paragraph */
 						foreach($section->paragraphs as $paragraph) {
-							echo '<p style="margin: 0 0 10px 0;">'. $paragraph .'</p>';
+							echo '<p style="margin: 0 0 10px 0;">'. nl2br($paragraph) .'</p>';
 						}
 						?>
 					</td>

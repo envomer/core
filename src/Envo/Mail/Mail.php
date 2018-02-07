@@ -2,6 +2,7 @@
 
 namespace Envo\Mail;
 
+use Envo\Extension\EmailTemplate\ResponseDTO;
 use Envo\Mail\DTO\MessageDTO;
 use Envo\Mail\Transport\SendGrid;
 use Envo\Mail\Transport\Smpt;
@@ -51,7 +52,7 @@ class Mail
 	}
 	
 	/**
-	 * @return mixed
+	 * @return ResponseDTO
 	 * @throws \Envo\Exception\InternalException
 	 * @throws \Envo\Exception\PublicException
 	 */
