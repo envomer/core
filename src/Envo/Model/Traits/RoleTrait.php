@@ -3,6 +3,7 @@
 namespace Envo\Model\Traits;
 
 use Envo\Model\Role;
+use Envo\Model\RoleRelation;
 use Phalcon\Mvc\Model\MetaDataInterface;
 
 /**
@@ -18,17 +19,15 @@ trait RoleTrait
 	 *
 	 * @return bool
 	 */
-	protected function _preSave( MetaDataInterface $metaData, $exists, $identityField )
+	protected function _postSave( MetaDataInterface $metaData, $exists, $identityField )
 	{
 		if(! $exists){
-			/* create a new legal entity if it is a new model */
-			$legalEntity = new Role();
-			$legalEntity->name   = $this->getName();
-			$legalEntity->type   = str_replace('\\', '_' , static::class);
-			$legalEntity->parent = $this->parent;
-			$legalEntity->save();
-			
-			$this->$identityField = $legalEntity->{$legalEntity->getModelsMetaData()->getIdentityField($legalEntity)};
+			/* create a new role if it is a new model */
+			$role = new Role();
+			$role->name   = $this->getName();
+			$role->type   = str_replace('\\', '_' , static::class);
+			$role->id     = $this->$identityField;
+			$role->save();
 		}
 		
 		return true;
@@ -39,7 +38,10 @@ trait RoleTrait
 	 */
 	public function addChild( Role $child)
 	{
-		//todo implement me
+		$relation = new RoleRelation();
+		$relation->child = $child;
+		$relation->parent = $this;
+		$relation->save();
 	}
 	
 	/**
@@ -47,7 +49,10 @@ trait RoleTrait
 	 */
 	public function addParent( Role $parent)
 	{
-		//todo implement me
+		$relation = new RoleRelation();
+		$relation->child = $this;
+		$relation->parent = $parent;
+		$relation->save();
 	}
 	
 	/**
@@ -71,5 +76,5 @@ trait RoleTrait
 	 *
 	 * @return string
 	 */
-	abstract public function getName();
+	abstract public function getName() :string ;
 }

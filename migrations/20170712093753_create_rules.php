@@ -10,6 +10,7 @@ class CreateRules extends AbstractMigration
         $this->create('core_rules', function(Table $table) {
             $table->integer('permission_id')->unsigned();
             $table->integer('role_id')->unsigned();
+            $table->integer('module_unit_id')->unsigned();
 		});
         
         $this->table('core_rules')->unique(['permission_id', 'role_id']);

@@ -24,11 +24,17 @@ class Rule extends AbstractModel
 	protected $permission;
 	
 	/**
+	 * @var ModuleUnit
+	 */
+	protected $moduleUnit;
+	
+	/**
 	 * initialize the model
 	 */
 	public function initialize()
 	{
 		$this->belongsTo('role_id', Role::class, 'id', [ 'alias' => 'role']);
 		$this->belongsTo('permission_id', Permission::class, 'id', [ 'alias' => 'permission']);
+		$this->belongsTo('module_unit_id', ModuleUnit::class, 'id', ['alias' => 'moduleUnit']);
 	}
 }
