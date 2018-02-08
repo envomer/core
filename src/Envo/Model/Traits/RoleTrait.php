@@ -13,20 +13,19 @@ use Phalcon\Mvc\Model\MetaDataInterface;
 trait RoleTrait
 {
 	/**
-	 * @param MetaDataInterface $metaData
-	 * @param bool              $exists
-	 * @param mixed             $identityField
+	 * @param bool $success
+	 * @param bool $exists
 	 *
 	 * @return bool
 	 */
-	protected function _postSave( MetaDataInterface $metaData, $exists, $identityField )
+	protected function _postSave( $success, $exists )
 	{
-		if(! $exists){
+		if(! $exists && $success){
 			/* create a new role if it is a new model */
 			$role = new Role();
 			$role->name   = $this->getName();
 			$role->type   = str_replace('\\', '_' , static::class);
-			$role->id     = $this->$identityField;
+			$role->id     = $this->id;
 			$role->save();
 		}
 		

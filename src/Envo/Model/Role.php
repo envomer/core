@@ -46,6 +46,17 @@ class Role extends AbstractModel
 	protected $name;
 	
 	/**
+	 * @param string $property
+	 * @param mixed  $value
+	 *
+	 * @return void
+	 */
+	public function __set( $property, $value )
+	{
+		$this->$property = $value;
+	}
+	
+	/**
 	 * initialize the model
 	 */
 	public function initialize()
