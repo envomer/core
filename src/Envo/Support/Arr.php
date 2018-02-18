@@ -609,4 +609,28 @@ class Arr
 
         return $array;
     }
+
+    public static function toClass($data, $class)
+    {
+        if (is_object($class)) {
+            $className = get_class($class);
+        } elseif (is_string($class)) {
+            $className = $class;
+        } else {
+            internal_exception('app.givenTypeIsNotAllowed', 500);
+        }
+
+        if (!class_exists($className)) {
+            internal_exception("Class $className does not exist");
+        }
+
+        $outputData = array();
+        if (count($data)) {
+            foreach ($data as $item) {
+                $outputData[] = new $className($item, $propertyMap);
+            }
+        }
+
+        return $outputData;
+    }
 }

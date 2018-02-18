@@ -280,7 +280,6 @@
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px; font-family: sans-serif; color: #888888; font-size: 12px; line-height: 140%;">
                 <tr>
                     <td style="padding: 20px 10px 40px; width: 100%; font-family: sans-serif; font-size: 12px; line-height: 140%; text-align: center; color: #888888;" class="x-gmail-data-detectors">
-                        <webversion style="display: none; color: #cccccc; text-decoration: underline; font-weight: bold;">View as a Web Page</webversion>
                         <?php
                         if($this->footer) {
                             echo '<br><br>' . $this->footer;
