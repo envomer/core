@@ -103,6 +103,10 @@ class Application extends \Phalcon\Mvc\Application
 		if($initialize) {
 			$this->initialize();
 		}
+
+		if(config('app.composer', true)) {
+			require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
+		}
 		
 		if(env('APP_DEBUGBAR', false)) {
 			$this->di->setShared('app', $this);
