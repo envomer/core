@@ -19,8 +19,8 @@ class PermissionRepository extends AbstractRepository
 	 *
 	 * @return array an associated array with the keys 'module' and 'permission'
 	 */
-	public function getByRoleId( $roleId)
-    {
+	public function getByRoleId( $roleId ) : array
+	{
         $select = 'SELECT cru.module_id AS module ,BIT_OR(pow(2,cru.permission_id)) AS permission
 				   FROM `core_roles_relation` cr
 				   LEFT JOIN core_rules cru ON cr.`child_id` = cru.`role_id` OR cr.parent_id = cru.role_id

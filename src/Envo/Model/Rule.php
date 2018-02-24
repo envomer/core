@@ -24,9 +24,9 @@ class Rule extends AbstractModel
 	protected $permission;
 	
 	/**
-	 * @var ModuleUnit
+	 * @var Module
 	 */
-	protected $moduleUnit;
+	protected $module;
 	
 	/**
 	 * initialize the model
@@ -35,6 +35,6 @@ class Rule extends AbstractModel
 	{
 		$this->belongsTo('role_id', Role::class, 'id', [ 'alias' => 'role']);
 		$this->belongsTo('permission_id', Permission::class, 'id', [ 'alias' => 'permission']);
-		$this->belongsTo('module_unit_id', ModuleUnit::class, 'id', ['alias' => 'moduleUnit']);
+		$this->belongsTo('module_id', Module::class, 'id', ['alias' => 'module']);
 	}
 }

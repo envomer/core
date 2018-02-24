@@ -12,7 +12,7 @@ use Envo\AbstractModel;
  * @property integer    id
  * @property Role       rule
  * @property integer    permission
- * @property ModuleUnit unit
+ * @property Module unit
  */
 class Permission extends AbstractModel
 {
@@ -34,9 +34,9 @@ class Permission extends AbstractModel
 	protected $rules;
 	
 	/**
-	 * @var ModuleUnit
+	 * @var Module
 	 */
-	protected $unit;
+	protected $module;
 	
 	/**
 	 * initialize the model
@@ -44,7 +44,7 @@ class Permission extends AbstractModel
 	public function initialize()
 	{
 		/* defines the relation to ModuleUnit */
-		$this->belongsTo('unit_id', ModuleUnit::class, 'id', [ 'alias' => 'unit']);
+		$this->belongsTo('unit_id', Module::class, 'id', [ 'alias' => 'module']);
 		
 		/* defines the rule */
 		$this->hasManyToMany(

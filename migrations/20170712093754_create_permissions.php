@@ -10,10 +10,10 @@ class CreatePermissions extends AbstractMigration
         $this->create('core_permissions', function(Table $table) {
             $table->increments('id');
             $table->string('name');
-			$table->integer('module_unit_id')->unsigned()->nullable();
+			$table->integer('module_id')->unsigned()->nullable();
         });
         
-        $this->table('core_permissions')->unique(['name', 'module_unit_id']);
+        //$this->table('core_permissions')->unique(['name', 'module_unit_id']);
     }
 
     public function down()
