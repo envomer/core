@@ -85,7 +85,7 @@ class Application extends \Phalcon\Mvc\Application
 	public function initialize()
 	{
 		define('APP_START', microtime(true));
-		require 'Helper.php';
+		require_once 'Helper.php';
 		
 		$this->setup();
 		$this->setupEnv();

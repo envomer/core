@@ -25,9 +25,6 @@
         "swiftmailer/swiftmailer": "~5.4"
     },
     "autoload": {
-        "files": [
-            "src/Envo/Helper.php"
-        ],
         "psr-4": {
             "Envo\\": ["src/Envo", "src/Envo/Abstract"]
         }

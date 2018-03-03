@@ -35,7 +35,7 @@ class Template extends AbstractDTO
 	public function render()
 	{
 		ob_start();
-		require_once ENVO_PATH . 'Envo/View/html/email/'.$this->template.'/base.php';
+		require_once __DIR__ . '/View/'.$this->template.'/base.php';
 		$content = ob_get_contents();
 		ob_end_clean();
 		
@@ -47,7 +47,7 @@ class Template extends AbstractDTO
 	 */
 	public function parse(Section $section)
 	{
-		include ENVO_PATH . 'Envo/View/html/email/'.$this->template.'/components/'.$section->type.'.php';
+		include __DIR__ . '/View/'.$this->template.'/components/'.$section->type.'.php';
 	}
 	
 	/**
