@@ -191,8 +191,13 @@
 	<![endif]-->
 
 </head>
-<body width="100%" bgcolor="<?php echo $this->getStyle('backgroundColor', '#d7d7d7') ?>" style="margin: 0; mso-line-height-rule: exactly;">
-<div style="width: 100%; background: <?php echo $this->getStyle('backgroundColor', '#d7d7d7') ?>; text-align: left; text-align: center;">
+<body width="100%" style="margin: 0; mso-line-height-rule: exactly;" bgcolor="<?php echo $this->getStyle('backgroundColor', '#d7d7d7') ?>">
+    <center style="width: 100%; background: <?php echo $this->getStyle('backgroundColor', '#d7d7d7') ?>; text-align: left;">
+    <!--[if mso | IE]>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#222222">
+    <tr>
+    <td>
+    <![endif]-->
 	
     <?php if($this->excerpt): ?>
 	<!-- Visually Hidden Preheader Text : BEGIN -->
@@ -202,6 +207,7 @@
 	<!-- Visually Hidden Preheader Text : END -->
     <?php endif; ?>
 	
+	<?php if($this->logo): ?>
 	<!--
 		Set the email width. Defined in two places:
 		1. max-width for all clients except Desktop Windows Outlook, allowing the email to squish on narrow but never go wider than 680px.
@@ -215,7 +221,7 @@
 		<td>
 		<![endif]-->
 		
-        <?php if($this->logo): ?>
+        
 		<!-- Email Header : BEGIN -->
 		<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px;">
 			<tr>
@@ -225,7 +231,7 @@
 			</tr>
 		</table>
 		<!-- Email Header : END -->
-        <?php endif; ?>
+        
 		
 		<!--[if mso]>
 		</td>
@@ -233,34 +239,35 @@
 		</table>
 		<![endif]-->
 	</div>
+	<?php endif; ?>
 
-    <?php foreach($this->sections as $section): ?>
+    
     <!-- Full Bleed Background Section : BEGIN -->
-    <div style="width: 100%; background: <?php echo $section->getStyle('backgroundColor', '') ?>; text-align: left; ">
+    <div style="width: 100%; text-align: left; ">
         <div style="max-width: 680px; margin: auto;" class="email-container">
+        	<!--[if mso]>
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="680" align="center">
+            <tr>
+            <td>
+            <![endif]-->
+            <?php foreach($this->sections as $section): ?>
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%">
                 <tr>
                     <td valign="top" align="center">
-                        <div style="max-width: 680px; margin: auto;" class="email-container">
-                            <!--[if mso]>
-                            <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="680" align="center">
-                                <tr>
-                                    <td>
-                                    <![endif]-->
-                                    <?php $this->parse($section) ?>
-                                    <!--[if mso]>
-                                    </td>
-                                </tr>
-                            </table>
-                            <![endif]-->
-                        </div>
+                        <?php $this->parse($section) ?>
                     </td>
                 </tr>
             </table>
+            <?php endforeach; ?>
+            <!--[if mso]>
+            </td>
+            </tr>
+            </table>
+            <![endif]-->
         </div>
     </div>
     <!-- Full Bleed Background Section : END -->
-    <?php endforeach; ?>
+    
 
     <div style="width: 100%; background: <?php echo '#ccc' ?: '#222222' ?>; text-align: left; text-align: center;">
         <!--
@@ -307,6 +314,11 @@
     //include 'components/full-bleed-background.php';
     ?>
 
-</div>
+ <!--[if mso | IE]>
+    </td>
+    </tr>
+    </table>
+    <![endif]-->
+    </center>
 </body>
 </html>

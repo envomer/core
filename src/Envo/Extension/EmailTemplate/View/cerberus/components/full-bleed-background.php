@@ -1,5 +1,4 @@
 <!-- Full Bleed Background Section : BEGIN -->
-<table role="presentation" bgcolor="#709f2b" cellspacing="0" cellpadding="0" border="0" align="center" width="100%">
 	<tr>
 		<td valign="top" align="center">
 			<div style="max-width: 680px; margin: auto;" class="email-container">
@@ -23,5 +22,4 @@
 			</div>
 		</td>
 	</tr>
-</table>
 <!-- Full Bleed Background Section : END -->
