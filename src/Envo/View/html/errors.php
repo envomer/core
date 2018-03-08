@@ -71,14 +71,17 @@
 	         . ' File:  ' . $error->getFile(). "\n"
 	         . ' Line:  ' . $error->getLine(). "\n";
 
+	         $message .= "\n";
+
 			echo '<h2>'. $error->getMessage() .'</h2>';
 	        echo '<pre style="word-wrap:break-word">' .  $message . "\n";
 
             echo $error->getTraceAsString();
+
 		
             if($error instanceof \Envo\AbstractException) {
                 echo "\n\n";
-                print_r($error->json());
+                var_dump($error->json());
             }
         
             echo '<h3>Request</h3>';

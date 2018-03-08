@@ -49,6 +49,8 @@ class Application extends \Phalcon\Mvc\Application
 
 	public $inMaintenance;
 
+	public $initialized = false;
+
 	/**
 	 * Check if app is maintenance
 	 *
@@ -91,6 +93,8 @@ class Application extends \Phalcon\Mvc\Application
 		$this->setupEnv();
 		$this->registerServices();
 		$this->isInMaintenance();
+
+		$this->initialized = true;
 	}
 	
 	/**
@@ -98,9 +102,9 @@ class Application extends \Phalcon\Mvc\Application
 	 *
 	 * @throws \Exception
 	 */
-	public function start($initialize = true)
+	public function start()
 	{
-		if($initialize) {
+		if(!$this->initialized) {
 			$this->initialize();
 		}
 
@@ -123,7 +127,11 @@ class Application extends \Phalcon\Mvc\Application
 			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
 		}
 		
-		echo $this->handle()->getContent();
+		try {
+			echo $this->handle()->getContent();
+		} catch(\Exception $exception) {
+			envo_exception_handler($exception);
+		}
 	}
 
 	/**
@@ -247,10 +255,14 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Register the VIEW component
 		 */
-		$di->setShared('view', function () {
+		$di->setShared('view', function () use($config) {
 			$view = new View();
-			$view->setViewsDir(APP_PATH . 'app/Core/views/');
-			$view->registerEngines(['.volt' => 'volt', '.php' => Php::class]);
+			$view->setViewsDir([APP_PATH . 'app/Core/views/', APP_PATH . 'app/Core/View/']);
+			$engines = ['.php' => Php::class];
+			if($config->get('view.volt', false)) {
+				$engines['.volt'] = 'volt';
+			}
+			$view->registerEngines($engines);
 			return $view;
 		});
 
@@ -319,7 +331,7 @@ class Application extends \Phalcon\Mvc\Application
 		define('ENVO_PATH', __DIR__ . '/../');
 		
 		if( ! defined('APP_PATH') ) {
-			internal_exception('app.pathNotDefined', 500);
+			internal_exception('app.appPathNotDefined', 500);
 		}
 		
 		/**

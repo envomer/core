@@ -194,8 +194,9 @@ if(!function_exists('envo_exception_handler'))
 		}
 		
 		//TODO: sure about this??
-		if ( $error instanceof AbstractException ) {
-			try {
+		// TODO: catch offline database exception?
+		try {
+			if ( $error instanceof AbstractException ) {
 				if($trace) {
 					$error->trace = true;
 				}
@@ -207,12 +208,12 @@ if(!function_exists('envo_exception_handler'))
 					echo json_encode($json);
 					exit;
 				}
-			} catch (\Exception $e) {
-				die(var_dump($e));
+				
+			} else {
+				new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
 			}
-			
-		} else {
-			new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
+		} catch (\Exception $e) {
+			// die(var_dump($e));
 		}
 		
 		require_once __DIR__ . '/View/html/errors.php';
