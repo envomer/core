@@ -331,14 +331,16 @@ class Application extends \Phalcon\Mvc\Application
 		define('ENVO_PATH', __DIR__ . '/../');
 		
 		if( ! defined('APP_PATH') ) {
-			internal_exception('app.appPathNotDefined', 500);
+			throw new \Exception('app.appPathNotDefined', 500);
+			// internal_exception('app.appPathNotDefined', 500);
 		}
 		
 		/**
 		 * Read configuration file
 		 */
 		if(! file_exists(APP_PATH . '.env') ) {
-			internal_exception('app.configurationFileNotFound', 500);
+			throw new \Exception('app.envConfigurationFileNotFound', 500);
+			// internal_exception('app.configurationFileNotFound', 500);
 		}
 	}
 	

@@ -22,11 +22,17 @@ if( ! function_exists('_t') )
 {
 	function _t($val, $params = null, $amount = 1, $lang = null)
 	{
+		$translator = resolve('translator');
+
+		if(!$translator) {
+			return $val;
+		}
+
 		if( $amount && ! is_bool($params) ) {
-			return resolve('translator')->choice($val, $amount, $lang);
+			return $translator->choice($val, $amount, $lang);
 		}
 		
-		return resolve('translator')->lang($val, $params, $lang);
+		return $translator->lang($val, $params, $lang);
 	}
 }
 
@@ -192,6 +198,8 @@ if(!function_exists('envo_exception_handler'))
 		} else {
 			http_response_code(500);
 		}
+
+		// die(var_dump($error));
 		
 		//TODO: sure about this??
 		// TODO: catch offline database exception?
@@ -209,7 +217,7 @@ if(!function_exists('envo_exception_handler'))
 					exit;
 				}
 				
-			} else {
+			} else if(class_exists(\Envo\Event\Exception::class)) {
 				new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
 			}
 		} catch (\Exception $e) {
@@ -275,7 +283,12 @@ if( ! function_exists('resolve') )
 	function resolve($class, $instance = null)
 	{
 		$di = \Phalcon\DI::getDefault();
-		if( ! ($repo = $di->getShared($class)) ) {
+
+		if(!$di) {
+			return null;
+		}
+
+		if( $di && ! ($repo = $di->getShared($class)) ) {
 			$repo = $instance ?: new $repo;
 			$di->setShared($class, $repo);
 		}
