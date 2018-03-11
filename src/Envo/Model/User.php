@@ -15,7 +15,7 @@ class User extends AbstractModel
     const STATUS_BANNED = 5;
     const STATUS_SUSPENDED = 6;
 
-    use LegalEntityTrait;
+    // use LegalEntityTrait;
     
     /**
      * Table name
