@@ -288,4 +288,9 @@ class User extends AbstractModel
 	{
 		return 'team_id';
 	}
+
+	public function setPassword($password)
+	{
+		$this->password = $password;
+	}
 }
