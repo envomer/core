@@ -326,7 +326,7 @@ class Application extends \Phalcon\Mvc\Application
 		error_reporting(-1);
 		set_exception_handler('envo_exception_handler');
 		set_error_handler('envo_error_handler');
-		ini_set('error_log', APP_PATH . 'storage/logs/errors/'.date('Y-m.W').'.log');
+		ini_set('error_log', APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W').'.log');
 		
 		define('ENVO_PATH', __DIR__ . '/../');
 		

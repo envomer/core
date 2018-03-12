@@ -151,11 +151,14 @@ class Handler
 	 */
 	protected function hydrateResultItems($data, $configKey)
 	{
+		if(!method_exists($data, 'setHydrateMode')) {
+			return $data;
+		}
+
 		$mode = $this->api->getConfig($configKey, AbstractAPI::HYDRATE_MODEL);
 		
 		switch ($mode) {
 			case AbstractAPI::HYDRATE_ARRAY:
-				$data->setHydrateMode(Resultset::HYDRATE_ARRAYS);
 				return $data->toArray();
 			case AbstractAPI::HYDRATE_MODEL:
 				return $data->setHydrateMode(Resultset::HYDRATE_RECORDS);
