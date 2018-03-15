@@ -293,4 +293,15 @@ class User extends AbstractModel
 	{
 		$this->password = $password;
 	}
+
+	public function getQualifierValue()
+	{
+		$qualifier = self::getQualifier();
+		return $this->$qualifier;
+	}
+
+	public static function getQualifier()
+	{
+		return 'identifier';
+	}
 }
