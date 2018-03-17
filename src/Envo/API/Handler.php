@@ -212,9 +212,9 @@ class Handler
 		}
 		
 		$this->hook('prePersist');
-		$this->hook('preCreate');
+		$response = $this->hook('preCreate');
 		
-		if( ! $this->api->model->save() ) {
+		if( $response !== $this->api::SAVE_SKIP && ! $this->api->model->save() ) {
 			public_exception('api.failedToCreateEntity', 400, $this->api->model);
 		}
 		

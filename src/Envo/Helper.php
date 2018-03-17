@@ -20,7 +20,7 @@ if( ! function_exists('env') )
  */
 if( ! function_exists('_t') )
 {
-	function _t($val, $params = null, $amount = 1, $lang = null)
+	function _t($val, $params = null, $amount = null, $lang = null)
 	{
 		$translator = resolve('translator');
 
