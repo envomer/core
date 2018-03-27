@@ -47,6 +47,8 @@ class Auth extends Component
 	const TOKEN_NAME = 'auth-identity';
 	const COOKIE_REMEMBER = 'remember_rmu';
 	const COOKIE_TOKEN = 'remember_rmt';
+
+	public $authKey = 'id';
 	
 	/**
 	 * Auth constructor.
@@ -68,6 +70,7 @@ class Auth extends Component
 		if( ! $this->team ) {
 			$this->team = $this->user()->ref('team');
 		}
+
 		return $this->team;
 	}
 	
@@ -115,7 +118,7 @@ class Auth extends Component
 			// TODO: cache user query
 			$userClass = $this->userClass;
 			/** @var User $user */
-			$user = $userClass::repo()->where('identifier', $auth['id'])->getOne();
+			$user = $userClass::repo()->where($userClass::getQualifier(), $auth['id'])->getOne();
 
 			if ( !$user ) {
 				$this->session->remove(self::TOKEN_NAME);
@@ -202,7 +205,7 @@ class Auth extends Component
 		}
 
 		$this->session->set(self::TOKEN_NAME, [
-			'id'   => $user->identifier,
+			'id'   => $user->getQualifierValue(),
 			'name' => $user->username,
 		]);
 
@@ -269,7 +272,7 @@ class Auth extends Component
 		//$expire = time() + (86400 * 365);
 		$expire = time() + 31531000; // a year
 
-		$this->cookies->set(self::COOKIE_REMEMBER, $user->identifier, $expire );
+		$this->cookies->set(self::COOKIE_REMEMBER, $user->getQualifierValue(), $expire );
 		$this->cookies->set(self::COOKIE_TOKEN, $user->remember_token, $expire );
 	}
 
@@ -443,7 +446,7 @@ class Auth extends Component
 		}
 		$this->checkUserFlags( $user );
 		$this->session->set( self::TOKEN_NAME, array(
-			'id'   => $user->identifier,
+			'id'   => $user->getQualifier(),
 			'name' => $user->username,
 		));
 
@@ -470,7 +473,7 @@ class Auth extends Component
 		}
 		$this->checkUserFlags( $user );
 		$this->session->set( self::TOKEN_NAME, array(
-			'id'   => $user->identifier,
+			'id'   => $user->getQualifierValue(),
 			'name' => $user->username,
 		));
 
@@ -488,9 +491,14 @@ class Auth extends Component
 		$userClass = $this->userClass;
 		$identity = $this->session->get(self::TOKEN_NAME);
 		if ( isset($identity[ 'id' ]) ) {
-			$user = $userClass::findFirstByIdentifier( $identity[ 'id' ] );
+			$user = $userClass::findFirst([
+				'conditions' => $userClass::getQualifier() . ' = :val:',
+				'bind' => [
+					'val' => $identity[ 'id' ]
+				]
+			]);
 			if ( $user == false ) {
-				public_exception('auth.userNotFound');
+				public_exception('auth.userNotFound', 404);
 			}
 
 			return $user;

@@ -49,6 +49,8 @@ class Application extends \Phalcon\Mvc\Application
 
 	public $inMaintenance;
 
+	public $initialized = false;
+
 	/**
 	 * Check if app is maintenance
 	 *
@@ -85,12 +87,14 @@ class Application extends \Phalcon\Mvc\Application
 	public function initialize()
 	{
 		define('APP_START', microtime(true));
-		require 'Helper.php';
+		require_once 'Helper.php';
 		
 		$this->setup();
 		$this->setupEnv();
 		$this->registerServices();
 		$this->isInMaintenance();
+
+		$this->initialized = true;
 	}
 	
 	/**
@@ -98,10 +102,14 @@ class Application extends \Phalcon\Mvc\Application
 	 *
 	 * @throws \Exception
 	 */
-	public function start($initialize = true)
+	public function start()
 	{
-		if($initialize) {
+		if(!$this->initialized) {
 			$this->initialize();
+		}
+
+		if(config('app.composer', true)) {
+			require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
 		}
 		
 		if(env('APP_DEBUGBAR', false)) {
@@ -119,7 +127,11 @@ class Application extends \Phalcon\Mvc\Application
 			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
 		}
 		
-		echo $this->handle()->getContent();
+		try {
+			echo $this->handle()->getContent();
+		} catch(\Exception $exception) {
+			envo_exception_handler($exception);
+		}
 	}
 
 	/**
@@ -243,10 +255,14 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Register the VIEW component
 		 */
-		$di->setShared('view', function () {
+		$di->setShared('view', function () use($config) {
 			$view = new View();
-			$view->setViewsDir(APP_PATH . 'app/Core/views/');
-			$view->registerEngines(['.volt' => 'volt', '.php' => Php::class]);
+			$view->setViewsDir([APP_PATH . 'app/Core/views/', APP_PATH . 'app/Core/View/']);
+			$engines = ['.php' => Php::class];
+			if($config->get('view.volt', false)) {
+				$engines['.volt'] = 'volt';
+			}
+			$view->registerEngines($engines);
 			return $view;
 		});
 
@@ -310,19 +326,21 @@ class Application extends \Phalcon\Mvc\Application
 		error_reporting(-1);
 		set_exception_handler('envo_exception_handler');
 		set_error_handler('envo_error_handler');
-		ini_set('error_log', APP_PATH . 'storage/logs/errors/'.date('Y-m.W').'.log');
+		ini_set('error_log', APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W').'.log');
 		
 		define('ENVO_PATH', __DIR__ . '/../');
 		
 		if( ! defined('APP_PATH') ) {
-			internal_exception('app.pathNotDefined', 500);
+			throw new \Exception('app.appPathNotDefined', 500);
+			// internal_exception('app.appPathNotDefined', 500);
 		}
 		
 		/**
 		 * Read configuration file
 		 */
 		if(! file_exists(APP_PATH . '.env') ) {
-			internal_exception('app.configurationFileNotFound', 500);
+			throw new \Exception('app.envConfigurationFileNotFound', 500);
+			// internal_exception('app.configurationFileNotFound', 500);
 		}
 	}
 	

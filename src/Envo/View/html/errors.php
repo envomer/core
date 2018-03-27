@@ -56,7 +56,7 @@
 	</a>
 
     <?php
-    if( isset($error) && env('APP_DEBUG') ): ?>
+    if( isset($error) && env('APP_DEBUG', true) ): ?>
 	<div style="text-align:left; max-width: 1200px; margin: 50px auto 50px; border-left: 4px solid #E75A5C; padding: 20px; font-size: 8pt; background: #f5f5f5">
 		<?php
 			 /** @var \Exception $error */
@@ -71,14 +71,17 @@
 	         . ' File:  ' . $error->getFile(). "\n"
 	         . ' Line:  ' . $error->getLine(). "\n";
 
+	         $message .= "\n";
+
 			echo '<h2>'. $error->getMessage() .'</h2>';
 	        echo '<pre style="word-wrap:break-word">' .  $message . "\n";
 
             echo $error->getTraceAsString();
+
 		
             if($error instanceof \Envo\AbstractException) {
                 echo "\n\n";
-                print_r($error->json());
+                var_dump($error->json());
             }
         
             echo '<h3>Request</h3>';

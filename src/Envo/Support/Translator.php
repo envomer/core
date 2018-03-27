@@ -12,12 +12,7 @@ class Translator
 	const LANG_EN = 1;
 
 	protected static $langs = [];
-	protected static $locale = 'de';
-
-	protected static $languages = [
-		self::LANG_DE => 'de',
-		self::LANG_EN => 'en'
-	];
+	protected static $locale = 'en';
 
 	protected static $alias = [];
 	
@@ -26,7 +21,7 @@ class Translator
 	 */
 	public function __construct()
 	{
-		self::$locale = config('app.locale');
+		self::$locale = config('app.locale', 'en');
 	}
 	
 	/**
@@ -37,7 +32,7 @@ class Translator
 	 */
 	public static function setLocale($locale)
 	{
-		self::$locale = self::$languages[$locale];
+		self::$locale = $locale;
 	}
 
 	/**

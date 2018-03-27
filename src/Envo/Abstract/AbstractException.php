@@ -79,7 +79,11 @@ class AbstractException extends Exception
     {
         $publicException = ($this instanceof PublicException);
         $code = $this->getCode();
-        $user = user();
+        try {
+            $user = user();
+        } catch(\Exception $exception) {
+            $user = null;
+        }
 
         $messages = [
             400 => 'api.badRequest',
@@ -93,13 +97,20 @@ class AbstractException extends Exception
 
         $message = isset($messages[$code]) ? $messages[$code] : 'api.somethingWentWrong';
 
+        try {
+            $message = \_t($this->getMessage());
+        } catch(\Exception $exception) {
+            die(var_dump('AbstractException::json', $exception));
+        }
+
         $response = [
-            'message' => $publicException ? $this->getMessage() : \_t($message),
+            'message' => $message,
             'success' => false,
             'data' => $this->data,
             'reference' => $this->reference,
             'code' => ! $publicException ? $message : $this->messageCode
         ];
+
 
         if( env('APP_DEBUG') || ($user && $user->loggedIn && $user->isAdmin()) ) {
             $response['internal'] = [

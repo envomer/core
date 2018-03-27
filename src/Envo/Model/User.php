@@ -15,7 +15,7 @@ class User extends AbstractModel
     const STATUS_BANNED = 5;
     const STATUS_SUSPENDED = 6;
 
-    use RoleTrait;
+    // use RoleTrait;
     
     /**
      * Table name
@@ -287,5 +287,21 @@ class User extends AbstractModel
 	public function getTeamIdentifierKey()
 	{
 		return 'team_id';
+	}
+
+	public function setPassword($password)
+	{
+		$this->password = $password;
+	}
+
+	public function getQualifierValue()
+	{
+		$qualifier = self::getQualifier();
+		return $this->$qualifier;
+	}
+
+	public static function getQualifier()
+	{
+		return 'identifier';
 	}
 }

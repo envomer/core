@@ -22,7 +22,7 @@ class ApiController extends AbstractController
         $password = $this->get('password');
 
         try {
-            $response = $this->auth->check($email, $password);
+            $response = resolve('auth')->check($email, $password);
         } catch (\Exception $exception) {
             return $this->json($exception);
         }

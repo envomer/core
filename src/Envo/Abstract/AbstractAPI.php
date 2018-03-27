@@ -16,6 +16,7 @@ abstract class AbstractAPI
 	const HYDRATE_OBJECT = 1;
 	const HYDRATE_MODEL = 2;
 	const HYDRATE_ARRAY = 3;
+    const SAVE_SKIP = 'save.skip';
 	
 	/**
 	 * @var AbstractModel

@@ -20,13 +20,19 @@ if( ! function_exists('env') )
  */
 if( ! function_exists('_t') )
 {
-	function _t($val, $params = null, $amount = 1, $lang = null)
+	function _t($val, $params = null, $amount = null, $lang = null)
 	{
+		$translator = resolve('translator');
+
+		if(!$translator) {
+			return $val;
+		}
+
 		if( $amount && ! is_bool($params) ) {
-			return resolve('translator')->choice($val, $amount, $lang);
+			return $translator->choice($val, $amount, $lang);
 		}
 		
-		return resolve('translator')->lang($val, $params, $lang);
+		return $translator->lang($val, $params, $lang);
 	}
 }
 
@@ -192,10 +198,13 @@ if(!function_exists('envo_exception_handler'))
 		} else {
 			http_response_code(500);
 		}
+
+		// die(var_dump($error));
 		
 		//TODO: sure about this??
-		if ( $error instanceof AbstractException ) {
-			try {
+		// TODO: catch offline database exception?
+		try {
+			if ( $error instanceof AbstractException ) {
 				if($trace) {
 					$error->trace = true;
 				}
@@ -207,12 +216,12 @@ if(!function_exists('envo_exception_handler'))
 					echo json_encode($json);
 					exit;
 				}
-			} catch (\Exception $e) {
-				die(var_dump($e));
+				
+			} else if(class_exists(\Envo\Event\Exception::class)) {
+				new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
 			}
-			
-		} else {
-			new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
+		} catch (\Exception $e) {
+			// die(var_dump($e));
 		}
 		
 		require_once __DIR__ . '/View/html/errors.php';
@@ -274,7 +283,12 @@ if( ! function_exists('resolve') )
 	function resolve($class, $instance = null)
 	{
 		$di = \Phalcon\DI::getDefault();
-		if( ! ($repo = $di->getShared($class)) ) {
+
+		if(!$di) {
+			return null;
+		}
+
+		if( $di && ! ($repo = $di->getShared($class)) ) {
 			$repo = $instance ?: new $repo;
 			$di->setShared($class, $repo);
 		}

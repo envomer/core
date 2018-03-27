@@ -24,7 +24,16 @@ class Config
 	{
 		$search = explode('.', $name);
 		if( ! isset($this->configs[$search[0]]) ) {
-			$this->configs[$search[0]] = require_once APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
+			$file = APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
+
+			if(!file_exists($file)) {
+				return $default;
+				// internal_exception('app.configFileNotFound', 500, [
+				// 	'file' => $file
+				// ]);
+			}
+
+			$this->configs[$search[0]] = require_once $file;
 		}
 
 		if( count($search) == 1 ) {
