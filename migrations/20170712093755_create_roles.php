@@ -10,11 +10,11 @@ class CreateRoles extends AbstractMigration
         $this->create('core_roles', function(Table $table) {
             $table->increments('id');
             
-            $table->string('name');
+            $table->string('name')->nullable();
+			$table->integer('role_id',false, true);
             $table->string('type');
+            $table->integer('parent_id', false, true);
         });
-	
-		$this->table('core_roles')->unique(['name', 'type']);
     }
 
     public function down()

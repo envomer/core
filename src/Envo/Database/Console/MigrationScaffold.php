@@ -79,11 +79,11 @@ class MigrationScaffold extends BaseCommand
                 ENVO_PATH . '../migrations/20170713093749_create_mails.php',
             ],
             'permissions' => [
-                ENVO_PATH . '../migrations/20170712093753_create_permission_roles.php',
-                ENVO_PATH . '../migrations/20170712093754_create_permission_rules.php',
-                ENVO_PATH . '../migrations/20170712093755_create_legal_entities.php',
-                ENVO_PATH . '../migrations/20170712093756_create_legal_entities_self.php',
-                ENVO_PATH . '../migrations/20170712093757_create_module_units.php',
+                ENVO_PATH . '../migrations/20170712093753_create_rules.php',
+                ENVO_PATH . '../migrations/20170712093754_create_permissions.php',
+                ENVO_PATH . '../migrations/20170712093755_create_roles.php',
+                ENVO_PATH . '../migrations/20170712093756_create_roles_paths.php',
+                ENVO_PATH . '../migrations/20170712093750_create_modules.php',
             ],
 			'extension_email_template' => [
 				ENVO_PATH . '../migrations/20180106203020_create_extensionEmailTemplate_table.php',
