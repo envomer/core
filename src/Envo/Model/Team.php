@@ -1,8 +1,7 @@
 <?php
 
 namespace Envo\Model;
-use Envo\AbstractModel;
-use Envo\Model\Traits\RoleTrait;
+use Envo\AbstractRole;
 
 /**
  * Class Team
@@ -13,21 +12,14 @@ use Envo\Model\Traits\RoleTrait;
  * @property string  identifier
  * @property string  name
  */
-class Team extends AbstractModel
+class Team extends AbstractRole
 {
-	use RoleTrait;
-	
 	/**
 	 * Table name
 	 *
 	 * @var string
 	 */
 	protected $table = 'core_teams';
-	
-	/**
-	 * @var integer
-	 */
-	protected $id;
 	
 	/**
 	 * Identifier of team

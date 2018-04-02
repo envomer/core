@@ -2,16 +2,19 @@
 
 namespace Envo\Model;
 
-use Envo\AbstractModel;
+use Envo\AbstractRole;
+use Phalcon\Mvc\Model\MetaDataInterface;
 
 /**
- * @property integer id
+ * Class Role
+ *
+ * @package Envo\Model
+ *
+ * @property integer roleId
  * @property string  type
- * @property Role[]  parents
- * @property Role[]  children
  * @property string  name
  */
-class Role extends AbstractModel
+class Role extends AbstractRole
 {
 	/**
 	 * Table name
@@ -21,76 +24,109 @@ class Role extends AbstractModel
 	protected $table = 'core_roles';
 	
 	/**
+	 * the foreign id of the given type
+	 *
 	 * @var integer
 	 */
-	protected $id;
+	protected $roleId;
 	
 	/**
+	 * this will be the class name of the current instance of the role
+	 *
 	 * @var string
 	 */
 	protected $type;
 	
 	/**
-	 * @var Role[]
-	 */
-	protected $parents;
-	
-	/**
-	 * @var Role[]
-	 */
-	protected $children;
-	
-	/**
+	 * The name of the role (optional)
+	 *
 	 * @var string
 	 */
 	protected $name;
-	
-	/**
-	 * @param string $property
-	 * @param mixed  $value
-	 *
-	 * @return void
-	 */
-	public function __set( $property, $value )
-	{
-		$this->$property = $value;
-	}
 	
 	/**
 	 * initialize the model
 	 */
 	public function initialize()
 	{
-		/* defines the children */
-		$this->hasManyToMany(
-			'id',
-			RoleRelation::class,
-			'parent_id',
-			'child_id',
-			static::class,
-			'id',
-			['alias' => 'children']
-		);
+		parent::initialize();
 		
-		/* defines the parents */
-		$this->hasManyToMany(
-			'id', RoleRelation::class,
-			'child_id',
-			'parent_id',
-			static::class,
-			'id',
-			['alias' => 'parents']
-		);
+		/* define the parent */
+		$this->belongsTo( 'parent_id', self::class, 'id', ['alias' => 'parent'] );
 		
-		$this->hasManyToMany(
-			'id',
+		$this->hasManyToMany( 'id',
 			Rule::class,
-			'legal_entity_id',
-			'permission_rule_id',
-			static::class,
+			'role_id',
+			'permission_id',
+			Permission::class,
 			'id',
 			['alias' => 'permissions']
 		);
+	}
+	
+	/**
+	 * @param MetaDataInterface $metaData
+	 * @param bool              $exists
+	 * @param mixed             $identityField
+	 *
+	 * @return bool
+	 */
+	protected function _preSave( MetaDataInterface $metaData, $exists, $identityField ) : bool
+	{
+		//parent::_preSave($metaData, $exists, $identityField);
 		
+		if (! $exists && null === $this->type){
+			$this->type = str_replace('\\', '_' , static::class);
+		}
+		
+		return true;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getType() : string
+	{
+		return $this->type;
+	}
+	
+	/**
+	 * @param string $type
+	 */
+	public function setType( string $type )
+	{
+		$this->type = $type;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getName() : string
+	{
+		return $this->name;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function setName( string $name )
+	{
+		$this->name = $name;
+	}
+	
+	/**
+	 * @return int
+	 */
+	public function getRoleId() : int
+	{
+		return $this->roleId;
+	}
+	
+	/**
+	 * @param int $roleId
+	 */
+	public function setRoleId( int $roleId )
+	{
+		$this->roleId = $roleId;
 	}
 }

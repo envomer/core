@@ -448,7 +448,8 @@ class Application extends \Phalcon\Mvc\Application
 			[
 				'disableAssignSetters' => true,
 				'columnRenaming' => false,
-				'exceptionOnFailedSave' => true
+				'exceptionOnFailedSave' => true,
+				'updateSnapshotOnSave' => false,
 			]
 		);
 	}

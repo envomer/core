@@ -21,15 +21,23 @@ class PermissionRepository extends AbstractRepository
 	 */
 	public function getByRoleId( $roleId ) : array
 	{
-        $select = 'SELECT cru.module_id AS module ,BIT_OR(pow(2,cru.permission_id)) AS permission
-				   FROM `core_roles_relation` cr
-				   LEFT JOIN core_rules cru ON cr.`child_id` = cru.`role_id` OR cr.parent_id = cru.role_id
-				   WHERE cr.child_id = ?
-				   GROUP BY cru.module_id';
+        $select = '
+			SELECT module_id as module, SUM(pow(2,cr.permission_id)) as permission
+			FROM core_rules cr
+			WHERE cr.role_id IN
+			(
+				SELECT crumbs.`parent_id`
+ 				FROM `core_roles` AS node
+    			JOIN `core_roles_paths` AS path ON node.`id` = path.`child_id`
+    			JOIN `core_roles_paths` AS crumbs ON crumbs.`child_id` = path.`child_id`
+  				WHERE path.`parent_id` = ?
+ 			)
+ 			GROUP BY cr.module_id;
+		';
         
         $result = parent::query($select, [0 => $roleId]);
         $result->setFetchMode(Db::FETCH_ASSOC);
         
-        return $result->fetch();
+        return $result->fetchAll();
     }
 }

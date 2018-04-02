@@ -2,11 +2,10 @@
 
 namespace Envo\Model;
 
-use Envo\AbstractModel;
-use Envo\Model\Traits\RoleTrait;
+use Envo\AbstractRole;
 use Envo\Support\Translator;
 
-class User extends AbstractModel
+class User extends AbstractRole
 {
     const ACCESS_API_TOKEN = 1;
     const ACCESS_SESSION = 2;
