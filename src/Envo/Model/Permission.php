@@ -9,10 +9,9 @@ use Envo\AbstractModel;
  *
  * @package Envo\Model
  *
- * @property integer    id
- * @property Role       rule
- * @property integer    permission
- * @property Module unit
+ * @property integer id
+ * @property string  name
+ * @property Module  module
  */
 class Permission extends AbstractModel
 {
@@ -29,9 +28,9 @@ class Permission extends AbstractModel
 	protected $id;
 	
 	/**
-	 * @var Rule[]
+	 * @var string
 	 */
-	protected $rules;
+	protected $name;
 	
 	/**
 	 * @var Module
@@ -43,17 +42,55 @@ class Permission extends AbstractModel
 	 */
 	public function initialize()
 	{
-		/* defines the relation to ModuleUnit */
-		$this->belongsTo('unit_id', Module::class, 'id', [ 'alias' => 'module']);
-		
-		/* defines the rule */
-		$this->hasManyToMany(
-			'id', Rule::class,
-			'role_id',
-			'permission_id',
-			static::class,
-			'id',
-			['alias' => 'rules']
-		);
+		/* defines the relation to Module */
+		$this->belongsTo('module_id', Module::class, 'id', [ 'alias' => 'module']);
+	}
+	
+	/**
+	 * @return int
+	 */
+	public function getId() : int
+	{
+		return $this->id;
+	}
+	
+	/**
+	 * @param int $id
+	 */
+	public function setId( int $id )
+	{
+		$this->id = $id;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getName() : string
+	{
+		return $this->name;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function setName( string $name )
+	{
+		$this->name = $name;
+	}
+	
+	/**
+	 * @return Module
+	 */
+	public function getModule() : Module
+	{
+		return $this->module;
+	}
+	
+	/**
+	 * @param Module $module
+	 */
+	public function setModule( Module $module )
+	{
+		$this->module = $module;
 	}
 }

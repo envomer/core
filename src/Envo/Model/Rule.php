@@ -8,6 +8,10 @@ use Envo\AbstractModel;
  * Class PermissionRole
  *
  * @package Envo\Model
+ *
+ * @property Role       role
+ * @property Permission permission
+ * @property Module     module
  */
 class Rule extends AbstractModel
 {

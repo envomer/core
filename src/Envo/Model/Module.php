@@ -3,18 +3,24 @@
 namespace Envo\Model;
 
 use Envo\AbstractModel;
-use Envo\Model\Traits\SlugTrait;
 
 /**
  * Class Module
  *
  * @package Envo\Model
  *
- * @property ModuleUnit[] units
+ * @property integer id
+ * @property string  name
+ * @property string  slug
  */
 class Module extends AbstractModel
 {
-	use SlugTrait;
+	/**
+	 * Table name
+	 *
+	 * @var string
+	 */
+	protected $table = 'core_modules';
 	
 	/**
 	 * @var integer
@@ -22,15 +28,60 @@ class Module extends AbstractModel
 	protected $id;
 	
 	/**
-	 * @var ModuleUnit[]
+	 * @var string
 	 */
-	protected $units;
+	protected $slug;
 	
 	/**
-	 * initialize the model
+	 * @var  string
 	 */
-	public function initialize()
+	protected $name;
+	
+	/**
+	 * @return int
+	 */
+	public function getId() : int
 	{
-		$this->hasMany('id', ModuleUnit::class, 'module_id',[ 'alias' => 'units']);
+		return $this->id;
+	}
+	
+	/**
+	 * @param int $id
+	 */
+	public function setId( int $id )
+	{
+		$this->id = $id;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getSlug() : string
+	{
+		return $this->slug;
+	}
+	
+	/**
+	 * @param string $slug
+	 */
+	public function setSlug( string $slug )
+	{
+		$this->slug = $slug;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getName() : string
+	{
+		return $this->name;
+	}
+	
+	/**
+	 * @param string $name
+	 */
+	public function setName( string $name )
+	{
+		$this->name = $name;
 	}
 }
