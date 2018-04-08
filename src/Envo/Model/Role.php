@@ -123,9 +123,9 @@ class Role extends AbstractRole
 	}
 	
 	/**
-	 * @param int $roleId
+	 * @param int|null $roleId
 	 */
-	public function setRoleId( int $roleId )
+	public function setRoleId( int $roleId = null)
 	{
 		$this->roleId = $roleId;
 	}

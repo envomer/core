@@ -212,5 +212,6 @@ abstract class AbstractRole extends AbstractModel
 		$rule->role = $this;
 		$rule->permission = $permission;
 		$rule->module = $module;
+		$rule->save();
 	}
 }
