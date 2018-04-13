@@ -52,7 +52,8 @@ class Application extends \Phalcon\Mvc\Application
 	public function isInMaintenance()
 	{
 		if( $this->inMaintenance === null ) {
-			$this->inMaintenance = @file_get_contents(APP_PATH . 'storage/framework/down') ?: false;
+			$path = APP_PATH . 'storage/framework/down';
+			$this->inMaintenance = file_exists($path) ? @file_get_contents($path) : false;
 
 			if( $this->inMaintenance ) {
 				$this->inMaintenance = json_decode($this->inMaintenance);

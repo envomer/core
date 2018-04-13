@@ -121,7 +121,8 @@ class Auth extends Component
 			$user = $userClass::repo()->where($userClass::getQualifier(), $auth['id'])->getOne();
 
 			if ( !$user ) {
-				$this->session->remove(self::TOKEN_NAME);
+				$this->remove();
+				//$this->session->remove(self::TOKEN_NAME);
 				header('Location: /');
 
 				return false;

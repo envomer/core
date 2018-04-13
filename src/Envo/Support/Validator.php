@@ -146,6 +146,7 @@ class Validator
      */
     protected function requireParameterCount($count, $parameters, $rule)
     {
+    	die(var_dump($parameters, $count));
         if (count($parameters) < $count) {
             throw new \InvalidArgumentException("Validation rule $rule requires at least $count parameters.");
         }
@@ -553,7 +554,14 @@ class Validator
     {
         return rtrim(explode('*', $attribute)[0], '.') ?: null;
     }
-
+	
+	/**
+	 * @param $attribute
+	 * @param $value
+	 * @param $parameters
+	 *
+	 * @return bool
+	 */
     protected function validateMin($attribute, $value, $parameters)
     {
         return $this->getSize($attribute, $value) >= $parameters[0];
@@ -569,11 +577,6 @@ class Validator
      */
     public function validateMax($attribute, $value, $parameters)
     {
-        $this->requireParameterCount(1, $parameters, 'max');
-        if ($value instanceof UploadedFile && ! $value->isValid()) {
-            return false;
-        }
-        
         return $this->getSize($attribute, $value) <= $parameters[0];
     }
 
