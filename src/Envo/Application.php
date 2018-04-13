@@ -3,41 +3,34 @@
 namespace Envo;
 
 use Envo\API\Handler;
+use Envo\Foundation\Config;
 use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\Loader;
 use Envo\Foundation\Permission;
-use Envo\Foundation\Config;
-use Envo\Foundation\ApplicationTrait;
 use Envo\Foundation\Router;
-
 use Envo\Support\Str;
 use Envo\Support\Translator;
 use Phalcon\Cache\Backend\File;
 use Phalcon\Cache\Frontend\Data as FrontendData;
+use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Db\Adapter\Pdo\Sqlite;
 use Phalcon\Db\Profiler;
-use Phalcon\Debug;
 use Phalcon\DI;
-use Phalcon\Di\FactoryDefault;
 use Phalcon\Escaper;
 use Phalcon\Events\Event;
 use Phalcon\Events\Manager;
-use Phalcon\Http\Response\Cookies;
-use Phalcon\Http\Response;
+use Phalcon\Events\Manager as EventManager;
 use Phalcon\Http\Request;
+use Phalcon\Http\Response;
+use Phalcon\Http\Response\Cookies;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Model;
+use Phalcon\Mvc\Model\Manager as ModelManager;
 use Phalcon\Mvc\Model\Metadata\Files;
 use Phalcon\Mvc\Url;
 use Phalcon\Mvc\View;
-use Phalcon\Mvc\Model\Manager as ModelManager;
-use Phalcon\Session\Adapter\Files as SessionAdapter;
-use Phalcon\Events\Manager as EventManager;
-use Phalcon\Mvc\View\Engine\Volt as VoltEngine;
-
-use Envo\Support\IP;
-use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Mvc\View\Engine\Php;
+use Phalcon\Session\Adapter\Files as SessionAdapter;
 
 /**
  * Class Application
@@ -446,10 +439,25 @@ class Application extends \Phalcon\Mvc\Application
 		// @see https://docs.phalconphp.com/en/3.2/db-models#disabling-enabling-features
 		Model::setup(
 			[
-				'disableAssignSetters' => true,
-				'columnRenaming' => false,
-				'exceptionOnFailedSave' => true,
-				'updateSnapshotOnSave' => false,
+				'astCache'              => config( 'database.astCache', null ),
+				'cacheLevel'            => config( 'database.cacheLevel', 3 ),
+				'castOnHydrate'         => config( 'database.castOnHydrate', false ),
+				'columnRenaming'        => config( 'database.columnRenaming', true ),
+				'disableAssignSetters'  => config( 'database.disableAssignSetters', false ),
+				'enableImplicitJoins'   => config( 'database.enableImplicitJoins', true ),
+				'enableLiterals'        => config( 'database.enableLiterals', true ),
+				'escapeIdentifiers'     => config( 'database.escapeIdentifiers', true ),
+				'events'                => config( 'database.events', true ),
+				'exceptionOnFailedSave' => config( 'database.exceptionOnFailedSave', true ),
+				'forceCasting'          => config( 'database.forceCasting', false ),
+				'ignoreUnknownColumns'  => config( 'database.ignoreUnknownColumns', false ),
+				'lateStateBinding'      => config( 'database.lateStateBinding', false ),
+				'notNullValidations'    => config( 'database.notNullValidations', true ),
+				'parserCache'           => config( 'database.parserCache', null ),
+				'phqlLiterals'          => config( 'database.phqlLiterals', true ),
+				'uniqueCacheId'         => config( 'database.uniqueCacheId', 3 ),
+				'updateSnapshotOnSave'  => config( 'database.updateSnapshotOnSave', true ),
+				'virtualForeignKeys'    => config( 'database.virtualForeignKeys', true ),
 			]
 		);
 	}
