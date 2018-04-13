@@ -194,6 +194,19 @@ abstract class AbstractRole extends AbstractModel
 	}
 	
 	/**
+	 * Removes given permission from role for given module
+	 *
+	 * @param string $permission
+	 * @param string $moduleName
+	 *
+	 * @return void
+	 */
+	public function refuse(string $permission, string $moduleName)
+	{
+		//todo implement me
+	}
+	
+	/**
 	 * Adds given permission to this role for given module
 	 *
 	 * @param string $permissionName
@@ -201,7 +214,7 @@ abstract class AbstractRole extends AbstractModel
 	 *
 	 * @return void
 	 */
-	public function addPermission( string $permissionName, string $moduleName)
+	public function grant( string $permissionName, string $moduleName)
 	{
 		//todo get permission and module from cache
 		/** @var Permission $permission */
