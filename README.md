@@ -95,3 +95,69 @@ $result = Model::repo()->in(string $whereInKey, array $whereIn = [])->orderBy(['
 $result = Model::repo()->in(string $whereInKey, array $whereIn = [])->orderBy('name', 'desc')->limit(20)->get();
 $result = Model::repo()->page(int 7)->limit(20)->with(['team.members', 'events''])->get();
 ```
+
+## Permissions
+We almost have a Role class implemented which you can use 
+or you can extend your class from AbstractRole
+Our user and team class are extending the AbstractRole class. 
+
+### What will do the AbstractRole class for me?
+Every class which extends it get following methods.
+
+- canI(permissionName, moduleName)
+```php
+$result = $role->canI('VIEW', 'core');
+```
+- grant(permissionName, moduleName)
+
+```php
+$role->grant('VIEW', 'core');
+```
+
+The role system is a hierarchy so you can set a parent on roles
+```php
+$teamWithView = new Team();
+$teamWithView->name = 'team with view permission';
+$teamWithView->save();
+
+$teamWithView->grant('VIEW', 'core');
+
+$teamWithEdit = new Team();
+$teamWithEdit->name = 'team with edit permission';
+$teamWithEdit->parent = $teamWithView;
+$teamWithEdit->save();
+
+$teamWithEdit->grant('EDIT', 'core');
+
+$user = new User();
+$user->parent = $teamWithEdit;
+$user->save();
+
+$teamWithDelete = new Team();
+$teamWithDelete->name = 'team with delete permission';
+$teamWithDelete->save();
+
+$teamWithDelete->grant('DELETE', 'core');
+
+$user2 = new User();
+$user2->parent = $user;
+$user2->save();
+
+$user2->addRole($teamWithDelete);
+
+$teamWithView->canI('VIEW', 'core'); //true
+$teamWithView->canI('EDIT', 'core'); //false
+$teamWithView->canI('DELETE', 'core'); //false
+
+$teamWithEdit->canI('VIEW', 'core'); //true
+$teamWithEdit->canI('EDIT', 'core'); //true
+$teamWithEdit->canI('DELETE', 'core'); //false
+
+$user->canI('VIEW', 'core'); //true
+$user->canI('EDIT', 'core'); //true
+$user->canI('DELETE', 'core'); //false
+
+$user2->canI('VIEW', 'core'); //true
+$user2->canI('EDIT', 'core'); //true
+$user2->canI('DELETE', 'core'); //true
+```
