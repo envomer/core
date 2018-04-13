@@ -73,6 +73,7 @@ abstract class AbstractRole extends AbstractModel
 			if ($this instanceof Role){
 				/* we are a role so we do not need to create a new one*/
 				$role = $this;
+				$repo->addRole($role, $role->parent);
 			}else{
 				/* create a new role if it is a new model */
 				$role = new Role();
@@ -92,8 +93,6 @@ abstract class AbstractRole extends AbstractModel
 				
 				$role->save();
 			}
-			
-			$repo->addRole($role, $role->parent);
 		}
 		elseif ($exists && null !== $this->getRole()->getSnapshotData() && $this->getRole()->hasChanged('parent_id')) {
 			$repo->moveRole($this->getRole()->parent->id, $this->getRole()->id);

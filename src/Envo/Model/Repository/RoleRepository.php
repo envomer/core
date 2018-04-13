@@ -26,15 +26,22 @@ class RoleRepository extends AbstractRepository
 	{
 		$select = '
 			INSERT INTO `core_roles_paths` (`parent_id`,`child_id`,`path_length`)
-			SELECT `parent_id`, ? ,`path_length` + 1
+			SELECT * FROM(
+			SELECT `parent_id` parent_id, ? child_id,(`path_length` + 1) path_length
 			FROM`core_roles_paths`
 			WHERE `child_id` = ?
 			UNION
 			ALL
-			SELECT ?, ?,0 ;
+			SELECT ?, ?,0
+			) temp
+			WHERE (`child_id`, parent_id, path_length) NOT IN (
+				SELECT child_id, parent_id, path_length FROM `core_roles_paths` crp
+			);
 		';
 		
-		$params = [$newRole->getId(), null !== $parentRole ? $parentRole->getId() : null, $newRole->getId(), $newRole->getId() ];
+		$id = $newRole->id;
+		
+		$params = [$id, null !== $parentRole ? $parentRole->id : null, $id, $id];
 		
 		$result = parent::query($select, $params);
 		$result->setFetchMode(Db::FETCH_ASSOC);
