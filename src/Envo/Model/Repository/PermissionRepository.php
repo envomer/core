@@ -30,7 +30,7 @@ class PermissionRepository extends AbstractRepository
  				FROM `core_roles` AS node
     			JOIN `core_roles_paths` AS path ON node.`id` = path.`child_id`
     			JOIN `core_roles_paths` AS crumbs ON crumbs.`child_id` = path.`child_id`
-  				WHERE path.`parent_id` = ?
+  				WHERE path.`child_id` = ?
  			)
  			GROUP BY cr.module_id;
 		';

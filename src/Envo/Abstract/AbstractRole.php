@@ -64,6 +64,11 @@ abstract class AbstractRole extends AbstractModel
 		/** @var RoleRepository $repo */
 		$repo = Role::repo();
 		
+		if (null !== $this->parent && ! ($this->parent instanceof Role) ){
+			//var_dump($this->parent_id, $this->name);
+			$this->parent = $this->parent->getRole();
+		}
+		
 		if(! $exists && $success){
 			if ($this instanceof Role){
 				/* we are a role so we do not need to create a new one*/
@@ -71,7 +76,7 @@ abstract class AbstractRole extends AbstractModel
 			}else{
 				/* create a new role if it is a new model */
 				$role = new Role();
-				$role->type   = str_replace('\\', '_' , static::class) . 'test2';
+				$role->type   = str_replace('\\', '_' , static::class);
 				$role->role_id = $this->id;
 				$role->parent = $this->parent;
 				
@@ -84,13 +89,9 @@ abstract class AbstractRole extends AbstractModel
 				elseif (method_exists($this, 'getName')){
 					$role->name = $this->getName();
 				}
+				
+				$role->save();
 			}
-			
-			if (null !== $role->parent && ! ($role->parent instanceof Role) ){
-				$role->parent = $this->getRole();
-			}
-			
-			$role->save();
 			
 			$repo->addRole($role, $role->parent);
 		}
@@ -126,7 +127,11 @@ abstract class AbstractRole extends AbstractModel
 		if (null === $this->permissions){
 			/** @var PermissionRepository $permissionRepo */
 			$permissionRepo = Permission::repo();
-			$permissions = $permissionRepo->getByRoleId($this->getId());
+			$role = $this;
+			if (! ($role instanceof Role)){
+				$role = $this->getRole();
+			}
+			$permissions = $permissionRepo->getByRoleId($role->id);
 			
 			foreach ($permissions as $modulePermission){
 				$this->permissions[$modulePermission['module']] = $modulePermission['permission'];
@@ -162,38 +167,6 @@ abstract class AbstractRole extends AbstractModel
 	}
 	
 	/**
-	 * @return int
-	 */
-	public function getId() : int
-	{
-		return $this->id;
-	}
-	
-	/**
-	 * @param int $id
-	 */
-	public function setId( int $id )
-	{
-		$this->id = $id;
-	}
-	
-	/**
-	 * @return AbstractRole
-	 */
-	public function getParent() : AbstractRole
-	{
-		return $this->parent;
-	}
-	
-	/**
-	 * @param AbstractRole $parent
-	 */
-	public function setParent( AbstractRole $parent )
-	{
-		$this->parent = $parent;
-	}
-	
-	/**
 	 * Removes given permission from role for given module
 	 *
 	 * @param string $permission
@@ -204,6 +177,21 @@ abstract class AbstractRole extends AbstractModel
 	public function refuse(string $permission, string $moduleName)
 	{
 		//todo implement me
+	}
+	
+	/**
+	 * @param AbstractRole $role
+	 *
+	 * @return void
+	 */
+	public function addRole(AbstractRole $role)
+	{
+		/** @var RoleRepository $repo */
+		$repo = Role::repo();
+		
+		//todo check if role is already assigned
+		
+		$repo->addRole($this->getRole(), $role->getRole());
 	}
 	
 	/**
@@ -232,7 +220,7 @@ abstract class AbstractRole extends AbstractModel
 		/* check if rule already exists */
 		$rule = $repo->getByRoleAndPermissionAndModule($this->getRole(),$permission, $module);
 		
-		if (null !== $rule){
+		if (null !== $rule && false !== $rule){
 			/* rule already exists */
 			return;
 		}
