@@ -70,6 +70,7 @@ abstract class AbstractAPI
         if( method_exists($this, 'init') ) {
             $this->init();
         }
+		
 
         $this->buildModel();
         $this->buildDTO();
@@ -102,25 +103,26 @@ abstract class AbstractAPI
     }
 	
 	/**
-	 * @return $this|bool
+	 * @return null
 	 */
     public function buildDTO()
     {
-        if( ! $this->dto ) {
-            $this->dto = str_replace('\API\\', '\DTO\\', static::class) . 'DTO';
+    	$dto = $this->dto;
+        if( ! $dto ) {
+            $dto = str_replace('\API\\', '\DTO\\', static::class) . 'DTO';
         }
 
-        if( is_string($this->dto) ) {
-            if( ! class_exists($this->dto) ) {
-                return false;
-            }
+        if( is_string($dto) ) {
+			if( ! class_exists($dto, true) ) {
+				return null;
+			}
 
             $data = null;
             if( $this->request && isset($this->request->parameters['data']) ) {
                 $data = $this->request->parameters['data'];
             }
 
-            $this->dto = new $this->dto($data);
+            $this->dto = new $dto($data);
         }
 		
 		return $this;

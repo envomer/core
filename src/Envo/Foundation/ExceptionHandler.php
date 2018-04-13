@@ -68,7 +68,7 @@ class ExceptionHandler
 		}
 
 		// also log the error message into a log file
-       	error_log($message . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W') . '.log');
+       	error_log('['. date('Y-m-d H:i:s'). '] ' . $code . ' ' .$message . "\n" . $e->getTraceAsString() . "\n", 3, APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W') . '.log');
 	}
 
 	/**

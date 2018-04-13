@@ -27,7 +27,7 @@ class CronTask extends \Phalcon\Cli\Task
 		// $scheduler = new Illuminate\Console\Scheduling\Schedule;
 		$events = array();
 
-		\File::put(APP_PATH . 'storage/logs/cron.txt', \Date::now() . "\n");
+		\File::put(APP_PATH . 'storage/framework/logs/cron.txt', \Date::now() . "\n");
 
 		// $events[] = array('expression' => '* * * * * *', 'command' => 'CalendarSendReminderMailsTask');
 		$events['CashRegisterSignAutomaticallyTask'] = array('expression' => '* 0-1 1 * * *', 'command' => 'CashRegisterSignAutomaticallyTask');
@@ -99,7 +99,7 @@ class CronTask extends \Phalcon\Cli\Task
 		$output .= "\nComplete.\n";
 
 		echo $output;
-		\File::append(APP_PATH . 'storage/logs/cron.txt', $output);
+		\File::append(APP_PATH . 'storage/framework/logs/cron.txt', $output);
 
         return true;
 	}
