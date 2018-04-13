@@ -25,17 +25,17 @@ class RolePaths extends AbstractModel
 	/**
 	 * @var Role $parent
 	 */
-	protected $parent;
+	public $parent;
 	
 	/**
 	 * @var Role $child
 	 */
-	protected $child;
+	public $child;
 	
 	/**
 	 * @var integer $pathLength
 	 */
-	protected $pathLength;
+	public $pathLength;
 	
 	/**
 	 * initialize the model
@@ -46,53 +46,5 @@ class RolePaths extends AbstractModel
 	{
 		$this->belongsTo('parent_id', Role::class, 'id', [ 'alias' => 'parent']);
 		$this->belongsTo('child_id', Role::class, 'id', [ 'alias' => 'child']);
-	}
-	
-	/**
-	 * @return Role
-	 */
-	public function getChild() : Role
-	{
-		return $this->child;
-	}
-	
-	/**
-	 * @param Role $child
-	 */
-	public function setChild( Role $child )
-	{
-		$this->child = $child;
-	}
-	
-	/**
-	 * @return Role
-	 */
-	public function getParent() : Role
-	{
-		return $this->parent;
-	}
-	
-	/**
-	 * @param Role $parent
-	 */
-	public function setParent( Role $parent )
-	{
-		$this->parent = $parent;
-	}
-	
-	/**
-	 * @return int
-	 */
-	public function getPathLength() : int
-	{
-		return $this->pathLength;
-	}
-	
-	/**
-	 * @param int $pathLength
-	 */
-	public function setPathLength( int $pathLength )
-	{
-		$this->pathLength = $pathLength;
 	}
 }

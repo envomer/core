@@ -10,7 +10,7 @@ use Phalcon\Mvc\Model\MetaDataInterface;
  *
  * @package Envo\Model
  *
- * @property integer roleId
+ * @property integer role_id
  * @property string  type
  * @property string  name
  */
@@ -28,21 +28,21 @@ class Role extends AbstractRole
 	 *
 	 * @var integer
 	 */
-	protected $roleId;
+	public $role_id;
 	
 	/**
 	 * this will be the class name of the current instance of the role
 	 *
 	 * @var string
 	 */
-	protected $type;
+	public $type;
 	
 	/**
 	 * The name of the role (optional)
 	 *
 	 * @var string
 	 */
-	protected $name;
+	public $name;
 	
 	/**
 	 * initialize the model
@@ -80,53 +80,5 @@ class Role extends AbstractRole
 		}
 		
 		return true;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getType() : string
-	{
-		return $this->type;
-	}
-	
-	/**
-	 * @param string $type
-	 */
-	public function setType( string $type )
-	{
-		$this->type = $type;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getName() : string
-	{
-		return $this->name;
-	}
-	
-	/**
-	 * @param string $name
-	 */
-	public function setName( string $name )
-	{
-		$this->name = $name;
-	}
-	
-	/**
-	 * @return int
-	 */
-	public function getRoleId() : int
-	{
-		return $this->roleId;
-	}
-	
-	/**
-	 * @param int|null $roleId
-	 */
-	public function setRoleId( int $roleId = null)
-	{
-		$this->roleId = $roleId;
 	}
 }

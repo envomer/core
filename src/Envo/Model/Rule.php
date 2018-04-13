@@ -18,21 +18,6 @@ class Rule extends AbstractModel
     protected $table = 'core_rules';
 	
 	/**
-	 * @var Role
-	 */
-	protected $role;
-	
-	/**
-	 * @var Permission
-	 */
-	protected $permission;
-	
-	/**
-	 * @var Module
-	 */
-	protected $module;
-	
-	/**
 	 * initialize the model
 	 */
 	public function initialize()

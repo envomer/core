@@ -26,14 +26,14 @@ class Team extends AbstractRole
 	 *
 	 * @var string
 	 */
-	protected $identifier;
+	public $identifier;
 	
 	/**
 	 * Team name
 	 *
 	 * @var string
 	 */
-	protected $name;
+	public $name;
 	
 	/**
 	 * get a name representation of this entity

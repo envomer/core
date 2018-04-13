@@ -105,8 +105,8 @@ class RoleRepository extends AbstractRepository
 		$queryBuilder = parent::createBuilder();
 		$queryBuilder
 			->from(Role::class)
-			->where('roleId = :roleId', ['roleId' => $role->getId()])
-			->andWhere('type = :type', ['type' => $type])
+			->where('role_id = :roleId:', ['roleId' => $role->getId()])
+			->andWhere('type = :type:', ['type' => $type])
 		;
 		
 		return $queryBuilder->getOne();

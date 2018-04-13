@@ -6,6 +6,7 @@ use Envo\Model\Module;
 use Envo\Model\Permission;
 use Envo\Model\Repository\PermissionRepository;
 use Envo\Model\Repository\RoleRepository;
+use Envo\Model\Repository\RuleRepository;
 use Envo\Model\Role;
 use Envo\Model\Rule;
 
@@ -27,12 +28,12 @@ abstract class AbstractRole extends AbstractModel
 	/**
 	 * @var integer
 	 */
-	protected $id;
+	public $id;
 	
 	/**
 	 * @var AbstractRole
 	 */
-	protected $parent;
+	public $parent;
 	
 	/**
 	 * @var Role
@@ -61,7 +62,7 @@ abstract class AbstractRole extends AbstractModel
 	protected function _postSave( $success, $exists ) : bool
 	{
 		/** @var RoleRepository $repo */
-		$repo = self::repo();
+		$repo = Role::repo();
 		
 		if(! $exists && $success){
 			if ($this instanceof Role){
@@ -70,8 +71,8 @@ abstract class AbstractRole extends AbstractModel
 			}else{
 				/* create a new role if it is a new model */
 				$role = new Role();
-				$role->type   = str_replace('\\', '_' , static::class);
-				$role->id     = $this->id;
+				$role->type   = str_replace('\\', '_' , static::class) . 'test2';
+				$role->role_id = $this->id;
 				$role->parent = $this->parent;
 				
 				/* check if model provides somehow a name */
@@ -208,8 +209,23 @@ abstract class AbstractRole extends AbstractModel
 		/** @var Module $module */
 		$module = Module::repo()->where('name', $moduleName)->getOne();
 		
+		if (null === $permission || null === $module){
+			return;
+		}
+		
+		/** @var $repo RuleRepository */
+		$repo = Rule::repo();
+		
+		/* check if rule already exists */
+		$rule = $repo->getByRoleAndPermissionAndModule($this->getRole(),$permission, $module);
+		
+		if (null !== $rule){
+			/* rule already exists */
+			return;
+		}
+		
 		$rule = new Rule();
-		$rule->role = $this;
+		$rule->role = $this->getRole();
 		$rule->permission = $permission;
 		$rule->module = $module;
 		$rule->save();

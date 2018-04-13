@@ -25,63 +25,15 @@ class Module extends AbstractModel
 	/**
 	 * @var integer
 	 */
-	protected $id;
+	public $id;
 	
 	/**
 	 * @var string
 	 */
-	protected $slug;
+	public $slug;
 	
 	/**
 	 * @var  string
 	 */
-	protected $name;
-	
-	/**
-	 * @return int
-	 */
-	public function getId() : int
-	{
-		return $this->id;
-	}
-	
-	/**
-	 * @param int $id
-	 */
-	public function setId( int $id )
-	{
-		$this->id = $id;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getSlug() : string
-	{
-		return $this->slug;
-	}
-	
-	/**
-	 * @param string $slug
-	 */
-	public function setSlug( string $slug )
-	{
-		$this->slug = $slug;
-	}
-	
-	/**
-	 * @return string
-	 */
-	public function getName() : string
-	{
-		return $this->name;
-	}
-	
-	/**
-	 * @param string $name
-	 */
-	public function setName( string $name )
-	{
-		$this->name = $name;
-	}
+	public $name;
 }
