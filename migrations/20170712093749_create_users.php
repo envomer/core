@@ -15,7 +15,7 @@ class CreateUsers extends AbstractMigration
             $table->string('username', 64)->index();
             $table->string('email', 160)->unique()->index();
             
-            $table->string('password');
+            $table->string('password', 64)->nullable();
             
             $table->integer('team_id')->unsigned()->nullable()->index(); // hmmm....
             $table->tinyInteger('level')->nullable();
