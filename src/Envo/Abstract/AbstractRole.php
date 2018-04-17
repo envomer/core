@@ -9,6 +9,7 @@ use Envo\Model\Repository\RoleRepository;
 use Envo\Model\Repository\RuleRepository;
 use Envo\Model\Role;
 use Envo\Model\Rule;
+use Phalcon\Mvc\Model\Resultset\Simple;
 
 /**
  * Class AbstractRole
@@ -24,6 +25,11 @@ abstract class AbstractRole extends AbstractModel
 	 * @var array
 	 */
 	protected $permissions;
+	
+	/**
+	 * @var Module[]
+	 */
+	protected $allowedModules;
 	
 	/**
 	 * @var integer
@@ -102,6 +108,53 @@ abstract class AbstractRole extends AbstractModel
 	}
 	
 	/**
+	 * Get all allowed Modules for this role
+	 *
+	 * @return Simple
+	 */
+	public function getAllowedModules() : Simple
+	{
+		$this->initPermission();
+		
+		if (null === $this->allowedModules){
+			$this->allowedModules = Module::repo()->in('id', array_keys($this->permissions))->get();
+		}
+		
+		return $this->allowedModules;
+	}
+	
+	public function getAllPermissions()
+	{
+		$this->initPermission();
+		
+		//todo get all permission
+	}
+	
+	/**
+	 * Generates a permission string with following structure:
+	 * moduleSlug:permissionNumber
+	 * Each combination of that structure is separated by a semicolon (;).
+	 * e.g core:4;billing:2
+	 * The permission number is the sum of the power of the permission ids for the module.
+	 *
+	 * @return string
+	 */
+	public function getPermissionString() : string
+	{
+		$permissionString = [];
+		
+		/** @var Module[] $modules */
+		$modules = $this->getAllowedModules();
+		
+		foreach ($modules as $module){
+			$permissionNumber = $this->permissions[$module->id];
+			$permissionString[] = ($module->slug ? : $module->name) . ':' . $permissionNumber;
+		}
+		
+		return implode(';', $permissionString);
+	}
+	
+	/**
 	 * Check the permission for this role for given module
 	 * This will store all the permission for this role on the first hit
 	 *
@@ -123,19 +176,7 @@ abstract class AbstractRole extends AbstractModel
 			return false;
 		}
 		
-		if (null === $this->permissions){
-			/** @var PermissionRepository $permissionRepo */
-			$permissionRepo = Permission::repo();
-			$role = $this;
-			if (! ($role instanceof Role)){
-				$role = $this->getRole();
-			}
-			$permissions = $permissionRepo->getByRoleId($role->id);
-			
-			foreach ($permissions as $modulePermission){
-				$this->permissions[$modulePermission['module']] = $modulePermission['permission'];
-			}
-		}
+		$this->initPermission();
 		
 		if(! isset($this->permissions[$module->getId()])){
 			return false;
@@ -229,5 +270,27 @@ abstract class AbstractRole extends AbstractModel
 		$rule->permission = $permission;
 		$rule->module = $module;
 		$rule->save();
+	}
+	
+	/**
+	 * Initialize the permission for this role
+	 *
+	 * @return void
+	 */
+	protected function initPermission()
+	{
+		if (null === $this->permissions){
+			/** @var PermissionRepository $permissionRepo */
+			$permissionRepo = Permission::repo();
+			$role = $this;
+			if (! ($role instanceof Role)){
+				$role = $this->getRole();
+			}
+			$permissions = $permissionRepo->getByRoleId($role->id);
+			
+			foreach ($permissions as $modulePermission){
+				$this->permissions[$modulePermission['module']] = $modulePermission['permission'];
+			}
+		}
 	}
 }

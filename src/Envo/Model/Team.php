@@ -1,7 +1,7 @@
 <?php
 
 namespace Envo\Model;
-use Envo\AbstractRole;
+use Envo\AbstractModel;
 
 /**
  * Class Team
@@ -12,7 +12,7 @@ use Envo\AbstractRole;
  * @property string  identifier
  * @property string  name
  */
-class Team extends AbstractRole
+class Team extends AbstractModel
 {
 	/**
 	 * Table name

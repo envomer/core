@@ -266,20 +266,6 @@ class User extends AbstractRole
 		return $this->password;
 	}
 	
-	public function getPermissionString()
-	{
-		if (! $this->permissionString){
-			/* permissions are not fetched yet so do it now*/
-			/** @var \Envo\Model\Repository\User $repo */
-			$repo = self::repo();
-			$permissions = $repo->getPermissions($this->getId());
-			
-			
-		}
-		
-		return $this->permissionString;
-	}
-	
 	/**
 	 * @return string
 	 */
