@@ -26,27 +26,17 @@ class BackupCommand extends Command
 	{
         $this->info('Generate backup...');
         
-		$backup = System::dbBackup();
-
-        //if( ! isset($backup['filename']) ) {
-        //    echo "Failed to generate backup.\n";
-        //    return false;
-        //}
-		//
-        //unset($backup['msg']);
-		//$event = new DatabaseBackupGenerated($backup);
-		//
-        //$success = DatabaseService::upload($backup['filename']);
-		//
-        //if( $success ) {
-        //    echo "Uploaded backup '{$backup['filename']}'\n";
-        //    new DatabaseBackupUploaded($success, true, $event);
-        //}
-        //else {
-        //    echo "Failed to upload backup '{$backup['filename']}'\n";
-        //    new DatabaseBackupUploadFailed($backup, true, $event);
-        //}
-
+		$encrypt = config('database.backup.encrypt') ? ' encrypt' : '""';
+		$compress = config('database.backup.compress') ? ' compress ' : ' "" ';
+		$nameFormat = config('database.backup.name_format', '%Y%m%d');
+		$command = trim('sh ' . ENVO_PATH . "../bin/db.sh" . $compress . $encrypt . ' "' . $nameFormat . '"');
+		
+		//$this->info($command); // debug
+		
+		echo shell_exec($command);
+  
+		// TODO: trigger events
+		
 		return true;
 	}
 }
