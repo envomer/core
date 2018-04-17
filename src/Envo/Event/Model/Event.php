@@ -41,6 +41,11 @@ class Event extends AbstractModel
 		$this->hasOne('ip_id', $userIpClass, 'id', ['alias' => 'ip']);
 	}
 
+	public function getSource()
+	{
+		return config('app.events.table', $this->table);
+	}
+
 	public function index($attributes, $user)
 	{
 		$where = 'team_id = :team_id:';

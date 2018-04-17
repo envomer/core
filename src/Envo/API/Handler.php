@@ -285,12 +285,8 @@ class Handler
 			return _t('app.notFound');
 		}
 
-		if( method_exists($entry, 'preDelete') ) {
-			$response = $entry->preDelete();
-			if( is_string($response) || (is_bool($response) && ! $response) ) {
-				return $response;
-			}
-		}
+		$this->api->model = $entry;
+		$this->hook('preDelete');
 		
 		if( ! $entry->allowUpdate() ) {
 			return true;
@@ -299,12 +295,16 @@ class Handler
 		if( $force ) {
 			return $entry->delete();
 		}
-		
+
 		if( $entry->isSoftDeletable() ) {
 			$entry->deleted_at = date('Y-m-d H:i:s');
 			return $entry->save();
 		}
-		return $entry->delete();
+
+		$result = $entry->delete();
+		$this->hook('postDelete');
+
+		return $result;
 	}
 	
 	/**
