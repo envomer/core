@@ -35,6 +35,7 @@ class AbstractEvent
 			return;
 		}
 
+
 		// in case an event is given as first parameter()
 		// then just set the event instance without creating
 		// a new event instance
