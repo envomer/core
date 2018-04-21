@@ -123,12 +123,13 @@ class Auth extends Component
 			$user = $userClass::repo()->where($userClass::getQualifier(), $auth['id'])->getOne();
 
 			if ( !$user ) {
+				/* invalid auth identifier given...logout the user and redirect to homepage */
 				$this->remove();
-				//$this->session->remove(self::TOKEN_NAME);
 				header('Location: /');
 
 				return false;
 			}
+			
 			$user->loggedIn = $this->loggedIn = true;
 			$user->setAccessMode($userClass::ACCESS_SESSION);
 			// $user->switched = $session->get( 'orig_user' );
@@ -449,7 +450,7 @@ class Auth extends Component
 		}
 		$this->checkUserFlags( $user );
 		$this->session->set( self::TOKEN_NAME, array(
-			'id'   => $user->getQualifier(),
+			'id'   => $user->getQualifierValue(),
 			'name' => $user->username,
 		));
 
