@@ -199,7 +199,7 @@ if(!function_exists('envo_exception_handler'))
 			http_response_code(500);
 		}
 
-		// die(var_dump($error));
+		// die(var_dump($error->getTraceAsString()));
 		
 		//TODO: sure about this??
 		// TODO: catch offline database exception?

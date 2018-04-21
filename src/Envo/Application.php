@@ -30,7 +30,6 @@ use Phalcon\Mvc\Model\Metadata\Files;
 use Phalcon\Mvc\Url;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Php;
-use Phalcon\Session\Adapter\Files as SessionAdapter;
 
 /**
  * Class Application
@@ -144,16 +143,7 @@ class Application extends \Phalcon\Mvc\Application
 		$config = new Config();
 		putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
 
-		/**
-		 * Start the session the first time some component request the session service
-		 */
-		$di->setShared('session', function () use($config) {
-			/** TODO: implement different session types [files, database, etc...found in config('session.driver')] **/
-			session_save_path($config->get('session.files', APP_PATH.'storage/framework/sessions'));
-			$session = new SessionAdapter(['uniqueId' => $config->get('session.prefix', 'envo')]);
-			$session->start();
-			return $session;
-		});
+		$this->sessionSetup($di, $config);
 
 		/**
 		 * Enable cookies
@@ -480,5 +470,57 @@ class Application extends \Phalcon\Mvc\Application
 		
 		$autoloader = new \Envo\Foundation\Loader($loader);
 		$di->setShared('autoloader', $autoloader);
+	}
+	
+	/**
+	 * @param DI     $di
+	 * @param Config $config
+	 */
+	public function sessionSetup(Di $di, Config $config)
+	{
+		/**
+		 * Start the session the first time some component request the session service
+		 * TODO: export this logic into a Session class (Foundation/Session.php)
+		 *
+		 * TODO: implement different session types [files, database, etc...found in config('session.driver')]
+		 */
+
+		$di->setShared('session', function () use($config) {
+			$driver = $config->get('session.driver', 'file');
+			
+			if($driver === 'redis') {
+				$session = new \Phalcon\Session\Adapter\Redis([
+					'prefix'     => $config->get('session.prefix', ''),
+					'uniqueId'   => $config->get('database.uniqueId', ''),
+					'lifetime'   => $config->get('session.lifetime', 3600),
+					'persistent' => $config->get('database.redis.default.persistent', false),
+					'index'      => $config->get('database.redis.default.database', 0),
+					'auth'       => $config->get('database.redis.default.auth', ''),
+					'port'       => $config->get('database.redis.default.port', 6379),
+					'host'       => $config->get('database.redis.default.host', '127.0.0.1'),
+				]);
+			} else if($driver === 'memcache') {
+				$session = new \Phalcon\Session\Adapter\Memcache([
+					'uniqueId'   => $config->get('database.uniqueId', ''),
+					'host'       => $config->get('database.host', '127.0.0.1'),
+					'port'       => $config->get('database.port', 11211),
+					'persistent' => $config->get('database.persistent', true),
+					'lifetime'   => $config->get('session.lifetime', 3600),
+					'prefix'     => $config->get('session.prefix', ''),
+				]);
+			} else {
+				
+				session_save_path($config->get('session.files', APP_PATH.'storage/framework/sessions'));
+				$session = new \Phalcon\Session\Adapter\Files([
+					'uniqueId' => $config->get('session.prefix', '')
+				]);
+			}
+
+			if (!$session->isStarted()) {
+                $session->start();
+            }
+
+			return $session;
+		});
 	}
 }
