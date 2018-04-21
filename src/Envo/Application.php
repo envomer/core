@@ -492,7 +492,7 @@ class Application extends \Phalcon\Mvc\Application
 				$session = new \Phalcon\Session\Adapter\Redis([
 					'prefix'     => $config->get('session.prefix', ''),
 					'uniqueId'   => $config->get('database.uniqueId', ''),
-					'lifetime'   => $config->get('session.lifetime', 3600),
+					'lifetime'   => $config->get('session.lifetime', 120) * 60,
 					'persistent' => $config->get('database.redis.default.persistent', false),
 					'index'      => $config->get('database.redis.default.database', 0),
 					'auth'       => $config->get('database.redis.default.auth', ''),
