@@ -91,8 +91,7 @@ class Auth extends Component
 		}
 
 		// TODO: if no session class is defined then return empty user object
-
-		$auth = $this->session->get(self::TOKEN_NAME);
+		$auth = @$this->session->get(self::TOKEN_NAME);
 
 		$user = null;
 		if ( ! $auth ) {

@@ -102,7 +102,7 @@ class Handler
 	public function getAll($page = 1, $input = null)
 	{
 		if( method_exists($this->api, 'getAll') ) {
-			return $this->api->getAll();
+			return $this->api->getAll($page, $input);
 		}
 
 		$this->requestValidate();
@@ -180,7 +180,7 @@ class Handler
 	public function get($entityId, array $data = [])
 	{
 		if( method_exists($this->api, 'get') ) {
-			return $this->api->get();
+			return $this->api->get($entityId, $data);
 		}
 
 		$entity = $this->find($entityId, true, $data);

@@ -16,6 +16,8 @@
 - [ ] Rewrite database migration commands
 - [x] Add debugbar (https://github.com/snowair/phalcon-debugbar)
 - [ ] Implement middleWares (https://docs.phalconphp.com/en/3.2/application-micro) @envomer 
+- [ ] Add 'DEBUG_USER=127.0.0.1' to env file that will allow only those given ip addresses to view debugger
+- [ ] Create debugger page for easier and faster debugging (error logs, ....)
 
 https://gist.github.com/alex-LE/6138209
 https://gist.github.com/claviska/3536458

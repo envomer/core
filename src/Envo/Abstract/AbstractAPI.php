@@ -87,16 +87,18 @@ abstract class AbstractAPI
 	 */
     public function buildModel()
     {
+        $modelClass = null;
         if( ! $this->model ) {
-            $this->model = str_replace('\API\\', '\Model\\', static::class);
+            $modelClass = str_replace('\API\\', '\Model\\', static::class);
         }
 
-        if( is_string($this->model) ) {
-            if( ! class_exists($this->model) ) {
-                internal_exception('api.modelNotFound', 404);
+        if( is_string($modelClass) ) {
+            if( ! class_exists($modelClass) ) {
+                return null;
+                // internal_exception('api.modelNotFound', 404);
             }
             
-            $this->model = new $this->model;
+            $this->model = new $modelClass;
         }
 		
 		return $this;
@@ -137,7 +139,7 @@ abstract class AbstractAPI
             $this->repo = str_replace('\API\\', '\Repository\\', static::class) . 'Repository';
         }
 
-        if( is_string($this->repo) ) {
+        if( is_string($this->repo) && $this->model ) {
             if( ! class_exists($this->repo) ) {
                 $this->repo = new AbstractRepository($this->model);
             } else {
