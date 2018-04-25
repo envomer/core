@@ -334,20 +334,20 @@ class Handler
 	public function find($entityId)
 	{
 		$builder = $this->api->model->createBuilder();
+		$alias = $this->api->model->getClassNameAlias();
 		
 		if( $this->api->request->method === 'show' && method_exists($this->api, 'show') ) {
 			$this->api->show($builder, $entityId);
 		}
 		else {
 			$className = get_class($this->api->model);
-			$alias = strtolower(substr($className, strrpos($className, '\\') + 1)[0]);
 			$builder->where($alias. '.'.$this->api->identifier . ' = :val:', [
 				'val' => $entityId
 			]);
 		}
 
 		if( $this->api->model->isSoftDeletable() ) {
-			$builder->andWhere('e.deleted_at IS NULL');
+			$builder->andWhere( $alias . '.deleted_at IS NULL');
 		}
 
 		$query = $builder->getQuery();

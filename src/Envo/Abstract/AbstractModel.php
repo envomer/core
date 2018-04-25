@@ -232,11 +232,16 @@ class AbstractModel extends Model
 	public function createBuilder($alias = null)
 	{
 		$className = static::class;
-		$alias = $alias ?: strtolower(substr($className, strrpos($className, '\\') + 1)[0]);
+		$alias = $alias ?: $this->getClassNameAlias();
 		
 		$builder = $this->getModelsManager()->createBuilder();
 		$builder->from([$alias => $className]);
 
 		return $builder;
+	}
+
+	public function getClassNameAlias()
+	{
+		return strtolower(substr(static::class, strrpos(static::class, '\\') + 1)[0]);
 	}
 }
