@@ -559,11 +559,12 @@ class Arr
         $isObjectAndHasMethod = $isObject && method_exists($array[0], $by);
 
         foreach ($array as $value) {
-            if( $isObjectAndHasMethod ) {
+            $key = null;
+            if( $isObjectAndHasMethod && property_exists($value, $by) ) {
                 $key = $value->{$by}();
-            } else if( $isObject ) {
+            } else if( $isObject && property_exists($value, $by) ) {
                 $key = $value->{$by};
-            } else {
+            } else if(array_key_exists($by, $value)) {
                 $key = $value[$by];
             }
 
