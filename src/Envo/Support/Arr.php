@@ -627,7 +627,7 @@ class Arr
         $outputData = array();
         if (count($data)) {
             foreach ($data as $item) {
-                $outputData[] = new $className($item, $propertyMap);
+                $outputData[] = new $className($item);
             }
         }
 
