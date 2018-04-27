@@ -25,6 +25,12 @@ class AbstractController extends Controller
 	 * @var Auth
 	 */
 	protected $auth;
+	
+	public function initialize()
+	{
+		$module = explode('\\', static::class);
+		$this->setViewsDir(current($module));
+	}
 
 	/**
 	 * Set views directory
@@ -35,7 +41,9 @@ class AbstractController extends Controller
 	 */
 	public function setViewsDir($module = 'Core')
 	{
-		$this->view->setViewsDir(APP_PATH . 'app/'. $module . '/View/' );
+		$viewDirs = $this->view->getViewsDir();
+		$viewDirs[] = APP_PATH . 'app/'. $module . '/View/';
+		$this->view->setViewsDir($viewDirs );
 	}
 
 	/**
