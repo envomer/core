@@ -241,7 +241,7 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('view', function () use($config) {
 			$view = new View();
-			$view->setViewsDir([APP_PATH . 'app/Core/views/', APP_PATH . 'app/Core/View/']);
+			$view->setViewsDir([APP_PATH . 'app/Core/views/', APP_PATH . 'app/Core/Template/']);
 			$engines = ['.php' => Php::class];
 			if($config->get('view.volt', false)) {
 				$engines['.volt'] = 'volt';
@@ -251,23 +251,24 @@ class Application extends \Phalcon\Mvc\Application
 			return $view;
 		});
 		
-		$voltConfig = $config->get('view.volt.jahd.asdf.asdf');
+		$voltConfig = $config->get('view.volt');
+		
 		if(isset($voltConfig['enabled']) && $voltConfig['enabled']) {
 			$di->setShared('volt', function ($view, $di) use($config, $voltConfig){
 				$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
 				
 				$options = [];
-				$options['compiledPath'] = $options['compiledPath'] ?? '';
-				$options['stat'] = $options['stat'] ?? '';
-				$options['compile'] = $options['compile'] ?? true;
+				$options['compiledPath'] = $voltConfig['compiledPath'] ?? '';
+				$options['stat'] = $voltConfig['stat'] ?? '';
+				$options['compile'] = $voltConfig['compile'] ?? true;
 				$volt->setOptions([
-					'compiledPath' => $options['compiledPath'] ?? true,
-					'stat' => $options['stat'] ?? true,
-					'prefix' => $options['prefix'] ?? null,
-					'compiledSeparator' => $options['compiledSeparator'] ?? '%%',
-					'compiledExtension' => $options['compiledExtension'] ?? '.php',
-					'compileAlways' => $options['compileAlways'] ?? false,
-					'autoescape' => $options['autoescape'] ?? false,
+					'compiledPath' => $voltConfig['compiledPath'] ?? true,
+					'stat' => $voltConfig['stat'] ?? true,
+					'prefix' => $voltConfig['prefix'] ?? null,
+					'compiledSeparator' => $voltConfig['compiledSeparator'] ?? '%%',
+					'compiledExtension' => $voltConfig['compiledExtension'] ?? '.php',
+					'compileAlways' => $voltConfig['compileAlways'] ?? false,
+					'autoescape' => $voltConfig['autoescape'] ?? false,
 				]);
 				
 				$compiler = $volt->getCompiler();
