@@ -38,7 +38,7 @@ use Phalcon\Mvc\View\Engine\Php;
 class Application extends \Phalcon\Mvc\Application
 {
 	//use ApplicationTrait;
-
+	
 	public $inMaintenance;
 
 	public $initialized = false;
@@ -245,10 +245,41 @@ class Application extends \Phalcon\Mvc\Application
 			$engines = ['.php' => Php::class];
 			if($config->get('view.volt', false)) {
 				$engines['.volt'] = 'volt';
+				
 			}
 			$view->registerEngines($engines);
 			return $view;
 		});
+		
+		$voltConfig = $config->get('view.volt.jahd.asdf.asdf');
+		if(isset($voltConfig['enabled']) && $voltConfig['enabled']) {
+			$di->setShared('volt', function ($view, $di) use($config, $voltConfig){
+				$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
+				
+				$options = [];
+				$options['compiledPath'] = $options['compiledPath'] ?? '';
+				$options['stat'] = $options['stat'] ?? '';
+				$options['compile'] = $options['compile'] ?? true;
+				$volt->setOptions([
+					'compiledPath' => $options['compiledPath'] ?? true,
+					'stat' => $options['stat'] ?? true,
+					'prefix' => $options['prefix'] ?? null,
+					'compiledSeparator' => $options['compiledSeparator'] ?? '%%',
+					'compiledExtension' => $options['compiledExtension'] ?? '.php',
+					'compileAlways' => $options['compileAlways'] ?? false,
+					'autoescape' => $options['autoescape'] ?? false,
+				]);
+				
+				$compiler = $volt->getCompiler();
+				if(isset($options['functions']) && is_array($options['functions'])) {
+					foreach ($options['functions'] as $functionName => $function) {
+						$compiler->addFunction($functionName, $function);
+					}
+				}
+
+				return $volt;
+			});
+		}
 
 		/**
 		 * Set the database configuration
