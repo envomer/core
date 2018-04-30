@@ -4,6 +4,8 @@ namespace Envo\Mail\Transport;
 
 use Envo\Foundation\Loader;
 use Envo\Mail\DTO\MessageDTO;
+use Envo\Extension\EmailTemplate\ResponseDTO;
+
 use SendGrid as SendGridMailer;
 use SendGrid\Attachment;
 use SendGrid\Content;
@@ -69,8 +71,14 @@ class SendGrid implements TransportInterface
 			
 			$responses[] = $client->mail()->send()->post($mail);
 		}
+
+		$response = new ResponseDTO();
+		$response->state = $responses ? 'success' : 'error';
+		$response->data = $responses;
 		
-		return $responses;
+		return $response;
+		
+		// return $responses;
 	}
 	
 	/**
