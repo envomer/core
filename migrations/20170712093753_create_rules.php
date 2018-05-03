@@ -18,6 +18,6 @@ class CreateRules extends AbstractMigration
 
     public function down()
     {
-        $this->dropIfExists('core_permission_roles');
+        $this->dropIfExists('core_rules');
     }
 }

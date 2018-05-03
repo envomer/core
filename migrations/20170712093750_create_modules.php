@@ -20,6 +20,6 @@ class CreateModules extends AbstractMigration
 
     public function down()
     {
-        $this->dropIfExists('core_user_team');
+        $this->dropIfExists('core_modules');
     }
 }
