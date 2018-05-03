@@ -15,6 +15,7 @@ use Envo\Foundation\Console\DownCommand;
 use Envo\Database\Console\MigrationScaffold;
 use Envo\Foundation\Console\UpCommand;
 use Envo\Queue\Console\WorkCommand;
+use Envo\Support\Str;
 
 use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Db\Adapter\Pdo\Sqlite;
@@ -61,7 +62,7 @@ class Console extends \Phalcon\Application
 
         define('APP_CLI', true);
 	
-		if( isset($this->argv[1]) && strpos($this->argv[1], 'migrate') === 0 ) {
+		if( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
 			$this->registerDatabases($di);
 		}
 

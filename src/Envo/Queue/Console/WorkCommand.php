@@ -30,6 +30,33 @@ class WorkCommand extends Command
 
     public function handle()
     {
+        echo "Running queue worker...\n";
 
+        $queue = new \Queue;
+
+        while (true) {
+            if( $jobs = $queue->getNextJobs(5) ) {
+                echo "\n";
+                foreach ($jobs as $i => $job) {
+                    if( $i > 0 ) {
+                        echo "\n";
+                    }
+                    
+                    echo 'Executing job (' . $job->type_name .')' . '. ';
+
+                    $result = $queue->work($job);
+                    if($result ) {
+                        echo "Done. Deleted job. \n";
+                    }
+                    else {
+                        echo "Done. Error: {$result}";
+                    }
+                }
+                echo "\n";
+            }
+
+            sleep(5);
+            // echo ".";
+        }
     }
 }

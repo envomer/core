@@ -257,10 +257,6 @@ class Application extends \Phalcon\Mvc\Application
 			$di->setShared('volt', function ($view, $di) use($config, $voltConfig){
 				$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
 				
-				$options = [];
-				$options['compiledPath'] = $voltConfig['compiledPath'] ?? '';
-				$options['stat'] = $voltConfig['stat'] ?? '';
-				$options['compile'] = $voltConfig['compile'] ?? true;
 				$volt->setOptions([
 					'compiledPath' => $voltConfig['compiledPath'] ?? true,
 					'stat' => $voltConfig['stat'] ?? true,
@@ -272,8 +268,8 @@ class Application extends \Phalcon\Mvc\Application
 				]);
 				
 				$compiler = $volt->getCompiler();
-				if(isset($options['functions']) && is_array($options['functions'])) {
-					foreach ($options['functions'] as $functionName => $function) {
+				if(isset($voltConfig['functions']) && is_array($voltConfig['functions'])) {
+					foreach ($voltConfig['functions'] as $functionName => $function) {
 						$compiler->addFunction($functionName, $function);
 					}
 				}
