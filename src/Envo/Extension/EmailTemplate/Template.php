@@ -3,6 +3,7 @@
 namespace Envo\Extension\EmailTemplate;
 
 use Envo\AbstractDTO;
+use Envo\Mail\DTO\MessageDTO;
 
 class Template extends AbstractDTO
 {
@@ -69,5 +70,17 @@ class Template extends AbstractDTO
 	public function getStyle($key, $default)
 	{
 		return ($this->style && $this->style->$key) ? $this->style->$key : $default;
+	}
+
+	public static function fromMessageDTO(MessageDTO $message)
+	{
+		$body = json_decode($message->body);
+		$template = new self();
+		foreach($body as $section) {
+			$section = new Section($section);
+			$template->sections[] = $section;
+		}
+
+		return $template;
 	}
 }
