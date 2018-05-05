@@ -269,6 +269,7 @@
     <!-- Full Bleed Background Section : END -->
     
 
+    <?php if($this->footer): ?>
     <div style="width: 100%; background: <?php echo '#ccc' ?: '#222222' ?>; text-align: left; text-align: center;">
         <!--
 			Set the email width. Defined in two places:
@@ -309,8 +310,10 @@
             </table>
             <![endif]-->
         </div>
-	
+    </div>
+
 	<?php
+	endif;
     //include 'components/full-bleed-background.php';
     ?>
 
