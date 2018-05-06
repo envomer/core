@@ -85,7 +85,7 @@ abstract class AbstractAPI
 	 */
     public function buildModel()
     {
-        $modelClass = null;
+        $modelClass = $this->model;
         if( ! $this->model ) {
         	// TODO refactor
             $modelClass = str_replace('\API\\', '\Model\\', static::class);
@@ -132,6 +132,7 @@ abstract class AbstractAPI
                 $data = $this->request->parameters['data'];
             }
 
+
             $this->dto = new $dto($data);
         }
 		
@@ -144,7 +145,13 @@ abstract class AbstractAPI
     public function buildRepo()
     {
         if( ! $this->repo ) {
-            $this->repo = str_replace('\API\\', '\Repository\\', static::class) . 'Repository';
+            // $this->repo = str_replace('\API\\', '\Repository\\', static::class) . 'Repository';
+            // TODO refactor
+            $dto = str_replace('\API\\', '\Repository\\', static::class);
+            $classParts = explode('\\', $dto);
+            $length = count($classParts);
+            $classParts[$length - 1] = str_replace('API', '', $classParts[$length - 1]);
+            $this->repo = implode('\\', $classParts) .'Repository';
         }
 
         if( is_string($this->repo) && $this->model ) {
