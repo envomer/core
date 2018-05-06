@@ -70,7 +70,6 @@ abstract class AbstractAPI
         if( method_exists($this, 'init') ) {
             $this->init();
         }
-		
 
         $this->buildModel();
         $this->buildDTO();
@@ -83,13 +82,17 @@ abstract class AbstractAPI
 	
 	/**
 	 * @return $this
-	 * @throws Exception\InternalException
 	 */
     public function buildModel()
     {
         $modelClass = null;
         if( ! $this->model ) {
+        	// TODO refactor
             $modelClass = str_replace('\API\\', '\Model\\', static::class);
+            $classParts = explode('\\', $modelClass);
+            $length = count($classParts);
+            $classParts[$length - 1] = str_replace('API', '', $classParts[$length - 1]);
+            $modelClass = implode('\\', $classParts);
         }
 
         if( is_string($modelClass) ) {
@@ -111,7 +114,12 @@ abstract class AbstractAPI
     {
     	$dto = $this->dto;
         if( ! $dto ) {
-            $dto = str_replace('\API\\', '\DTO\\', static::class) . 'DTO';
+			// TODO refactor
+			$dto = str_replace('\API\\', '\DTO\\', static::class);
+			$classParts = explode('\\', $dto);
+			$length = count($classParts);
+			$classParts[$length - 1] = str_replace('API', '', $classParts[$length - 1]);
+			$dto = implode('\\', $classParts) .'DTO';
         }
 
         if( is_string($dto) ) {
