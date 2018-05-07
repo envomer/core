@@ -618,11 +618,15 @@ class Arr
         } elseif (is_string($class)) {
             $className = $class;
         } else {
-            internal_exception('app.givenTypeIsNotAllowed', 500);
+            internal_exception('app.givenTypeIsNotAllowed', 500, [
+                'class' => $class
+            ]);
         }
 
         if (!class_exists($className)) {
-            internal_exception("Class $className does not exist");
+            internal_exception('app.classNotFound', 500, [
+                'class' => $className
+            ]);
         }
 
         $outputData = array();
