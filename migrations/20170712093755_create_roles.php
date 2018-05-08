@@ -11,7 +11,7 @@ class CreateRoles extends AbstractMigration
             $table->increments('id');
             
             $table->string('name')->nullable();
-			$table->integer('role_id',false, true);
+			$table->string('role_id');
             $table->string('type');
             $table->integer('parent_id', false, true);
         });
