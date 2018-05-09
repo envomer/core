@@ -210,8 +210,7 @@ if(!function_exists('envo_exception_handler'))
 				}
 				$json = $error->json();
 				new \Envo\Event\Exception($error->getMessage(), true, null, $json);
-				$router = resolve('router');
-				if ( $router && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/') === 0 ) {
+				if ( $error->isJson || (($router = resolve('router')) && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/') === 0 )) {
 					header('Content-Type: application/json');
 					echo json_encode($json);
 					exit;
