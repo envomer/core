@@ -81,6 +81,16 @@ class ExceptionHandler
 	 */
 	public function beforeException(Event $event, MvcDispatcher $dispatcher, Exception $exception)
 	{
+		$source = $event ? $event->getSource() : null;
+		if($source) {
+			$controller = $source ? $source->getActiveController() : null;
+			$action = $source ? $source->getActionName() : null;
+
+			// Catch all xhr controller exceptions and return exception as json objects
+			if(($action && substr($action, 0, 3) === 'xhr') || ($controller && method_exists($controller, 'isXhr') && $controller->isXhr())) {
+				$exception->isJson = true;
+			}
+		}
 		$error = self::handleError($exception);
 		envo_exception_handler($exception);
 	}

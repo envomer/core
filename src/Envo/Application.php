@@ -196,9 +196,7 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('eventsManager', function() use($debug) {
 			$eventManager = new Manager();
-			if( ! $debug ) {
-				$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
-			}
+			$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
 
 			return $eventManager;
 		});
