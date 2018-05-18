@@ -140,6 +140,18 @@ class SendGrid implements TransportInterface
 		
 		foreach($to as $email => $name) {
 			$personalization = new Personalization();
+			
+			if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				$email = $name;
+			}
+
+			if(!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+				internal_exception('validation.givenEmailIsNotValid', 400, [
+					'email' => $email,
+					'name' => $name
+				]);
+			}
+
 			$to = new Email(is_string($name) ? $name : $email, $email);
 			$personalization->addTo($to);
 			// $personalization->addSubstitution('%recipient.name%', $subscriber->subscriber_name);

@@ -18,6 +18,7 @@ class AbstractException extends Exception
     public $messageCode;
     public $exception = [];
     public $trace = false;
+    public $isJson = false;
 	
 	/**
 	 * AbstractException constructor.

@@ -196,9 +196,7 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('eventsManager', function() use($debug) {
 			$eventManager = new Manager();
-			if( ! $debug ) {
-				$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
-			}
+			$eventManager->attach('dispatch:beforeException', new ExceptionHandler);
 
 			return $eventManager;
 		});
@@ -396,6 +394,9 @@ class Application extends \Phalcon\Mvc\Application
 			if ($event->getType() === 'beforeQuery') {
 				// $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				$profiler->startProfile($connection->getSQLStatement());
+				$item = $profiler->getLastProfile();
+				$item->setSqlVariables($connection->getSqlVariables() ?: []);
+				$item->setSqlBindTypes($connection->getSqlBindTypes() ?: []);
 				
 				if(isset($_GET['cc2'])) {
 					$ignoreClasses = ['Phalcon\\', 'Application'];

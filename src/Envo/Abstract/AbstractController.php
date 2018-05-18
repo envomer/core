@@ -25,6 +25,18 @@ class AbstractController extends Controller
 	 * @var Auth
 	 */
 	protected $auth;
+
+	protected $isAjaxRequest = false;
+
+	public function xhr($set = true)
+	{
+		return $this->isAjaxRequest = $set;
+	}
+
+	public function isXhr()
+	{
+		return $this->isAjaxRequest;
+	}
 	
 	public function initialize()
 	{

@@ -72,6 +72,9 @@ class AbstractDTO implements JsonSerializable
 		$mapping = $this->getMapping();
 		if($mapping) {
 			foreach ($mapping as $key => $value) {
+				if(!property_exists($this, $value)) {
+					continue;
+				}
 				$data[$key] = $data[$value];
 				unset($data[$value]);
 			}
