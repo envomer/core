@@ -281,7 +281,8 @@ class User extends AbstractRole
 
 	public function getQualifierValue()
 	{
-		$qualifier = self::getQualifier();
+		$qualifier = static::getQualifier();
+		
 		return $this->$qualifier;
 	}
 
