@@ -269,7 +269,7 @@
     <!-- Full Bleed Background Section : END -->
     
 
-    <?php if($this->footer): ?>
+    <?php if($this->footer || $this->pixelPath): ?>
     <div style="width: 100%; background: <?php echo '#ccc' ?: '#222222' ?>; text-align: left; text-align: center;">
         <!--
 			Set the email width. Defined in two places:
@@ -297,6 +297,10 @@
 						if($this->unsubscribe) {
 							echo '<br><br>';
 							echo '<unsubscribe style="color: #888888; text-decoration: underline;">unsubscribe</unsubscribe>';
+						}
+
+						if($this->pixelPath) {
+							echo '<img width="1" height="1" src="'. $this->pixelPath . '" style="display: inline-block; width: 1px; height: 1px;" />';
 						}
 						?>
                     </td>

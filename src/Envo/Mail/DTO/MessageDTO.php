@@ -36,7 +36,7 @@ class MessageDTO extends AbstractDTO
 	public $cc;
 	
 	/**
-	 * @var string|array
+	 * @var string|array|RecipientDTO[]
 	 */
 	public $to;
 	

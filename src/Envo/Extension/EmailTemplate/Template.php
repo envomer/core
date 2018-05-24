@@ -19,6 +19,8 @@ class Template extends AbstractDTO
 	public $unsubscribe;
 	public $excerpt;
 	public $style;
+
+	public $pixelPath;
 	
 	/**
 	 * @todo implement the option to override template
