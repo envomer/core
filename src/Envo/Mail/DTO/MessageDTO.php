@@ -60,6 +60,8 @@ class MessageDTO extends AbstractDTO
 	 */
 	public $footer;
 	
+	public $customArguments;
+	
 	/**
 	 * MessageDTO constructor.
 	 *
