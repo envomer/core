@@ -398,3 +398,45 @@ if( ! function_exists('uncaught_exception') )
 		return $internal;
 	}
 }
+
+if( ! function_exists('encrypt') )
+{
+	/**
+	 * @param Exception $exception
+	 * @param int       $code
+	 *
+	 * @return \Envo\Exception\InternalException|Exception
+	 */
+	function encrypt($value = null, $key = null)
+	{
+		$crypt = resolve('crypt');
+
+		if($value) {
+			return $crypt->encrypt($value, $key);
+		}
+
+		return $crypt;
+	}
+}
+
+if( ! function_exists('decrypt') )
+{
+	/**
+	 * @param Exception $exception
+	 * @param int       $code
+	 *
+	 * @return \Envo\Exception\InternalException|Exception
+	 */
+	function decrypt($value = null, $key = null)
+	{
+		$crypt = resolve('crypt');
+
+		if($value) {
+			return $crypt->decrypt($value, $key);
+		}
+
+		return $crypt;
+	}
+}
+
+

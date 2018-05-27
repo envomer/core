@@ -547,9 +547,9 @@ class Str
      */
     public static function uniqueId($length = 16)
 	{
-		$d = date ("d");
-		$m = date ("m");
-		$y = date ("Y");
+		$d = date ('d');
+		$m = date ('m');
+		$y = date ('Y');
 		$t = time();
 		$dmt = $d+$m+$y+$t;
 		$ran = rand(0,10000000);

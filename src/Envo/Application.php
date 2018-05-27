@@ -305,6 +305,15 @@ class Application extends \Phalcon\Mvc\Application
 
 			return $cache;
 		});
+
+
+		$di->setShared('crypt', function() use($config) {
+			$crypt = new \Phalcon\Crypt();
+			$crypt->setCipher($config->get('app.cipher'));
+			$crypt->setKey($config->get('app.key'));
+
+			return $crypt;
+		});
 		
 		/**
 		 * Set URL component

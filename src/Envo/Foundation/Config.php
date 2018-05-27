@@ -28,9 +28,6 @@ class Config
 
 			if(!file_exists($file)) {
 				return $default;
-				// internal_exception('app.configFileNotFound', 500, [
-				// 	'file' => $file
-				// ]);
 			}
 
 			$this->configs[$search[0]] = require_once $file;
