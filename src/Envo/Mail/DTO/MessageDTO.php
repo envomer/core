@@ -24,6 +24,8 @@ class MessageDTO extends AbstractDTO
 	 * @var string
 	 */
 	public $body;
+
+	public $bodyRaw;
 	
 	/**
 	 * @var string

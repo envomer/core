@@ -74,6 +74,27 @@ class Template extends AbstractDTO
 		return ($this->style && $this->style->$key) ? $this->style->$key : $default;
 	}
 
+	public function addSection(Section $section)
+	{
+		$this->sections[] = $section;
+	}
+
+	public function renderRaw()
+	{
+		$raw = '';
+		foreach ($this->sections as $section) {
+			if($section->title) {
+				$raw .= $section->title . "\n";
+			}
+
+			if($section->paragraphs) {
+				$raw .= implode("\n", $section->paragraphs) . "\n";
+			}
+		}
+
+		return trim(strip_tags($raw));
+	}
+
 	public static function fromMessageDTO(MessageDTO $message)
 	{
 		$body = json_decode($message->body);
