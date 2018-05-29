@@ -87,6 +87,10 @@ class Template extends AbstractDTO
 				$raw .= $section->title . "\n";
 			}
 
+			if($section->link) {
+				$raw .= $section->link . "\n";
+			}
+
 			if($section->paragraphs) {
 				$raw .= implode("\n", $section->paragraphs) . "\n";
 			}

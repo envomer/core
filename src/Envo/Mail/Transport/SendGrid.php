@@ -61,6 +61,8 @@ class SendGrid implements TransportInterface
 		
 		$mail = $this->makeMail();
 		$batches = $this->getRecipientBatches();
+
+		// die(var_dump($mail, $batches, $this->message));
 		
 		$mailer = new SendGridMailer($this->token);
 		$client = $mailer->client;
@@ -68,6 +70,8 @@ class SendGrid implements TransportInterface
 		$responses = [];
 		foreach ($batches as $batch) {
 			$mail->personalization = $batch;
+
+			// TODO validate sendgrid responses
 			
 			$responses[] = $client->mail()->send()->post($mail);
 		}
@@ -92,12 +96,17 @@ class SendGrid implements TransportInterface
 		
 		//$newsletterId = strtotime($newsletter->created_at) . '-' . $newsletter->id;
 		
-		$content = new Content('text/html', $this->message->body);
 		$mail = new SendGridMail();
 		$mail->setFrom($from);
 
 		$mail->setSubject($this->message->subject);
-		$mail->addContent($content);
+
+		if($this->message->bodyRaw) {
+			$mail->addContent(new Content('text/plain', $this->message->bodyRaw));
+		}
+
+		$mail->addContent(new Content('text/html', $this->message->body));
+
 
 		if($this->message->customArguments) {
 			$customArguments = is_array($this->message->customArguments) ? $this->message->customArguments : [$this->message->customArguments];
@@ -179,7 +188,7 @@ class SendGrid implements TransportInterface
 			$personalization = new Personalization();
 			$personalization->addTo($to);
 
-			if($bccArray && count($bccArray) && !$bccArray) {
+			if($bccArray && count($bccArray) && !$bccAdded) {
 				foreach ($bccArray as $bcc) {
 					$personalization->addBcc($bcc);
 				}
