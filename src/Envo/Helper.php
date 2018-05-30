@@ -194,12 +194,18 @@ if(!function_exists('envo_exception_handler'))
 		$trace = true;
 		if ( $error instanceof PublicException ) {
 			http_response_code($error->getCode());
-			$trace = false;
+			// $trace = false;
 		} else {
 			http_response_code(500);
 		}
 
-		// die(var_dump($error->getTraceAsString()));
+		if(!($error instanceof AbstractException)) {
+			$isJson = isset($error->isJson);
+			$error = new \Envo\Exception\InternalException($error->getMessage(), $error->getCode(), $error instanceof \Exception ? $error : null);
+			if($isJson) {
+				$error->isJson = true;
+			}
+		}
 		
 		//TODO: sure about this??
 		// TODO: catch offline database exception?
@@ -217,7 +223,7 @@ if(!function_exists('envo_exception_handler'))
 				}
 				
 			} else if(class_exists(\Envo\Event\Exception::class)) {
-				new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
+				new \Envo\Event\Exception($error->getMessage(), true, null, ['trace' => $error->getTraceAsString()]);
 			}
 		} catch (\Exception $e) {
 			// die(var_dump($e));

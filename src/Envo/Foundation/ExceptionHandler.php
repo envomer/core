@@ -52,13 +52,13 @@ class ExceptionHandler
 		 * 1049: Means database couldn't be found
 		 */
 		if( config('app.events.enabled', false) && ! is_a($e, 'PDOException') &&  $e->getCode() != 2002 && $e->getCode() != 1049 && ! env('APP_TESTING') ) {
-			$event = new \Envo\Event\Exception($code .' '. $requestMethod. ' ', false, null, $message);
+			// $event = new \Envo\Event\Exception($code .' '. $requestMethod. ' ', false, null, $message);
 
-			if( $exception instanceof AbstractException ) {
-				$event->getEvent()->reference = $exception->reference;
-			}
+			// if( $exception instanceof AbstractException ) {
+			// 	$event->getEvent()->reference = $exception->reference;
+			// }
 			
-			$event->save();
+			// $event->save();
 			// $event->notify();
 		}
 
