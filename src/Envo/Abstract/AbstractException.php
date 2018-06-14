@@ -99,7 +99,11 @@ class AbstractException extends Exception
         $message = isset($messages[$code]) ? $messages[$code] : 'api.somethingWentWrong';
 
         try {
-            $message = \_t($this->getMessage());
+            if(strpos($this->getMessage(), '.') !== false) {
+                $message = \_t($this->getMessage());
+            } else {
+                $message = \_t($message);
+            }
         } catch(\Exception $exception) {
             die(var_dump('AbstractException::json', $exception));
         }
