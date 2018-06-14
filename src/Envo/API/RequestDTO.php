@@ -16,8 +16,12 @@ class RequestDTO extends AbstractDTO
 
     public $id;
 
-    public function get($name, $default = null)
+    public function get($name = null, $default = null)
     {
+        if(!$name) {
+            return $this->parameters;
+        }
+
         if(array_key_exists($name, $this->parameters)) {
             return $this->parameters[$name];
         }

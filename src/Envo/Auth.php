@@ -509,4 +509,16 @@ class Auth extends Component
 
 		return false;
 	}
+	
+	/**
+	 * Encrypt the given password
+	 *
+	 * @param string $password
+	 *
+	 * @return string
+	 */
+	public function passwordEncrypt(string $password) : string
+	{
+		return Str::hash($password);
+	}
 }

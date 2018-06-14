@@ -24,6 +24,8 @@ class MessageDTO extends AbstractDTO
 	 * @var string
 	 */
 	public $body;
+
+	public $bodyRaw;
 	
 	/**
 	 * @var string
@@ -36,7 +38,7 @@ class MessageDTO extends AbstractDTO
 	public $cc;
 	
 	/**
-	 * @var string|array
+	 * @var string|array|RecipientDTO[]
 	 */
 	public $to;
 	
@@ -59,6 +61,8 @@ class MessageDTO extends AbstractDTO
 	 * @var string
 	 */
 	public $footer;
+	
+	public $customArguments;
 	
 	/**
 	 * MessageDTO constructor.

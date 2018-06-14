@@ -3,6 +3,7 @@
 namespace Envo\Extension\EmailTemplate;
 
 use Envo\AbstractDTO;
+use Envo\Mail\DTO\MessageDTO;
 
 class Template extends AbstractDTO
 {
@@ -18,6 +19,8 @@ class Template extends AbstractDTO
 	public $unsubscribe;
 	public $excerpt;
 	public $style;
+
+	public $pixelPath;
 	
 	/**
 	 * @todo implement the option to override template
@@ -69,5 +72,42 @@ class Template extends AbstractDTO
 	public function getStyle($key, $default)
 	{
 		return ($this->style && $this->style->$key) ? $this->style->$key : $default;
+	}
+
+	public function addSection(Section $section)
+	{
+		$this->sections[] = $section;
+	}
+
+	public function renderRaw()
+	{
+		$raw = '';
+		foreach ($this->sections as $section) {
+			if($section->title) {
+				$raw .= $section->title . "\n";
+			}
+
+			if($section->link) {
+				$raw .= $section->link . "\n";
+			}
+
+			if($section->paragraphs) {
+				$raw .= implode("\n", $section->paragraphs) . "\n";
+			}
+		}
+
+		return trim(strip_tags($raw));
+	}
+
+	public static function fromMessageDTO(MessageDTO $message)
+	{
+		$body = json_decode($message->body);
+		$template = new self();
+		foreach($body as $section) {
+			$section = new Section($section);
+			$template->sections[] = $section;
+		}
+
+		return $template;
 	}
 }
