@@ -2,6 +2,8 @@
 
 namespace Envo\Support;
 
+use RuntimeException;
+
 class Str
 {
     /**
@@ -26,24 +28,13 @@ class Str
     protected static $studlyCache = [];
 
     /**
-     * Transliterate a UTF-8 value to ASCII.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public static function ascii($value)
-    {
-        return StaticStringy::toAscii($value);
-    }
-
-    /**
      * Convert a value to camel case.
      *
      * @param  string  $value
      * @return string
      */
-    public static function camel($value)
-    {
+    public static function camel($value): string
+	{
         if (isset(static::$camelCache[$value])) {
             return static::$camelCache[$value];
         }
@@ -58,10 +49,10 @@ class Str
      * @param  string|array  $needles
      * @return bool
      */
-    public static function contains($haystack, $needles)
-    {
+    public static function contains($haystack, $needles): bool
+	{
         foreach ((array) $needles as $needle) {
-            if ($needle != '' && strpos($haystack, $needle) !== false) {
+            if ($needle !== '' && strpos($haystack, $needle) !== false) {
                 return true;
             }
         }
@@ -76,10 +67,10 @@ class Str
      * @param  string|array  $needles
      * @return bool
      */
-    public static function endsWith($haystack, $needles)
-    {
+    public static function endsWith($haystack, $needles): bool
+	{
         foreach ((array) $needles as $needle) {
-            if ((string) $needle === substr($haystack, -strlen($needle))) {
+            if ((string) $needle === substr($haystack, - \strlen($needle))) {
                 return true;
             }
         }
@@ -94,8 +85,8 @@ class Str
      * @param  string  $cap
      * @return string
      */
-    public static function finish($value, $cap)
-    {
+    public static function finish($value, $cap): string
+	{
         $quoted = preg_quote($cap, '/');
 
         return preg_replace('/(?:'.$quoted.')+$/', '', $value).$cap;
@@ -130,8 +121,8 @@ class Str
      * @param  string  $value
      * @return int
      */
-    public static function length($value)
-    {
+    public static function length($value): int
+	{
         return mb_strlen($value);
     }
 
@@ -143,13 +134,13 @@ class Str
      * @param  string  $end
      * @return string
      */
-    public static function limit($value, $limit = 100, $end = '...')
-    {
+    public static function limit($value, $limit = 100, $end = '...'): string
+	{
         if (mb_strwidth($value, 'UTF-8') <= $limit) {
             return $value;
         }
 
-        return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')).$end;
+        return rtrim(mb_strimwidth($value, 0, $limit, '', 'UTF-8')) . $end;
     }
 
     /**
@@ -158,8 +149,8 @@ class Str
      * @param  string  $value
      * @return string
      */
-    public static function lower($value)
-    {
+    public static function lower($value): string
+	{
         return mb_strtolower($value, 'UTF-8');
     }
 
@@ -171,11 +162,11 @@ class Str
      * @param  string  $end
      * @return string
      */
-    public static function words($value, $words = 100, $end = '...')
-    {
+    public static function words($value, $words = 100, $end = '...'): string
+	{
         preg_match('/^\s*+(?:\S++\s*+){1,'.$words.'}/u', $value, $matches);
 
-        if (! isset($matches[0]) || strlen($value) === strlen($matches[0])) {
+        if (! isset($matches[0]) || \strlen($value) === \strlen($matches[0])) {
             return $value;
         }
 
@@ -183,39 +174,29 @@ class Str
     }
 
     /**
-     * Parse a Class@method style callback into class and method.
-     *
+	 * Parse a "Class@method" syntax
+	 *
      * @param  string  $callback
      * @param  string  $default
+     *
      * @return array
      */
-    public static function parseCallback($callback, $default)
-    {
+    public static function parseCallback($callback, $default): array
+	{
         return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
     }
-
-    /**
-     * Get the plural form of an English word.
-     *
-     * @param  string  $value
-     * @param  int     $count
-     * @return string
-     */
-    public static function plural($value, $count = 2)
-    {
-        return Pluralizer::plural($value, $count);
-    }
-
-    /**
-     * Generate a more truly "random" alpha-numeric string.
-     *
-     * @param  int  $length
-     * @return string
-     *
-     * @throws \RuntimeException
-     */
-    public static function random($length = 16)
-    {
+	
+	/**
+	 * Generate a more truly "random" alpha-numeric string.
+	 *
+	 * @param  int $length
+	 *
+	 * @return string
+	 *
+	 * @throws \Exception
+	 */
+    public static function random($length = 16): string
+	{
         $string = '';
 
         while (($len = strlen($string)) < $length) {
@@ -228,21 +209,22 @@ class Str
 
         return $string;
     }
-
-    /**
-     * Generate a more truly "random" bytes.
-     *
-     * @param  int  $length
-     * @return string
-     *
-     * @throws \RuntimeException
-     */
-    public static function randomBytes($length = 16)
-    {
+	
+	/**
+	 * Generate a more truly "random" bytes.
+	 *
+	 * @param  int $length
+	 *
+	 * @return string
+	 *
+	 * @throws \Exception
+	 */
+    public static function randomBytes($length = 16): string
+	{
         if (PHP_MAJOR_VERSION >= 7 || defined('RANDOM_COMPAT_READ_BUFFER')) {
             $bytes = random_bytes($length);
-        } elseif (function_exists('openssl_random_pseudo_bytes')) {
-            $bytes = openssl_random_pseudo_bytes($length, $strong);
+        } elseif ( \function_exists('openssl_random_pseudo_bytes')) {
+            $bytes = \openssl_random_pseudo_bytes($length, $strong);
 
             if ($bytes === false || $strong === false) {
                 throw new RuntimeException('Unable to generate random string.');
@@ -288,17 +270,17 @@ class Str
      * @param  string  $userInput
      * @return bool
      */
-    public static function equals($knownString, $userInput)
-    {
-        if (! is_string($knownString)) {
+    public static function equals($knownString, $userInput): bool
+	{
+        if (! \is_string($knownString)) {
             $knownString = (string) $knownString;
         }
 
-        if (! is_string($userInput)) {
+        if (! \is_string($userInput)) {
             $userInput = (string) $userInput;
         }
 
-        if (function_exists('hash_equals')) {
+        if ( \function_exists('hash_equals')) {
             return hash_equals($knownString, $userInput);
         }
 
@@ -311,7 +293,7 @@ class Str
         $result = 0;
 
         for ($i = 0; $i < $knownLength; ++$i) {
-            $result |= (ord($knownString[$i]) ^ ord($userInput[$i]));
+            $result |= (\ord($knownString[ $i]) ^ \ord($userInput[ $i]));
         }
 
         return 0 === $result;
@@ -323,8 +305,8 @@ class Str
      * @param  string  $value
      * @return string
      */
-    public static function upper($value)
-    {
+    public static function upper($value): string
+	{
         return mb_strtoupper($value, 'UTF-8');
     }
 
@@ -334,20 +316,9 @@ class Str
      * @param  string  $value
      * @return string
      */
-    public static function title($value)
-    {
+    public static function title($value): string
+	{
         return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
-    }
-
-    /**
-     * Get the singular form of an English word.
-     *
-     * @param  string  $value
-     * @return string
-     */
-    public static function singular($value)
-    {
-        return Pluralizer::singular($value);
     }
 
     /**
@@ -357,12 +328,13 @@ class Str
      * @param  string  $separator
      * @return string
      */
-    public static function slug($title, $separator = '-')
+    public static function slug($title, $separator = '-') : string
     {
-        $title = static::ascii($title);
+        //$title = static::ascii($title);
+		internal_exception('ASCII method missing. @TODO', 500);
 
         // Convert all dashes/underscores into separator
-        $flip = $separator == '-' ? '_' : '-';
+        $flip = $separator === '-' ? '_' : '-';
 
         $title = preg_replace('!['.preg_quote($flip).']+!u', $separator, $title);
 
@@ -382,7 +354,7 @@ class Str
      * @param  string  $delimiter
      * @return string
      */
-    public static function snake($value, $delimiter = '_')
+    public static function snake($value, $delimiter = '_') : string
     {
         $key = $value.$delimiter;
 
@@ -406,10 +378,10 @@ class Str
      * @param  string|array  $needles
      * @return bool
      */
-    public static function startsWith($haystack, $needles)
+    public static function startsWith($haystack, $needles) : bool
     {
         foreach ((array) $needles as $needle) {
-            if ($needle != '' && strpos($haystack, $needle) === 0) {
+            if ($needle !== '' && strpos($haystack, $needle) === 0) {
                 return true;
             }
         }
@@ -423,8 +395,8 @@ class Str
      * @param  string  $value
      * @return string
      */
-    public static function studly($value)
-    {
+    public static function studly($value): string
+	{
         $key = $value;
 
         if (isset(static::$studlyCache[$key])) {
@@ -444,8 +416,8 @@ class Str
      * @param  int|null  $length
      * @return string
      */
-    public static function substr($string, $start, $length = null)
-    {
+    public static function substr($string, $start, $length = null): string
+	{
         return mb_substr($string, $start, $length, 'UTF-8');
     }
 
@@ -455,8 +427,8 @@ class Str
      * @param  string  $string
      * @return string
      */
-    public static function ucfirst($string)
-    {
+    public static function ucfirst($string): string
+	{
         return static::upper(static::substr($string, 0, 1)).static::substr($string, 1);
     }
 
@@ -472,8 +444,8 @@ class Str
      * Generate customer id
      * one character and 6 digits
      */
-    public static function generateCustomerId()
-    {
+    public static function generateCustomerId(): string
+	{
         $alpha = ucfirst(self::quickRandom(1, true, false));
 
         while ($alpha === 'O') {
@@ -482,34 +454,70 @@ class Str
 
         return $alpha .'-' . self::quickRandom(6, false);
     }
-
-    public static function strposa($haystack, $needle, $offset=0)
-    {
-        if(!is_array($needle)) $needle = array($needle);
+	
+	/**
+	 * @param     $haystack
+	 * @param     $needle
+	 * @param int $offset
+	 *
+	 * @return bool
+	 */
+    public static function strposa($haystack, $needle, $offset = 0): bool
+	{
+        if(!\is_array($needle)) {
+        	$needle = array($needle);
+		}
+		
         foreach($needle as $query) {
-            if(strpos($haystack, $query, $offset) !== false) return true; // stop on first true result
+            if(strpos($haystack, $query, $offset) !== false) {
+            	return true; // stop on first true result
+			}
         }
+		
         return false;
     }
-
-    public static function guid()
-    {
-        if (function_exists('com_create_guid') === true)
-        {
+	
+	/**
+	 * @return string
+	 * @throws \Exception
+	 */
+    public static function guid(): string
+	{
+        if ( \function_exists('com_create_guid') === true) {
             return trim(com_create_guid(), '{}');
         }
 
-        return sprintf('%04X%04X-%04X-%04X-%04X-%04X%04X%04X', mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(16384, 20479), mt_rand(32768, 49151), mt_rand(0, 65535), mt_rand(0, 65535), mt_rand(0, 65535));
+        return sprintf(
+        	'%04X%04X-%04X-%04X-%04X-%04X%04X%04X',
+			\random_int(0, 65535),
+			\random_int(0, 65535),
+			\random_int(0, 65535),
+			\random_int(16384, 20479),
+			\random_int(32768, 49151),
+			\random_int(0, 65535),
+			\random_int(0, 65535),
+			\random_int(0, 65535)
+		);
     }
-
-    public static function base64url_encode($data)
-    { 
+	
+	/**
+	 * @param $data
+	 *
+	 * @return string
+	 */
+    public static function base64url_encode($data): string
+	{
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '='); 
     }
-
+	
+	/**
+	 * @param $data
+	 *
+	 * @return bool|string
+	 */
     public static function base64url_decode($data)
     { 
-        return base64_decode(str_pad(strtr($data, '-_', '+/'), strlen($data) % 4, '=', STR_PAD_RIGHT)); 
+        return base64_decode(str_pad(strtr($data, '-_', '+/'), \strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
 	
 	/**
@@ -517,7 +525,7 @@ class Str
 	 *
 	 * @return string
 	 */
-    public static function cleanDb($input)
+    public static function cleanDb($input) : string
     {
         return htmlentities(trim($input));
     }
@@ -529,32 +537,34 @@ class Str
      * @param array $options
      * @return boolean
      */
-    public static function hash($value, $options = array())
+    public static function hash($value, array $options = array()): bool
 	{
-		$cost = isset($options['rounds']) ? $options['rounds'] : 10;
+		$cost = $options['rounds'] ?? 10;
 		$hash = password_hash($value, PASSWORD_BCRYPT, ['cost' => $cost]);
 	    if ($hash === false) {
-	        throw new RuntimeException('Bcrypt hashing not supported.');
+	        throw new \RuntimeException('Bcrypt hashing not supported.');
 	    }
 	    return $hash;
 	}
-
-    /**
-     * Generate unique id
-     *
-     * @param integer $length
-     * @return string
-     */
-    public static function uniqueId($length = 16)
+	
+	/**
+	 * Generate unique id
+	 *
+	 * @param integer $length
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+    public static function uniqueId($length = 16): string
 	{
-		$d = date ("d");
-		$m = date ("m");
-		$y = date ("Y");
+		$d = date ('d');
+		$m = date ('m');
+		$y = date ('Y');
 		$t = time();
 		$dmt = $d+$m+$y+$t;
-		$ran = rand(0,10000000);
+		$ran = random_int(0,10000000);
 		$dmtran = $dmt+$ran;
-		$un = uniqid();
+		$un = uniqid('', true);
 		$dmtun = $dmt.$un;
 		$mdun = md5($dmtran.$un);
 		if( $length ) {
@@ -570,9 +580,9 @@ class Str
      * @param integer $length
      * @return string
      */
-    public static function identifier($length = 32)
-    {
+    public static function identifier($length = 32): string
+	{
         $time = time();
-        return self::quickRandom(($length - 1) - strlen((string)$time)) . '.' . $time;
+        return self::quickRandom(($length - 1) - \strlen((string)$time)) . '.' . $time;
     }
 }

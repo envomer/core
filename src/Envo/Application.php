@@ -241,7 +241,12 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('view', function () use($config) {
 			$view = new View();
-			$view->setViewsDir([APP_PATH . 'app/Core/views/', APP_PATH . 'app/Core/Template/']);
+			
+			$view->setViewsDir($config->get('view.defaultDirectory', [
+				APP_PATH . 'app/Core/views/',
+				APP_PATH . 'app/Core/Template/'
+			]));
+			
 			$engines = ['.php' => Php::class];
 			if($config->get('view.volt', false)) {
 				$engines['.volt'] = 'volt';
