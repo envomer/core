@@ -59,9 +59,9 @@
     if( isset($error) && env('APP_DEBUG', true) ): ?>
 	<div style="text-align:left; max-width: 1200px; margin: 50px auto 50px; border-left: 4px solid #E75A5C; padding: 20px; font-size: 8pt; background: #f5f5f5">
 		<?php
-			ini_set('xdebug.var_display_max_depth', 10);
-			ini_set('xdebug.var_display_max_children', 256);
-			ini_set('xdebug.var_display_max_data', 1024);
+			//ini_set('xdebug.var_display_max_depth', 10);
+			//ini_set('xdebug.var_display_max_children', 256);
+			//ini_set('xdebug.var_display_max_data', 1024);
 
 			 /** @var \Exception $error */
  			$message = 'Runtime: ' . (microtime(true) - APP_START) . " s\n";
