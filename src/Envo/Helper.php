@@ -347,7 +347,7 @@ if( ! function_exists('public_exception') )
 	 *
 	 * @throws PublicException
 	 */
-	function public_exception($messageCode, $code, $data = null)
+	function public_exception($messageCode, $code = 500, $data = null)
 	{
 		$exception = new \Envo\Exception\PublicException($messageCode, $code);
 		$exception->setData($data);
@@ -368,7 +368,7 @@ if( ! function_exists('internal_exception') )
 	 *
 	 * @throws \Envo\Exception\InternalException
 	 */
-	function internal_exception($messageCode, $code, $data = null)
+	function internal_exception($messageCode, $code = 500, $data = null)
 	{
 		$exception = new \Envo\Exception\InternalException($messageCode, $code);
 		$exception->setData($data);
