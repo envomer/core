@@ -38,7 +38,7 @@ class Template extends AbstractDTO
 	public function render()
 	{
 		ob_start();
-		require_once __DIR__ . '/View/'.$this->template.'/base.php';
+		include __DIR__ . '/View/'.$this->template.'/base.php';
 		$content = ob_get_contents();
 		ob_end_clean();
 		

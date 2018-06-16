@@ -27,7 +27,7 @@
 	<?php // All other clients get the webfont reference; some will render the font and others will silently fail to the fallbacks. More on that here: http://stylecampaign.com/blog/2015/02/webfont-support-in-email/ ?>
 
 	<!--[if !mso]><!-->
-	<!-- insert web font reference, eg: <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'> -->
+	<?php // insert web font reference, eg: <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'> ?>
 	<!--<![endif]-->
 	
 	<!-- Web Font / @font-face : END -->
@@ -232,9 +232,9 @@
             <![endif]-->
 
             <!-- Email Footer : BEGIN -->
-            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px; font-family: sans-serif; color: #888888; font-size: 12px; line-height: 140%;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px; font-family: sans-serif; color: <?php echo $this->getStyle('color', '#222222') ?>; font-size: 12px; line-height: 140%;">
                 <tr>
-                    <td style="padding: 20px 10px 40px; width: 100%; font-family: sans-serif; font-size: 12px; line-height: 140%; text-align: center; color: #888888;" class="x-gmail-data-detectors">
+                    <td style="padding: 20px 10px 40px; width: 100%; font-family: sans-serif; font-size: 12px; line-height: 140%; text-align: center; color: <?php echo $this->getStyle('color', '#222222') ?>;" class="x-gmail-data-detectors">
                         <?php
                         if($this->footer) {
                             echo '<br><br>' . $this->footer;
@@ -243,7 +243,7 @@
 						<?php
 						if($this->unsubscribe) {
 							echo '<br><br>';
-							echo '<unsubscribe style="color: #888888; text-decoration: underline;">unsubscribe</unsubscribe>';
+							echo '<unsubscribe style="color: '. $this->getStyle('color', '#222222') .'; text-decoration: underline;">unsubscribe</unsubscribe>';
 						}
 
 						if($this->pixelPath) {

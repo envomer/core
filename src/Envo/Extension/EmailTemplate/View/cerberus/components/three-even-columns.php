@@ -22,11 +22,11 @@
 									<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
 										<tr>
 											<td>
-												<img src="<?php echo isset($section->images[0]) ? $section->images[0] : 'http://placehold.it/200/222' ?>" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555;">
+												<img src="<?php echo isset($section->images[0]) ? $section->images[0] : 'http://placehold.it/200/222' ?>" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>;">
 											</td>
 										</tr>
 										<tr>
-											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding-top: 10px;" class="stack-column-center">
+											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>; padding-top: 10px;" class="stack-column-center">
 												<?php echo isset($section->paragraphs[0]) ? '<p style="margin: 0;">'. nl2br($section->paragraphs[0]) .'</p>' : '' ?>
 											</td>
 										</tr>
@@ -46,11 +46,11 @@
 									<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
 										<tr>
 											<td>
-												<img src="<?php echo isset($section->images[1]) ? $section->images[1] : 'http://placehold.it/200/222' ?>" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555;">
+												<img src="<?php echo isset($section->images[1]) ? $section->images[1] : 'http://placehold.it/200/222' ?>" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>;">
 											</td>
 										</tr>
 										<tr>
-											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding-top: 10px;" class="stack-column-center">
+											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>; padding-top: 10px;" class="stack-column-center">
 												<?php echo isset($section->paragraphs[1]) ? '<p style="margin: 0;">'. nl2br($section->paragraphs[1]) .'</p>' : '' ?>
 											</td>
 										</tr>
@@ -70,11 +70,11 @@
 									<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="font-size: 14px;text-align: left;">
 										<tr>
 											<td>
-                                                <img src="<?php echo isset($section->images[2]) ? $section->images[2] : 'http://placehold.it/200/333' ?>" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555;">
+                                                <img src="<?php echo isset($section->images[2]) ? $section->images[2] : 'http://placehold.it/200/333' ?>" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>;">
 											</td>
 										</tr>
 										<tr>
-											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; padding-top: 10px;" class="stack-column-center">
+											<td style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>; padding-top: 10px;" class="stack-column-center">
 												<?php echo isset($section->paragraphs[2]) ? '<p style="margin: 0;">'. nl2br($section->paragraphs[2]) .'</p>' : '' ?>
 											</td>
 										</tr>
