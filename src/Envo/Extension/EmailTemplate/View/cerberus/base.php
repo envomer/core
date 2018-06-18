@@ -84,7 +84,8 @@
 			// Create one of these media queries for each additional viewport size you'd like to fix
 			// Thanks to Eric Lepetit @ericlepetitsf) for help troubleshooting
 		?>
-		@media only screen and (min-device-width: 375px) and (max-device-width: 413px) { /* iPhone 6 and 6+ */
+		@media only screen and (min-device-width: 375px) and (max-device-width: 413px) {
+			<?php // iPhone 6 and 6+ ?>
 			.email-container { min-width: 375px !important; }
 		}
 		
@@ -101,7 +102,7 @@
 		.button-td, .button-a { transition: all 100ms ease-in; }
 		.button-td:hover, .button-a:hover { background: #555555 !important; border-color: #555555 !important; }
 		
-		/* Media Queries */
+		<?php // Media Queries ?>
 		@media screen and (max-width: 480px) {
 			<?php // What it does: Forces elements to resize to the full width of their container. Useful for resizing images beyond their max-width. ?>
 			.fluid { width: 100% !important; max-width: 100% !important; height: auto !important; margin-left: auto !important; margin-right: auto !important; }
@@ -109,7 +110,7 @@
 			<?php // What it does: Forces table cells into full-width rows. ?>
 			.stack-column, .stack-column-center { display: block !important; width: 100% !important; max-width: 100% !important; direction: ltr !important; }
 
-			/* And center justify these ones. */
+			<?php // And center justify these ones. ?>
 			.stack-column-center { text-align: center !important; }
 			
 			<?php // What it does: Generic utility class for centering. Useful for images, buttons, and nested tables. ?>
@@ -232,9 +233,9 @@
             <![endif]-->
 
             <!-- Email Footer : BEGIN -->
-            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px; font-family: sans-serif; color: <?php echo $this->getStyle('color', '#222222') ?>; font-size: 12px; line-height: 140%;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px; font-family: sans-serif; color: #eeeeee; font-size: 12px; line-height: 140%;">
                 <tr>
-                    <td style="padding: 20px 10px 40px; width: 100%; font-family: sans-serif; font-size: 12px; line-height: 140%; text-align: center; color: <?php echo $this->getStyle('color', '#222222') ?>;" class="x-gmail-data-detectors">
+                    <td style="padding: 20px 10px 40px; width: 100%; font-family: sans-serif; font-size: 12px; line-height: 140%; text-align: center; color: #eeeeee;" class="x-gmail-data-detectors">
                         <?php
                         if($this->footer) {
                             echo '<br><br>' . $this->footer;
@@ -243,7 +244,7 @@
 						<?php
 						if($this->unsubscribe) {
 							echo '<br><br>';
-							echo '<unsubscribe style="color: '. $this->getStyle('color', '#222222') .'; text-decoration: underline;">unsubscribe</unsubscribe>';
+							echo '<unsubscribe style="color: #eeeeee; text-decoration: underline;">unsubscribe</unsubscribe>';
 						}
 
 						if($this->pixelPath) {
