@@ -392,8 +392,12 @@ class Handler
 		$definition = $definition ? array_flip($definition) : null;
 
 		if( 
-			$this->request->method === 'index' && ($apiTransformation || $definition) && $data && count($data)
+			$this->request->method === 'index' && ($apiTransformation || $definition)
 		) {
+			if(!$data || !count($data)) {
+				return $data;
+			}
+			
 			$result = [];
 			foreach ($data as $item) {
 				$result[] = $context->transformItem($item, $definition);
