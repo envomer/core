@@ -392,7 +392,7 @@ class Handler
 		$definition = $definition ? array_flip($definition) : null;
 
 		if( 
-			$this->request->method === 'index' && ($apiTransformation || $definition) && is_a($data, \Countable::class)
+			$this->request->method === 'index' && ($apiTransformation || $definition) && $data && count($data)
 		) {
 			$result = [];
 			foreach ($data as $item) {
@@ -404,7 +404,7 @@ class Handler
 			//}, $data);
 		}
 		
-		if( $apiTransformation || $definition ) {
+		if( $data && ($apiTransformation || $definition) ) {
 			return $context->transformItem($data, $definition);
 		}
 
