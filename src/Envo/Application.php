@@ -79,7 +79,10 @@ class Application extends \Phalcon\Mvc\Application
 	 */
 	public function initialize()
 	{
-		define('APP_START', microtime(true));
+		if(!defined('APP_START')) {
+			define('APP_START', microtime(true));
+		}
+		
 		require_once 'Helper.php';
 		
 		$this->setup();
@@ -105,6 +108,10 @@ class Application extends \Phalcon\Mvc\Application
 			require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
 		}
 		
+		if(defined('APP_CLI') && APP_CLI) {
+			return true;
+		}
+		
 		if(env('APP_DEBUGBAR', false)) {
 			$this->di->setShared('app', $this);
 			
@@ -119,6 +126,7 @@ class Application extends \Phalcon\Mvc\Application
 			
 			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
 		}
+		
 		
 		try {
 			echo $this->handle()->getContent();
