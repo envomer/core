@@ -10,6 +10,7 @@ use Envo\Foundation\Permission;
 use Envo\Foundation\Router;
 use Envo\Support\Str;
 use Envo\Support\Translator;
+
 use Phalcon\Cache\Backend\File;
 use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Db\Adapter\Pdo\Mysql;
@@ -39,8 +40,14 @@ class Application extends \Phalcon\Mvc\Application
 {
 	//use ApplicationTrait;
 	
+	/**
+	 * @var bool
+	 */
 	public $inMaintenance;
-
+	
+	/**
+	 * @var bool
+	 */
 	public $initialized = false;
 
 	/**
@@ -64,7 +71,7 @@ class Application extends \Phalcon\Mvc\Application
 			$maintenance->retry = $maintenance->retry ?: 60;
 			$maintenance->progress = abs(floor((($maintenance->time + $maintenance->retry) - time())/$maintenance->retry));
 			$maintenance->progress = $maintenance->progress >= 98 ? 98 : $maintenance->progress;
-			require ENVO_PATH . 'View/html/maintenance.php';
+			require ENVO_PATH . 'Envo/View/html/maintenance.php';
 			die;
 		}
 
@@ -143,13 +150,17 @@ class Application extends \Phalcon\Mvc\Application
 	public function registerServices()
 	{
 		$di = new DI();
-		//$di = new FactoryDefault();
 		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG');
 		
 		$this->registerNamespaces($di);
 		
 		$config = new Config();
 		putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
+		
+		$timezone = $config->get('app.timezone');
+		if($timezone) {
+			date_default_timezone_set($timezone);
+		}
 
 		$this->sessionSetup($di, $config);
 
@@ -535,7 +546,7 @@ class Application extends \Phalcon\Mvc\Application
 		 *
 		 * TODO: implement different session types [files, database, etc...found in config('session.driver')]
 		 */
-
+		
 		$di->setShared('session', function () use($config) {
 			$driver = $config->get('session.driver', 'file');
 			
