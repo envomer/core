@@ -394,6 +394,10 @@ class Handler
 		if( 
 			$this->request->method === 'index' && ($apiTransformation || $definition)
 		) {
+			if(!$data || !count($data)) {
+				return $data;
+			}
+			
 			$result = [];
 			foreach ($data as $item) {
 				$result[] = $context->transformItem($item, $definition);
@@ -404,7 +408,7 @@ class Handler
 			//}, $data);
 		}
 		
-		if( $apiTransformation || $definition ) {
+		if( $data && ($apiTransformation || $definition) ) {
 			return $context->transformItem($data, $definition);
 		}
 

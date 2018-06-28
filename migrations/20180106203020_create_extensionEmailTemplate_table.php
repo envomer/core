@@ -12,6 +12,7 @@ class CreateExtensionEmailTemplateTable extends AbstractMigration
      */
     public function up()
     {
+        // TODO move to extension folder
         $this->create('ex_email_templates', function (Table $table) {
             $table->increments('id');
             

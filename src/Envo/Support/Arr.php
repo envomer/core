@@ -551,9 +551,10 @@ class Arr
 	 */
     public static function reference($array, $by, $group = false)
     {
-        if( ! $array ) {
+        if( ! $array || ! count($array) ) {
             return $array;
         }
+		
         $result = array();
         $isObject = isset($array[0]) && is_object($array[0]);
         $isObjectAndHasMethod = $isObject && method_exists($array[0], $by);

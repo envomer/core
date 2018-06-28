@@ -129,9 +129,14 @@ class Translator
 		if( $all && count($search) === 1 ) {
 			return self::$langs[$search[0]];
 		}
-		if( ! isset(self::$langs[$search[0]][$search[1]]) ) {
+		
+		if( ! isset($search[1]) || ! isset(self::$langs[$search[0]]) || ! isset(self::$langs[$search[0]][$search[1]]) ) {
 			return $name;
 		}
+		
+		//$key = substr($name, strlen($search[0]) + 1);
+		//
+		//return Arr::get($this->configs[$search[0]], $key, $default);
 
 		return self::$langs[$search[0]][$search[1]];
 	}

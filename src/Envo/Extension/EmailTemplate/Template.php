@@ -19,6 +19,8 @@ class Template extends AbstractDTO
 	public $unsubscribe;
 	public $excerpt;
 	public $style;
+
+	public $pixelPath;
 	
 	/**
 	 * @todo implement the option to override template
@@ -36,7 +38,7 @@ class Template extends AbstractDTO
 	public function render()
 	{
 		ob_start();
-		require_once __DIR__ . '/View/'.$this->template.'/base.php';
+		include __DIR__ . '/View/'.$this->template.'/base.php';
 		$content = ob_get_contents();
 		ob_end_clean();
 		
@@ -70,6 +72,31 @@ class Template extends AbstractDTO
 	public function getStyle($key, $default)
 	{
 		return ($this->style && $this->style->$key) ? $this->style->$key : $default;
+	}
+
+	public function addSection(Section $section)
+	{
+		$this->sections[] = $section;
+	}
+
+	public function renderRaw()
+	{
+		$raw = '';
+		foreach ($this->sections as $section) {
+			if($section->title) {
+				$raw .= $section->title . "\n";
+			}
+
+			if($section->link) {
+				$raw .= $section->link . "\n";
+			}
+
+			if($section->paragraphs) {
+				$raw .= implode("\n", $section->paragraphs) . "\n";
+			}
+		}
+
+		return trim(strip_tags($raw));
 	}
 
 	public static function fromMessageDTO(MessageDTO $message)

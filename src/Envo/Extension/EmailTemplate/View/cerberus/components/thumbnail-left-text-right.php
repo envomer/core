@@ -23,7 +23,7 @@
 									/** @var \Core\Controller\EmailSection $paragraph */
 									foreach($section->images as $image) {
 									    $src = $image ?: 'http://placehold.it/200';
-										echo '<img src="'.$src.'" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; margin-bottom: 15px">';
+										echo '<img src="'.$src.'" width="200" height="" border="0" alt="alt_text" class="center-on-narrow" style="width: 100%; max-width: 200px; height: auto; background: #dddddd; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #222222; margin-bottom: 15px">';
 									}
 									?>
 								</td>
@@ -37,7 +37,7 @@
 					<div style="display:inline-block; margin: 0 -2px; max-width:66.66%; min-width:320px; vertical-align:top;" class="stack-column">
 						<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 							<tr>
-								<td dir="ltr" style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php echo $section->getStyle('color', '#555555') ?>; padding: 10px 10px 0; text-align: left;" class="center-on-narrow">
+								<td dir="ltr" style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php echo $section->getStyle('color', '#222222') ?>; padding: 10px 10px 0; text-align: left;" class="center-on-narrow">
 									<h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 18px; line-height: 125%; color: <?php echo $section->getStyle('color', '#333333') ?>; font-weight: bold;"><?php echo $section->title ?: '' ?></h2>
 									<?php
 									/** @var \Core\Controller\EmailSection $paragraph */

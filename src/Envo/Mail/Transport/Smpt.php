@@ -23,7 +23,7 @@ class Smpt implements TransportInterface
 	public function send()
 	{
 		/** @var Loader $autoloader */
-		require_once APP_PATH.'vendor/swiftmailer/swiftmailer/lib/swift_required.php';
+		// require_once APP_PATH.'vendor/swiftmailer/swiftmailer/lib/swift_required.php';
 		
 		$host = config('mail.host');
 		$username = config('mail.username');
@@ -40,6 +40,12 @@ class Smpt implements TransportInterface
 		if(!is_array($this->message->to)) {
 			$to = [$this->message->to];
 		}
+
+		foreach ($to as $recipient) {
+			if(!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+				public_exception('validation.emailInvalid', 400);
+			}
+		}
 		
 		$from = [
 			$this->message->from => $this->message->from ?: $this->message->fromName
@@ -50,6 +56,14 @@ class Smpt implements TransportInterface
 		$message->setFrom($from);
 		$message->setTo($to);
 		$message->setBody($this->message->body, 'text/html');
+
+		if($this->message->bcc) {
+			$message->addBcc($this->message->bcc);
+		}
+
+		if($this->message->bodyRaw) {
+			$message->addPart($this->message->bodyRaw, 'text/plain');
+		}
 		
 		if($this->message->attachments) {
 			foreach ($this->message->attachments as $attachment) {

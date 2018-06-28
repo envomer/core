@@ -13,7 +13,7 @@
             if($section->paragraphs):
             ?>
 			<tr>
-				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555; text-align: <?php echo $section->align ?: 'center' ?>;">
+				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>; text-align: <?php echo $section->align ?: 'center' ?>;">
 					<?php
 					/** @var \Core\Controller\EmailSection $paragraph */
 					foreach($section->paragraphs as $paragraph) {
@@ -27,7 +27,7 @@
             if($section->link):
             ?>
 			<tr>
-				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: #555555;">
+				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>;">
 					<!-- Button : BEGIN -->
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: auto;">
 						<tr>

@@ -24,7 +24,7 @@ class MigrationScaffold extends BaseCommand
 	 *
 	 * @var string
 	 */
-	protected $description = 'Scaffold database migrations...(user, teams, ...)';
+	protected $description = 'Scaffold database migrations (user, teams, ...)';
 	
 	/**
 	 * Ask which migration

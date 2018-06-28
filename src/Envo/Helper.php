@@ -194,12 +194,18 @@ if(!function_exists('envo_exception_handler'))
 		$trace = true;
 		if ( $error instanceof PublicException ) {
 			http_response_code($error->getCode());
-			$trace = false;
+			// $trace = false;
 		} else {
 			http_response_code(500);
 		}
 
-		// die(var_dump($error->getTraceAsString()));
+		if(!($error instanceof AbstractException)) {
+			$isJson = isset($error->isJson);
+			$error = new \Envo\Exception\InternalException($error->getMessage(), $error->getCode(), $error instanceof \Exception ? $error : null);
+			if($isJson) {
+				$error->isJson = true;
+			}
+		}
 		
 		//TODO: sure about this??
 		// TODO: catch offline database exception?
@@ -217,7 +223,7 @@ if(!function_exists('envo_exception_handler'))
 				}
 				
 			} else if(class_exists(\Envo\Event\Exception::class)) {
-				new \Envo\Event\Exception($error->getMessage(), true, null, $error->getTraceAsString());
+				new \Envo\Event\Exception($error->getMessage(), true, null, ['trace' => $error->getTraceAsString()]);
 			}
 		} catch (\Exception $e) {
 			// die(var_dump($e));
@@ -341,7 +347,7 @@ if( ! function_exists('public_exception') )
 	 *
 	 * @throws PublicException
 	 */
-	function public_exception($messageCode, $code, $data = null)
+	function public_exception($messageCode, $code = 500, $data = null)
 	{
 		$exception = new \Envo\Exception\PublicException($messageCode, $code);
 		$exception->setData($data);
@@ -362,7 +368,7 @@ if( ! function_exists('internal_exception') )
 	 *
 	 * @throws \Envo\Exception\InternalException
 	 */
-	function internal_exception($messageCode, $code, $data = null)
+	function internal_exception($messageCode, $code = 500, $data = null)
 	{
 		$exception = new \Envo\Exception\InternalException($messageCode, $code);
 		$exception->setData($data);
@@ -398,3 +404,45 @@ if( ! function_exists('uncaught_exception') )
 		return $internal;
 	}
 }
+
+if( ! function_exists('encrypt') )
+{
+	/**
+	 * @param Exception $exception
+	 * @param int       $code
+	 *
+	 * @return \Envo\Exception\InternalException|Exception
+	 */
+	function encrypt($value = null, $key = null)
+	{
+		$crypt = resolve('crypt');
+
+		if($value) {
+			return $crypt->encrypt($value, $key);
+		}
+
+		return $crypt;
+	}
+}
+
+if( ! function_exists('decrypt') )
+{
+	/**
+	 * @param Exception $exception
+	 * @param int       $code
+	 *
+	 * @return \Envo\Exception\InternalException|Exception
+	 */
+	function decrypt($value = null, $key = null)
+	{
+		$crypt = resolve('crypt');
+
+		if($value) {
+			return $crypt->decrypt($value, $key);
+		}
+
+		return $crypt;
+	}
+}
+
+
