@@ -537,7 +537,7 @@ class Str
      * @param array $options
      * @return boolean
      */
-    public static function hash($value, array $options = array()): bool
+    public static function hash($value, array $options = array()): string
 	{
 		$cost = $options['rounds'] ?? 10;
 		$hash = password_hash($value, PASSWORD_BCRYPT, ['cost' => $cost]);
