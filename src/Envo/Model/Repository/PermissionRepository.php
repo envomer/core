@@ -22,7 +22,7 @@ class PermissionRepository extends AbstractRepository
 	public function getByRoleId( $roleId ) : array
 	{
         $select = '
-			SELECT module_id as module, SUM(pow(2,cr.permission_id)) as permission
+			SELECT module_id as module, BIT_OR(pow(2,cr.permission_id)) as permission
 			FROM core_rules cr
 			WHERE cr.role_id IN
 			(
