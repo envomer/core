@@ -240,9 +240,14 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('router', function() use($di, $config, $debug) {
 			$router = new Router(false);
-			$router->apiPrefix = $config->get('app.api.prefix', 'api/v1');
-			$api = $router->api(); // @TODO make the api better
-			$router->setHandler($di->get('apiHandler'));
+			$appConfig = $config->get('app.api', []);
+			
+			if(isset($appConfig['enabled']) && $appConfig['enabled']) {
+				$router->apiPrefix = $appConfig['prefix'] ?? 'api/v1';
+				$api = $router->api(); // @TODO make the api better
+				$router->setHandler($di->get('apiHandler'));
+			}
+
 			require_once APP_PATH . 'app/routes.php';
 			$router->mount($api);
 			$router->extensions();

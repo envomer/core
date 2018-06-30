@@ -17,6 +17,8 @@ class Router extends \Phalcon\Mvc\Router
 	 * @var Handler
 	 */
     private $apiHandler;
+
+    private $group;
 	
 	/**
 	 * @var string
@@ -107,6 +109,8 @@ class Router extends \Phalcon\Mvc\Router
             'action' => 'authenticate',
         ])->setName('api-authenticate');
 
+        $this->group = $api;
+
         return $api;
     }
 	
@@ -116,6 +120,11 @@ class Router extends \Phalcon\Mvc\Router
 	 */
     public function addApi($name, $class)
     {
+        if(strpos($name, '/')) {
+            // die(var_dump($name));
+            $this->addApiGroup($name);
+        }
+
         $this->apiHandler->add($name, $class);
     }
 	
@@ -140,4 +149,52 @@ class Router extends \Phalcon\Mvc\Router
 		
 		$this->apiHandler->add('ex-email-template', API::class);
 	}
+
+    protected function addApiGroup($path)
+    {
+        // die(var_dump($this->group));
+        $this->group->addGet('/'.$path, [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'index'
+        ])->setName($path . '.index');
+        
+        $this->group->addGet('/'.$path.'/{id}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'show',
+            // 'id' => 3,
+            // 'model' => 4
+        ])->setName($path . '.show');
+        
+        $this->group->addPost('/'.$path.'/search', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'index'
+        ])->setName($path . '.search');
+        
+        $this->group->addPost('/'.$path, [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'store'
+        ])->setName($path . '.store');
+        
+        $this->group->add('/'.$path.'/{id}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'update'
+        ], ['POST', 'PUT'])->setName($path . '.update');
+        
+        $this->group->addDelete('/'.$path.'/{id}', [
+            'namespace' => 'Envo\API',
+            'controller' => 'Api',
+            'action' => 'handle',
+            'method' => 'destroy'
+        ])->setName($path . '.destroy');
+    }
 }

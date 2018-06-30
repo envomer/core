@@ -22,12 +22,13 @@ class ApiController extends AbstractController
         $password = $this->get('password');
 
         try {
-            $response = resolve('auth')->check($email, $password);
+            $response = $this->di->get('auth')->check($email, $password);
         } catch (\Exception $exception) {
             return $this->json($exception);
         }
 
         $user = user();
+
         return $this->json([
             'data' => [
                 'api_key' => $user->getApiKey(),
@@ -53,6 +54,15 @@ class ApiController extends AbstractController
         $this->apiHandler = $this->di->get('apiHandler');
         $this->apiHandler->user = $this->user();
 
+        $router = $this->router;
+        $route = $router->getMatchedRoute();
+        $name = null;
+
+        if(strpos($route->getName(), '.') !== false) {
+            $name = str_replace('.' . $method, '', $route->getName());
+            $id = $model;
+        }
+
         $parameters = $this->get();
         $this->apiHandler->request = new RequestDTO($parameters);
         $this->apiHandler->request->parameters = $parameters;
@@ -61,10 +71,11 @@ class ApiController extends AbstractController
         $router = $this->router;
 
         try {
-            $this->apiHandler->setApi();
+            $this->apiHandler->setApi($name);
             if( ! $this->apiHandler->isAuthorized() ) {
                 public_exception('app.unauthorized', 403);
             }
+
             return $this->$method($model, $id);
         }
         catch(\Exception $e) {
