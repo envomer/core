@@ -19,6 +19,10 @@ use Phalcon\Mvc\User\Component;
  */
 class Auth extends Component
 {
+	const TOKEN_NAME = 'auth-identity';
+	const COOKIE_REMEMBER = 'remember_rmu';
+	const COOKIE_TOKEN = 'remember_rmt';
+
 	/**
 	 * @var User
 	 */
@@ -43,10 +47,6 @@ class Auth extends Component
 	 * @var string
 	 */
 	protected $teamClass;
-
-	const TOKEN_NAME = 'auth-identity';
-	const COOKIE_REMEMBER = 'remember_rmu';
-	const COOKIE_TOKEN = 'remember_rmt';
 
 	public $authKey = 'id';
 	
@@ -192,11 +192,13 @@ class Auth extends Component
 				new LoginFailed(['user' => $email]);
 			}
 
-			public_exception('validation.emailOrPasswordWrong', 400);
+			return false;
+			// public_exception('validation.emailOrPasswordWrong', 400);
 		}
 		
 		if( ! $user ) {
-			public_exception('validation.emailOrPasswordWrong', 400);
+			return false;
+			// public_exception('validation.emailOrPasswordWrong', 400);
 		}
 
 		// Check if the user was flagged

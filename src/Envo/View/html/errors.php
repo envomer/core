@@ -69,6 +69,7 @@
  			$message .= 'Memory usage: ' . (memory_get_usage(true)/1024/1024) . " MiB\n";
 
 			$message .= "\n";
+			$message .= "Error: \n";
 			$message .= $error->getMessage(). "\n"
 			 . ' Class: ' . get_class($error) . "\n"
 			 . ' Date:  ' . date('Y-m-d H:i:s') . "\n"
@@ -85,7 +86,7 @@
 		
             if($error instanceof \Envo\AbstractException) {
                 echo "\n\n";
-                var_dump($error->json());
+                echo (new \Phalcon\Debug\Dump())->variables($error->json());
             }
         
             echo '<h3>Request</h3>';
