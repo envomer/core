@@ -9,6 +9,7 @@ use Envo\Database\Console\MigrationRollback;
 use Envo\Database\Console\MigrationStatus;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Foundation\Config;
+use Envo\Foundation\Console\ConfigJsonCommand;
 use Envo\Foundation\Console\BackupCommand;
 use Envo\Foundation\Console\ClearStorageCommand;
 use Envo\Foundation\Console\DownCommand;
@@ -52,6 +53,9 @@ class Console extends \Phalcon\Application
 		//$di = new Di();
 		$di = new FactoryDefault();
 		
+        define('APP_CLI', true);
+        define('ENVO_CLI', true);
+		
 		/** Set config */
 		$di->setShared('config', Config::class);
 	
@@ -60,7 +64,6 @@ class Console extends \Phalcon\Application
         $this->registerServices();
         $this->setupConfig();
 
-        define('APP_CLI', true);
 	
 		if( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
 			$this->registerDatabases($di);
@@ -70,6 +73,7 @@ class Console extends \Phalcon\Application
 
         //$app->add((new SeedRun())->setName('seed'));
 
+        $app->add(new ConfigJsonCommand);
         $app->add(new DownCommand);
         $app->add(new UpCommand);
         $app->add(new ClearStorageCommand);
@@ -95,6 +99,7 @@ class Console extends \Phalcon\Application
 		$namespaces = [
 			'Envo' => ENVO_PATH
 		];
+		
 		$loader->registerNamespaces($namespaces);
 		$loader->register();
 	}

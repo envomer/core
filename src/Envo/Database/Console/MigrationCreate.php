@@ -28,7 +28,7 @@ class MigrationCreate extends BaseCommand
 	 * Execute the console command.
 	 *
 	 * @return void
-	 * @throws \Symfony\Component\Console\Exception\InvalidArgumentException
+	 * @throws \Exception
 	 */
     public function handle()
     {
@@ -66,10 +66,12 @@ class MigrationCreate extends BaseCommand
 	/**
 	 * Write the migration file to disk.
 	 *
-	 * @param  string  $name
-	 * @param  string  $table
-	 * @param  bool    $create
+	 * @param  string $name
+	 * @param  string $table
+	 * @param  bool $create
+	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	protected function writeMigration($name, $table, $create)
 	{
@@ -87,6 +89,7 @@ class MigrationCreate extends BaseCommand
 	 * @param $create
 	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	protected function create($name, $path, $table, $create)
 	{

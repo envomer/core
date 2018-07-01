@@ -83,26 +83,28 @@
 
             echo $error->getTraceAsString();
 
+            $debug = (new \Phalcon\Debug\Dump());
+
 		
             if($error instanceof \Envo\AbstractException) {
                 echo "\n\n";
-                echo (new \Phalcon\Debug\Dump())->variables($error->json());
+                echo $debug->variables($error->json());
             }
         
             echo '<h3>Request</h3>';
-			var_dump($_REQUEST);
+			echo $debug->variables($_REQUEST);
 			
 		    echo '<h3>Server</h3>';
-			var_dump($_SERVER);
+			echo $debug->variables($_SERVER);
 		
             echo '<h3>Included files</h3>';
-            print_r(get_included_files());
+            echo $debug->variables(get_included_files());
 		
 		    echo '<h3>Event manager</h3>';
-            var_dump(resolve('eventsManager')->getResponses());
+            echo $debug->variables(resolve('eventsManager')->getResponses());
 		
 		    echo '<h3>Profiles</h3>';
-            var_dump(resolve('profiler')->getProfiles());
+            echo $debug->variables(resolve('profiler')->getProfiles());
 
             //  foreach($error->getTrace() as $trace) {
             //      echo isset($trace['class']) ? $trace['class'] : '';

@@ -24,13 +24,18 @@ class Config
 	{
 		$search = explode('.', $name);
 		if( ! isset($this->configs[$search[0]]) ) {
-			$file = APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
+			if(file_exists(APP_PATH . 'bootstrap/cache/config.php')) {
+				$this->configs = require_once APP_PATH . 'bootstrap/cache/config.php';
+			} else {
+				$file = APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
 
-			if(!file_exists($file)) {
-				return $default;
+				if(!file_exists($file)) {
+					return $default;
+				}
+
+				$this->configs[$search[0]] = require_once $file;
 			}
 
-			$this->configs[$search[0]] = require_once $file;
 		}
 
 		if( count($search) == 1 ) {
@@ -56,6 +61,19 @@ class Config
 		$database = $this->get('database');
 		$connection = $database['connections'][$database['default']];
 		return $connection;
+	}
+
+	public function all()
+	{
+		$files = glob(APP_PATH . self::CONFIG_PATH . '*.php');
+
+		$output = [];
+		foreach ($files as $file) {
+			$name = basename($file, '.php');
+			$output[$name] = include $file;
+		}
+
+		return $output;
 	}
 
 }

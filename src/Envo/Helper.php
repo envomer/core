@@ -307,9 +307,13 @@ if( ! function_exists('resolve') )
  */
 if( ! function_exists('config') )
 {
-	function config($name, $default = null)
+	function config($name = null, $default = null)
 	{
-		return resolve('config')->get($name, $default);
+		$config = resolve('config');
+		if(!$name) {
+			return $config;
+		}
+		return $config->get($name, $default);
 	}
 }
 
