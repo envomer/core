@@ -228,6 +228,10 @@ if(!function_exists('envo_exception_handler'))
 		} catch (\Exception $e) {
 			// die(var_dump($e));
 		}
+
+		if(defined('APP_CLI') && APP_CLI) {
+			die(var_dump($error->getMessage()));
+		}
 		
 		require_once __DIR__ . '/View/html/errors.php';
 		exit;

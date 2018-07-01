@@ -197,4 +197,9 @@ class Router extends \Phalcon\Mvc\Router
             'method' => 'destroy'
         ])->setName($path . '.destroy');
     }
+
+    public function setRoutes($routes)
+    {
+        $this->routes = $routes;
+    }
 }

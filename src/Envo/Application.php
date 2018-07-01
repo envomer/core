@@ -239,7 +239,18 @@ class Application extends \Phalcon\Mvc\Application
 		 * Register the router
 		 */
 		$di->setShared('router', function() use($di, $config, $debug) {
+
 			$router = new Router(false);
+			$router->removeExtraSlashes(true);
+			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
+
+			if(file_exists(APP_PATH . 'bootstrap/cache/routes.php')) {
+				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';
+				$router->setRoutes($routes);
+				
+				return $router;
+			}
+
 			$appConfig = $config->get('app.api', []);
 			
 			if(isset($appConfig['enabled']) && $appConfig['enabled']) {
@@ -251,9 +262,6 @@ class Application extends \Phalcon\Mvc\Application
 			require_once APP_PATH . 'app/routes.php';
 			$router->mount($api);
 			$router->extensions();
-
-			$router->removeExtraSlashes(true);
-			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
 
 			return $router;
 		});
@@ -376,8 +384,10 @@ class Application extends \Phalcon\Mvc\Application
 		set_exception_handler('envo_exception_handler');
 		set_error_handler('envo_error_handler');
 		ini_set('error_log', APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W').'.log');
-		
-		define('ENVO_PATH', __DIR__ . '/../');
+	
+		if(!defined('ENVO_PATH')) {
+			define('ENVO_PATH', __DIR__ . '/../');
+		}
 		
 		if( ! defined('APP_PATH') ) {
 			throw new \Exception('app.appPathNotDefined', 500);
