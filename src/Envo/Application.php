@@ -294,6 +294,7 @@ class Application extends \Phalcon\Mvc\Application
 					'autoescape' => $voltConfig['autoescape'] ?? false,
 				]);
 				
+				// TODO: we need to move the volt functions. causes trouble with config:cache command (closures)!!
 				$compiler = $volt->getCompiler();
 				if(isset($voltConfig['functions']) && is_array($voltConfig['functions'])) {
 					foreach ($voltConfig['functions'] as $functionName => $function) {

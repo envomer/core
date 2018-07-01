@@ -10,6 +10,8 @@ class Config
 	
 	protected $configs = [];
 
+	protected $cached;
+
 	/**
 	 * Get configuation item using dot notation
 	 * eg: app.user will extract the information from
@@ -26,6 +28,7 @@ class Config
 		if( ! isset($this->configs[$search[0]]) ) {
 			if(file_exists(APP_PATH . 'bootstrap/cache/config.php')) {
 				$this->configs = require_once APP_PATH . 'bootstrap/cache/config.php';
+				$this->cached = true;
 			} else {
 				$file = APP_PATH . self::CONFIG_PATH . $search[0] . '.php';
 
@@ -35,7 +38,6 @@ class Config
 
 				$this->configs[$search[0]] = require_once $file;
 			}
-
 		}
 
 		if( count($search) == 1 ) {
@@ -63,8 +65,12 @@ class Config
 		return $connection;
 	}
 
-	public function all()
+	public function all($fresh = false)
 	{
+		if(! $fresh && $this->cached ) {
+			return $this->configs;
+		}
+
 		$files = glob(APP_PATH . self::CONFIG_PATH . '*.php');
 
 		$output = [];
@@ -73,7 +79,8 @@ class Config
 			$output[$name] = include $file;
 		}
 
-		return $output;
+		$this->cached = true;
+		return $this->configs = $output;
 	}
 
 }

@@ -3,6 +3,7 @@
 namespace Envo\Foundation\Console;
 
 use Envo\Console\Command;
+use Envo\Support\File;
 
 class ClearStorageCommand extends Command
 {
@@ -50,6 +51,9 @@ class ClearStorageCommand extends Command
 			$this->unlinkFolder('framework/logs/events', '*.log');
 			$this->line('Cleared events.');
 		}
+
+		File::delete(APP_PATH . 'bootstrap/cache/config.php');
+		$this->line('Cleared cached config.');
 
 		$this->unlinkFolder('framework/cache');
 		$this->line('Cleared cache.');

@@ -10,6 +10,8 @@ use Envo\Database\Console\MigrationStatus;
 use Envo\Foundation\ApplicationTrait;
 use Envo\Foundation\Config;
 use Envo\Foundation\Console\ConfigJsonCommand;
+use Envo\Foundation\Console\ConfigCacheCommand;
+use Envo\Foundation\Console\ConfigClearCommand;
 use Envo\Foundation\Console\BackupCommand;
 use Envo\Foundation\Console\ClearStorageCommand;
 use Envo\Foundation\Console\DownCommand;
@@ -74,6 +76,8 @@ class Console extends \Phalcon\Application
         //$app->add((new SeedRun())->setName('seed'));
 
         $app->add(new ConfigJsonCommand);
+        $app->add(new ConfigCacheCommand);
+        $app->add(new ConfigClearCommand);
         $app->add(new DownCommand);
         $app->add(new UpCommand);
         $app->add(new ClearStorageCommand);
@@ -99,7 +103,7 @@ class Console extends \Phalcon\Application
 		$namespaces = [
 			'Envo' => ENVO_PATH
 		];
-		
+
 		$loader->registerNamespaces($namespaces);
 		$loader->register();
 	}
