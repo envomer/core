@@ -1,0 +1,139 @@
+<?php
+
+namespace DummyNamespace;
+
+use Core\DTO\UserDTO;
+use Core\Events\UserUpdated;
+use Core\Events\UserCreated;
+use Envo\AbstractAPI;
+use Envo\Support\Date;
+use Envo\Support\Str;
+use Phalcon\Mvc\Model\Query\Builder;
+
+/**
+ * Class User
+ * @package DummyNamespace
+ * @property UserDTO $dto
+ * @property \Core\Model\User $user
+ * @property \Core\Model\User $model
+ */
+class DummyClass extends AbstractAPI
+{
+	/**
+	 * @return void
+	 */
+	public function init()
+	{
+
+	}
+
+	/**
+	 * @return array
+	 */
+	public function config()
+	{
+		return [];
+	}
+
+	/**
+	 * @return bool
+	 */
+	public function authorize()
+	{
+		return $this->user->isLoggedIn();
+	}
+
+	/**
+	 * @param Builder $builder
+	 */
+	public function index($builder)
+	{
+
+	}
+
+	/**
+	 * @param Builder $builder
+	 * @param         $id
+	 */
+	public function show($builder, $id)
+	{
+
+	}
+
+	/**
+	 * Pre update hook
+	 * @throws \Envo\Exception\PublicException
+	 */
+	public function preUpdate()
+	{
+		$exists = $this->model->repo()->where('name = :name:', [
+			'name' => $this->dto->name,
+		])->getOne();
+
+		if($exists && $this->model->getId() !== $exists->getId()) {
+			public_exception('validation.exists', 409);
+		}
+
+		$this->model->updated_at = Date::now();
+	}
+
+	/**
+	 * @throws \Envo\Exception\PublicException
+	 */
+	public function preCreate()
+	{
+		$exists = $this->model->repo()->where('name = :name:', [
+			'name' => $this->dto->name,
+		])->getOne();
+
+		if($exists) {
+			public_exception('validation.exists', 409);
+		}
+
+		$this->model->created_at = Date::now();
+	}
+
+	/**
+	 * @return void
+	 */
+	public function prePersist()
+	{
+
+	}
+
+	/**
+	 * Post create hook
+	 */
+	public function postCreate()
+	{
+		new UserCreated(null, true, $this->model, $this->dto);
+	}
+
+	/**
+	 * Post create hook
+	 */
+	public function postUpdate()
+	{
+		new UserUpdated(null, true, $this->model, $this->dto);
+	}
+
+	/**
+	 * @param \CashRegister\Model\InvoiceTag|\stdClass $model
+	 * @param array $definition
+	 *
+	 * @return UserDTO
+	 */
+	public function transformItem($model, $definition)
+	{
+		return new UserDTO($model);
+	}
+
+	/**
+	 * @return array
+	 * @throws \Envo\Exception\PublicException
+	 */
+	public function validate()
+	{
+		return [];
+	}
+}

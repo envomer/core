@@ -131,6 +131,7 @@ class MigrationCreate extends BaseCommand
 		
 		return File::get($this->stubPath()."/{$stub}");
 	}
+	
 	/**
 	 * Populate the place-holders in the migration stub.
 	 *

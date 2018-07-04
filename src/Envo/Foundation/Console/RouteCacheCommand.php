@@ -25,8 +25,8 @@ class RouteCacheCommand extends Command
 
 	public function handle()
 	{
-		$this->warn('Coming soon');
-		return true;
+		//$this->warn('Coming soon');
+		//return true;
 
 		$path = APP_PATH . 'bootstrap/cache/routes.php';
 

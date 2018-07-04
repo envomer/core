@@ -28,6 +28,7 @@ use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Model;
 use Phalcon\Mvc\Model\Manager as ModelManager;
 use Phalcon\Mvc\Model\Metadata\Files;
+use Phalcon\Mvc\Router\Route;
 use Phalcon\Mvc\Url;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Php;
@@ -239,12 +240,12 @@ class Application extends \Phalcon\Mvc\Application
 		 * Register the router
 		 */
 		$di->setShared('router', function() use($di, $config, $debug) {
-
 			$router = new Router(false);
 			$router->removeExtraSlashes(true);
 			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
 
 			if(file_exists(APP_PATH . 'bootstrap/cache/routes.php')) {
+				/** @var Route[] $routes */
 				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';
 				$router->setRoutes($routes);
 				
@@ -262,7 +263,7 @@ class Application extends \Phalcon\Mvc\Application
 			require_once APP_PATH . 'app/routes.php';
 			$router->mount($api);
 			$router->extensions();
-
+			
 			return $router;
 		});
 

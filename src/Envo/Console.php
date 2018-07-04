@@ -12,6 +12,8 @@ use Envo\Foundation\Config;
 use Envo\Foundation\Console\ConfigJsonCommand;
 use Envo\Foundation\Console\ConfigClearCommand;
 use Envo\Foundation\Console\ConfigCacheCommand;
+use Envo\Foundation\Console\FuseStartCommand;
+use Envo\Foundation\Console\MakeAPICommand;
 use Envo\Foundation\Console\RouteCacheCommand;
 use Envo\Foundation\Console\RouteClearCommand;
 use Envo\Foundation\Console\BackupCommand;
@@ -19,6 +21,8 @@ use Envo\Foundation\Console\ClearStorageCommand;
 use Envo\Foundation\Console\DownCommand;
 use Envo\Database\Console\MigrationScaffold;
 use Envo\Foundation\Console\UpCommand;
+use Envo\Fuse\Console\InstallCommand;
+use Envo\Fuse\Console\StartCommand;
 use Envo\Queue\Console\WorkCommand;
 use Envo\Support\Str;
 
@@ -54,11 +58,20 @@ class Console extends \Phalcon\Application
 	 */
     public function start()
     {
+    	$name = 'envome';
+    	$version = '0.2.0';
 		//$di = new Di();
 		$di = new FactoryDefault();
 		
         define('APP_CLI', true);
         define('ENVO_CLI', true);
+        
+        $inFuseMode = getenv('FUSE_CLI');
+		if($inFuseMode) {
+			define('FUSE_CLI', true);
+			$name = 'Burning ' . $name;
+			$version = '0.0.1';
+		}
 		
 		/** Set config */
 		$di->setShared('config', Config::class);
@@ -73,10 +86,9 @@ class Console extends \Phalcon\Application
 			$this->registerDatabases($di);
 		}
 
-        $app = new Application('envome', '0.2.0');
-
+        $app = new Application($name, $version);
+		
         //$app->add((new SeedRun())->setName('seed'));
-
         $app->add(new ConfigJsonCommand);
         $app->add(new ConfigCacheCommand);
         $app->add(new ConfigClearCommand);
@@ -93,6 +105,12 @@ class Console extends \Phalcon\Application
 		$app->add(new MigrationRollback);
 		$app->add(new MigrationStatus);
 		$app->add(new MigrationCreate);
+		$app->add(new MakeAPICommand);
+	
+		if($inFuseMode) {
+			$app->add(new StartCommand);
+			$app->add(new InstallCommand);
+		}
 		
         $app->run();
     }

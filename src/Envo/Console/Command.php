@@ -216,6 +216,7 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
         if ( null === $key ) {
             return $this->input->getArguments();
         }
+		
         return $this->input->getArgument($key);
     }
 	
