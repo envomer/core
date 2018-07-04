@@ -199,27 +199,16 @@ class Router extends \Phalcon\Mvc\Router
     }
 	
 	/**
-	 * @param $routes
-	 *
-	 * @return void
-	 */
-    public function setRoutes($routes)
-    {
-		$this->_routes = $routes;
-		$this->routes = $routes;
-    }
-	
-	/**
 	 * @param $cached
 	 *
 	 * @return void
 	 */
 	public function import($cached)
 	{
-		$this->setRoutes($cached['routes'] ?? []);
+		$this->_routes = $cached['routes'] ?? [];
 		$this->_removeExtraSlashes = $cached['removeExtraSlashes'] ?? false;
-		$this->apiPrefix = $cached['apiPrefix'] ?? false;
-		$this->notFoundPaths = $cached['notFoundPaths'] ?? false;
+		$this->apiPrefix = $cached['apiPrefix'] ?? '';
+		$this->notFoundPaths = $cached['notFoundPaths'] ?? [];
 	}
 	
 	/**
