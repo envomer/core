@@ -197,9 +197,42 @@ class Router extends \Phalcon\Mvc\Router
             'method' => 'destroy'
         ])->setName($path . '.destroy');
     }
-
+	
+	/**
+	 * @param $routes
+	 *
+	 * @return void
+	 */
     public function setRoutes($routes)
     {
-        $this->routes = $routes;
+		$this->_routes = $routes;
+		$this->routes = $routes;
     }
+	
+	/**
+	 * @param $cached
+	 *
+	 * @return void
+	 */
+	public function import($cached)
+	{
+		$this->setRoutes($cached['routes'] ?? []);
+		$this->_removeExtraSlashes = $cached['removeExtraSlashes'] ?? false;
+		$this->apiPrefix = $cached['apiPrefix'] ?? false;
+		$this->notFoundPaths = $cached['notFoundPaths'] ?? false;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function export()
+	{
+		return [
+			'routes' => $this->_routes,
+			'apiPrefix' => $this->apiPrefix,
+			'notFoundPaths' => $this->_notFoundPaths,
+			'removeExtraSlashes' => $this->_removeExtraSlashes,
+			'apis' => $this->apiHandler->apis
+		];
+	}
 }

@@ -245,9 +245,12 @@ class Application extends \Phalcon\Mvc\Application
 			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
 
 			if(file_exists(APP_PATH . 'bootstrap/cache/routes.php')) {
-				/** @var Route[] $routes */
 				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';
-				$router->setRoutes($routes);
+				$router->import($routes);
+				
+				if(isset($routes['apis']) && $routes['apis']) {
+					$di->get('apiHandler')->setApis($routes['apis']);
+				}
 				
 				return $router;
 			}

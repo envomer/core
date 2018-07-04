@@ -470,4 +470,14 @@ class Handler
 
 		return [];
 	}
+	
+	/**
+	 * @param array $apis
+	 *
+	 * @return void
+	 */
+	public function setApis($apis)
+	{
+		$this->apis = $apis;
+	}
 }

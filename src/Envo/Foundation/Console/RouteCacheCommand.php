@@ -4,6 +4,7 @@ namespace Envo\Foundation\Console;
 
 use Envo\Console\Command;
 use Envo\Foundation\Event\DatabaseBackupGenerated;
+use Envo\Foundation\Router;
 use Envo\Support\System;
 use Envo\Support\File;
 
@@ -35,18 +36,10 @@ class RouteCacheCommand extends Command
 		$application = new \Envo\Application();
 		$application->initialize();
 
+		/** @var Router $router */
 		$router = $application->di->get('router');
-
-		$routes = $router->getRoutes();
-		$data = [];
-		foreach ($routes as $key => $route) {
-			// die(var_dump($route));
-			$data[] = $route;
-		}
-
-		// die(var_dump($data));
-
-		$data = base64_encode(serialize($data));
+		
+		$data = base64_encode(serialize($router->export()));
 
 		File::put($path, "<?php\n return unserialize(base64_decode('".$data."'));" . PHP_EOL);
 
