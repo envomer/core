@@ -14,6 +14,7 @@ import (
 
 // Init initializes the whole app
 func main() {
+
 	defer func() {
 		if e := recover(); e != nil {
 			now := time.Now().String()

@@ -2,15 +2,60 @@ package cli
 
 import (
 	"fmt"
+	"io"
 	"os"
+	"os/exec"
 
 	"envo.me/Fuse/app"
 	"serverbeats.com/beats/logging"
 
+	"github.com/kr/pty"
 	"github.com/urfave/cli"
 )
 
 func Init() {
+	// auth.IsAuthorized(c) // TODO: enable
+	// app.Start(true)
+	// litter.Dump(c.Command)
+
+	phpPath := "/usr/local/bin/php"
+	envoPath := "/Users/anx/Code/appic/envo"
+	cmd := exec.Command(phpPath, envoPath)
+
+	// cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stdin = os.Stdin
+
+	// out, err := cmd.Output()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.Println(string(out))
+
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	log.Fatalf("cmd.Run() failed with %s\n", err)
+	// }
+	// fmt.Printf("combined out:\n%s\n", string(out))
+
+	// cmd := exec.Command("grep", "--color=auto", "bar")
+	f, err := pty.Start(cmd)
+	if err != nil {
+		panic(err)
+	}
+	// Make sure to close the pty at the end.
+	defer func() { _ = f.Close() }() // Best effort.
+
+	// go func() {
+	// 	f.Write([]byte("foo\n"))
+	// 	f.Write([]byte("bar\n"))
+	// 	f.Write([]byte("baz\n"))
+	// 	f.Write([]byte{4}) // EOT
+	// }()
+	io.Copy(os.Stdout, f)
+}
+
+func InitCli() {
 	cliApp := cli.NewApp()
 	cliApp.Name = "Fuse"
 	cliApp.Description = "Ignite the fire within your app"
@@ -24,11 +69,55 @@ func Init() {
 	cliApp.Run(os.Args)
 }
 
-func start(c *cli.Context) error {
+func perform(c *cli.Context) error {
 	// auth.IsAuthorized(c) // TODO: enable
-	app.Start(true)
+	// app.Start(true)
+	// litter.Dump(c.Command)
+
+	phpPath := "/usr/local/bin/php"
+	envoPath := "/Users/anx/Code/appic/envo"
+	cmd := exec.Command(phpPath, envoPath)
+
+	// cmd.Stderr = os.Stderr
+	// cmd.Stdout = os.Stdout
+	// cmd.Stdin = os.Stdin
+
+	// out, err := cmd.Output()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// log.Println(string(out))
+
+	// out, err := cmd.CombinedOutput()
+	// if err != nil {
+	// 	log.Fatalf("cmd.Run() failed with %s\n", err)
+	// }
+	// fmt.Printf("combined out:\n%s\n", string(out))
+
+	// cmd := exec.Command("grep", "--color=auto", "bar")
+	f, err := pty.Start(cmd)
+	if err != nil {
+		panic(err)
+	}
+
+	// go func() {
+	// 	f.Write([]byte("foo\n"))
+	// 	f.Write([]byte("bar\n"))
+	// 	f.Write([]byte("baz\n"))
+	// 	f.Write([]byte{4}) // EOT
+	// }()
+	io.Copy(os.Stdout, f)
 
 	return nil
+}
+
+func checkLsExists() {
+	path, err := exec.LookPath("ls")
+	if err != nil {
+		fmt.Printf("didn't find 'ls' executable\n")
+	} else {
+		fmt.Printf("'ls' executable is in '%s'\n", path)
+	}
 }
 
 // Override cli layout
@@ -75,7 +164,7 @@ func add(cliApp *cli.App) {
 				cli.BoolFlag{Name: "verbose"},
 				cli.StringFlag{Name: "token"},
 			},
-			Action: start,
+			Action: perform,
 		},
 	}
 
@@ -84,7 +173,7 @@ func add(cliApp *cli.App) {
 		// Category: "app",
 		// Aliases: []string{"t"},
 		Usage:  "Put the application into maintenance mode",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -92,7 +181,7 @@ func add(cliApp *cli.App) {
 		// Category: "app",
 		// Aliases: []string{"t"},
 		Usage:  "Bring the application out of maintenance mode",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -100,7 +189,7 @@ func add(cliApp *cli.App) {
 		// Category: "app",
 		// Aliases: []string{"t"},
 		Usage:  "Run the database migrations",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -108,7 +197,7 @@ func add(cliApp *cli.App) {
 		Category: "config",
 		// Aliases: []string{"t"},
 		Usage:  "Cache app config",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -116,7 +205,7 @@ func add(cliApp *cli.App) {
 		Category: "config",
 		// Aliases: []string{"t"},
 		Usage:  "Clear cached configuration",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -124,7 +213,7 @@ func add(cliApp *cli.App) {
 		Category: "config",
 		// Aliases: []string{"t"},
 		Usage:  "Return config as JSON",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -132,7 +221,7 @@ func add(cliApp *cli.App) {
 		Category: "make",
 		// Aliases: []string{"t"},
 		Usage:  "Generate a migration",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -140,7 +229,7 @@ func add(cliApp *cli.App) {
 		Category: "make",
 		// Aliases: []string{"t"},
 		Usage:  "Generate an API endpoint (API class, model, events, DTO)",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -148,7 +237,7 @@ func add(cliApp *cli.App) {
 		Category: "make",
 		// Aliases: []string{"t"},
 		Usage:  "Generate a model",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -156,7 +245,7 @@ func add(cliApp *cli.App) {
 		Category: "migrate",
 		// Aliases: []string{"t"},
 		Usage:  "Run the database migrations",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -164,7 +253,7 @@ func add(cliApp *cli.App) {
 		Category: "migrate",
 		// Aliases: []string{"t"},
 		Usage:  "Rollback last database migration",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -172,7 +261,7 @@ func add(cliApp *cli.App) {
 		Category: "migrate",
 		// Aliases: []string{"t"},
 		Usage:  "Scaffold database migrations (user, teams, ...)",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -180,7 +269,7 @@ func add(cliApp *cli.App) {
 		Category: "migrate",
 		// Aliases: []string{"t"},
 		Usage:  "See the status of your migrations",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -188,7 +277,7 @@ func add(cliApp *cli.App) {
 		Category: "route",
 		// Aliases: []string{"t"},
 		Usage:  "Cache app routes",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -196,7 +285,7 @@ func add(cliApp *cli.App) {
 		Category: "route",
 		// Aliases: []string{"t"},
 		Usage:  "Clear cached routes",
-		Action: start,
+		Action: perform,
 	})
 
 	cliApp.Commands = append(cliApp.Commands, cli.Command{
@@ -204,6 +293,6 @@ func add(cliApp *cli.App) {
 		Category: "storate",
 		// Aliases: []string{"t"},
 		Usage:  "Clear storage folder data",
-		Action: start,
+		Action: perform,
 	})
 }

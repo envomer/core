@@ -1,10 +1,46 @@
 #!/usr/bin/env php
 <?php
+/*
+|--------------------------------------------------------------------------
+| Register The Auto Loader
+|--------------------------------------------------------------------------
+|
+| Composer provides a convenient, automatically generated class loader
+| for our application. We just need to utilize it! We'll require it
+| into the script here so that we do not have to worry about the
+| loading of any our classes "manually". Feels great to relax.
+|
+*/
+date_default_timezone_set('Europe/Vienna');
+
+/**
+ * This file must be loaded before composer
+ * because laravel overrides default
+ * methods if it is auto loaded via composer
+ */
+require_once 'vendor/envome/core/src/Envo/Helper.php';
+
+
 
 require __DIR__ . DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
 
 define('APP_PATH', __DIR__ . '/');
 
+$loader = new \Phalcon\Loader();
+$namespaces = [];
+$namespaces['Envo'] = [
+	APP_PATH . 'vendor/envome/core/src/Envo',
+	APP_PATH . 'vendor/envome/core/src/Envo/Abstract'
+];
+//$namespaces['Symfony\Component\Console'] = APP_PATH . 'vendor/src/symfony/console';
+
+$loader->registerNamespaces($namespaces);
+$loader->register();
+
 $console = new \Envo\Console($argv);
 
-$console->start();
+try {
+	$console->start();
+} catch(\Exception $e) {
+	die(var_dump($e));
+}
