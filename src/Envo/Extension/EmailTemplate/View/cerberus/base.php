@@ -215,7 +215,7 @@
     <!-- Full Bleed Background Section : END -->
     
 
-    <?php if($this->footer || $this->pixelPath): ?>
+    <?php if($this->footer): ?>
     <div style="width: 100%; background: <?php echo '#e4e4e4' ?: '#222222' ?>; text-align: left; text-align: center;">
     	<?php
         /**
@@ -246,10 +246,6 @@
 							echo '<br><br>';
 							echo '<unsubscribe style="color: #eeeeee; text-decoration: underline;">unsubscribe</unsubscribe>';
 						}
-
-						if($this->pixelPath) {
-							echo '<img width="1" height="1" src="'. $this->pixelPath . '" style="display: inline-block; width: 1px; height: 1px;" />';
-						}
 						?>
                     </td>
                 </tr>
@@ -266,6 +262,10 @@
 
 	<?php
 	endif;
+
+	if($this->pixelPath) {
+		echo '<img width="1" height="1" src="'. $this->pixelPath . '" style="display: inline-block; width: 1px; height: 1px;" />';
+	}
     //include 'components/full-bleed-background.php';
     ?>
 
