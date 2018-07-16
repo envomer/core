@@ -16,13 +16,44 @@ class Section extends AbstractDTO
 	const TYPE_THUMBNAIL_LEFT_TEXT_RIGHT = 'thumbnail-left-text-right';
 	const TYPE_TWO_EVEN_COLUMNS = 'two-even-columns';
 	
+	/**
+	 * @var string
+	 */
 	public $type;
+	
+	/**
+	 * @var string[]
+	 */
 	public $images;
+	
+	/**
+	 * @var string
+	 */
 	public $title;
+	
+	/**
+	 * @var string[]
+	 */
 	public $paragraphs;
+	
+	/**
+	 * @var string
+	 */
 	public $link;
+	
+	/**
+	 * @var string
+	 */
 	public $linkTitle;
+	
+	/**
+	 * @var string
+	 */
 	public $align;
+	
+	/**
+	 * @var string[]
+	 */
 	public $style;
 	
 	public function getStyle($key, $default)

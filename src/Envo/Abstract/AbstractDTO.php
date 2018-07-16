@@ -94,7 +94,7 @@ class AbstractDTO implements JsonSerializable
 	}
 	
 	/**
-	 * @return mixed
+	 * @return bool|array
 	 */
 	public function getMapping()
 	{

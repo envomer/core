@@ -1,4 +1,7 @@
-<!-- 1 Column Text : BEGIN -->
+<?php
+    /** @var $this \Envo\Extension\EmailTemplate\Template */
+    // 1 Column Text : BEGIN
+?>
 <tr>
 	<td bgcolor="#ffffff">
 		<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
@@ -10,6 +13,7 @@
                 	endif;
                     /** @var \Core\Controller\EmailSection $paragraph */
 					foreach($section->paragraphs as $paragraph) {
+					    //$paragraph = $this->bbCode->render($paragraph);
                         echo '<p style="margin: 0 0 10px 0;">'. nl2br($paragraph) .'</p>';
                     }
                     ?>
@@ -18,4 +22,4 @@
 		</table>
 	</td>
 </tr>
-<!-- 1 Column Text : END -->
+<?php // 1 Column Text : END ?>

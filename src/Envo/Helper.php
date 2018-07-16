@@ -177,6 +177,9 @@ if (! function_exists('session'))
  */
 if( ! function_exists('user') )
 {
+	/**
+	 * @return \Envo\Model\User
+	 */
 	function user()
 	{
 		return resolve('auth')->user();

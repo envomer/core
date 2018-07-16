@@ -10,6 +10,8 @@ use Envo\Support\Validator;
  * Class AbstractAPI
  *
  * @package Envo
+ * 
+ * @property User $user
  */
 abstract class AbstractAPI
 {

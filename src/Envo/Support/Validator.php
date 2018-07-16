@@ -31,27 +31,46 @@ class Validator
 
         return $instance;
 	}
-
+	
+	/**
+	 * @return bool
+	 */
     public function fails()
     {
         return $this->errors ? true : false;
     }
-
+	
+	/**
+	 * @return bool
+	 */
     public function isValid()
     {
         return $this->errors ? false : true;
     }
-
+	
+	/**
+	 * @return array
+	 */
     public function errors()
     {
         return $this->errors;
     }
-
+	
+	/**
+	 * @return mixed
+	 */
     public function getErrors()
     {
         return $this->error();
     }
-
+	
+	/**
+	 * @param $key
+	 * @param $validations
+	 *
+	 * @return null
+	 * @throws \Exception
+	 */
 	public function validate($key, $validations)
 	{
 		$validators = explode('|', $validations);
@@ -83,7 +102,15 @@ class Validator
 
 		return $response ?: null;
 	}
-
+	
+	/**
+	 * @param $validator
+	 * @param $attribute
+	 * @param $parameters
+	 * @param null $value
+	 *
+	 * @return array|mixed|string
+	 */
 	protected function addError($validator, $attribute, $parameters, $value = null)
 	{
 		$message = \_t('validation.' . $validator, [$attribute]);
@@ -98,7 +125,12 @@ class Validator
 
         return $this->errors[] = $message;
 	}
-
+	
+	/**
+	 * @param $value
+	 *
+	 * @return string
+	 */
     protected function getType($value)
     {
         if( is_array($value) ) {
@@ -113,7 +145,13 @@ class Validator
 
         return 'file';
     }
-
+	
+	/**
+	 * @param $attribute
+	 * @param $value
+	 *
+	 * @return bool
+	 */
 	protected function validateRequired($attribute, $value)
 	{
 		if (is_null($value)) {
@@ -126,7 +164,14 @@ class Validator
 
         return true;
 	}
-
+	
+	/**
+	 * @param $attribute
+	 * @param $value
+	 * @param $parameters
+	 *
+	 * @return bool
+	 */
 	protected function validateSame($attribute, $value, $parameters)
 	{
 		$this->requireParameterCount(1, $parameters, 'same');

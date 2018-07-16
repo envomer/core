@@ -192,7 +192,7 @@ class AbstractModel extends Model
 	/**
 	 * Get model service
 	 *
-	 * @return AbstractService|mixed
+	 * @return AbstractService
 	 */
 	public static function service()
 	{

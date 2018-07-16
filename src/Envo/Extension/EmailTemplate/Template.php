@@ -3,6 +3,7 @@
 namespace Envo\Extension\EmailTemplate;
 
 use Envo\AbstractDTO;
+use Envo\Extension\BBCode\BBCode;
 use Envo\Mail\DTO\MessageDTO;
 
 class Template extends AbstractDTO
@@ -13,14 +14,46 @@ class Template extends AbstractDTO
 	 * @var string
 	 */
 	public $template = 'cerberus';
+	
+	/**
+	 * @var string
+	 */
 	public $logo;
+	
+	/**
+	 * @var Section[]
+	 */
 	public $sections = [];
+	
+	/**
+	 * @var string
+	 */
 	public $footer;
+	
+	/**
+	 * @var string
+	 */
 	public $unsubscribe;
+	
+	/**
+	 * @var string
+	 */
 	public $excerpt;
+	
+	/**
+	 * @var string
+	 */
 	public $style;
-
+	
+	/**
+	 * @var string
+	 */
 	public $pixelPath;
+	
+	/**
+	 * @var BBCode
+	 */
+	public $bbCode;
 	
 	/**
 	 * @todo implement the option to override template
@@ -37,6 +70,8 @@ class Template extends AbstractDTO
 	 */
 	public function render()
 	{
+		//$bbCode = $this->getBBCode();
+		
 		ob_start();
 		include __DIR__ . '/View/'.$this->template.'/base.php';
 		$content = ob_get_contents();
@@ -73,12 +108,20 @@ class Template extends AbstractDTO
 	{
 		return ($this->style && $this->style->$key) ? $this->style->$key : $default;
 	}
-
+	
+	/**
+	 * @param Section $section
+	 *
+	 * @return void
+	 */
 	public function addSection(Section $section)
 	{
 		$this->sections[] = $section;
 	}
-
+	
+	/**
+	 * @return string
+	 */
 	public function renderRaw()
 	{
 		$raw = '';
@@ -98,7 +141,12 @@ class Template extends AbstractDTO
 
 		return trim(strip_tags($raw));
 	}
-
+	
+	/**
+	 * @param MessageDTO $message
+	 *
+	 * @return Template
+	 */
 	public static function fromMessageDTO(MessageDTO $message)
 	{
 		$body = json_decode($message->body);
@@ -109,5 +157,17 @@ class Template extends AbstractDTO
 		}
 
 		return $template;
+	}
+	
+	/**
+	 * @return BBCode
+	 */
+	public function getBBCode()
+	{
+		if(!$this->bbCode) {
+			$this->bbCode = new BBCode();
+		}
+		
+		return $this->bbCode;
 	}
 }
