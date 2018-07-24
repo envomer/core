@@ -14,7 +14,7 @@ use Phalcon\Mvc\Model\Query\Builder;
  * Class Dummy
  * @package DummyNamespace
  *
- * @property DummyDTO $dto
+ * @property \DummyModule\DTO\DummyDTO $dto
  * @property \NamespacedDummyUserModel $user
  * @property \DummyModule\Model\Dummy $model
  */

@@ -1,0 +1,14 @@
+<?php
+
+namespace DummyModule\Event;
+
+use Envo\AbstractEvent;
+
+/**
+ * Class Dummy
+ * @package DummyModule\Event
+ */
+class Dummy extends AbstractEvent
+{
+
+}

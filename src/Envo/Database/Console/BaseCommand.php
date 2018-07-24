@@ -23,6 +23,8 @@ abstract class BaseCommand extends Command
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
+		resolve('app')->registerDatabases();
+		
 		$this->manager = new Manager();
 		$this->manager->command = $this->name;
 		

@@ -320,14 +320,16 @@ class Str
 	{
         return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
     }
-
-    /**
-     * Generate a URL friendly "slug" from a given string.
-     *
-     * @param  string  $title
-     * @param  string  $separator
-     * @return string
-     */
+	
+	/**
+	 * Generate a URL friendly "slug" from a given string.
+	 *
+	 * @param  string $title
+	 * @param  string $separator
+	 *
+	 * @return string
+	 * @throws \Envo\Exception\InternalException
+	 */
     public static function slug($title, $separator = '-') : string
     {
         //$title = static::ascii($title);

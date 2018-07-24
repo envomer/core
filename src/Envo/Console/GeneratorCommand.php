@@ -49,6 +49,7 @@ abstract class GeneratorCommand extends Command
 	 * Execute the console command.
 	 *
 	 * @return bool|null
+	 * @throws \Exception
 	 */
 	public function handle()
 	{
@@ -75,7 +76,8 @@ abstract class GeneratorCommand extends Command
 		
 		$this->files->put($path, $this->buildClass($name));
 		
-		$this->info($this->type.' created successfully.');
+		//$this->info($this->type.' created successfully. ('. $name .')');
+		$this->line("<info>$this->type created successfully:</info> {$name}");
 	}
 	
 	/**
@@ -112,10 +114,11 @@ abstract class GeneratorCommand extends Command
 	/**
 	 * Determine if the class already exists.
 	 *
-	 * @param  string  $rawName
+	 * @param $path
+	 *
 	 * @return bool
 	 */
-	protected function alreadyExists($path)
+	protected function alreadyExists($path) : bool
 	{
 		return $this->files->exists($path);
 	}
@@ -126,7 +129,7 @@ abstract class GeneratorCommand extends Command
 	 * @param  string  $name
 	 * @return string
 	 */
-	protected function getPath($name)
+	protected function getPath($name) : string
 	{
 		return APP_PATH . 'app/' .str_replace('\\', '/', $name).'.php';
 	}
@@ -137,7 +140,7 @@ abstract class GeneratorCommand extends Command
 	 * @param  string  $path
 	 * @return string
 	 */
-	protected function makeDirectory($path)
+	protected function makeDirectory($path) : string
 	{
 		if (! $this->files->isDirectory(dirname($path))) {
 			$this->files->makeDirectory(dirname($path), 0777, true, true);
@@ -154,7 +157,7 @@ abstract class GeneratorCommand extends Command
 	 * @return string
 	 * @throws \Exception
 	 */
-	protected function buildClass($name)
+	protected function buildClass($name) : string
 	{
 		$stub = $this->files->get($this->getStub());
 		
@@ -202,7 +205,7 @@ abstract class GeneratorCommand extends Command
 	 * @param  string  $name
 	 * @return string
 	 */
-	protected function getNamespace($name)
+	protected function getNamespace($name) : string
 	{
 		return trim(implode('\\', \array_slice(explode('\\', $name), 0, -1)), '\\');
 	}
@@ -214,7 +217,7 @@ abstract class GeneratorCommand extends Command
 	 * @param  string  $name
 	 * @return string
 	 */
-	protected function replaceClass($stub, $name)
+	protected function replaceClass($stub, $name) : string
 	{
 		$class = str_replace($this->getNamespace($name).'\\', '', $name);
 		
@@ -226,7 +229,7 @@ abstract class GeneratorCommand extends Command
 	 *
 	 * @return string
 	 */
-	protected function getNameInput()
+	protected function getNameInput() : string
 	{
 		return trim($this->argument('name'));
 	}
@@ -236,7 +239,7 @@ abstract class GeneratorCommand extends Command
 	 *
 	 * @return string
 	 */
-	protected function getModuleInput()
+	protected function getModuleInput() : string
 	{
 		return trim($this->argument('module'));
 	}
@@ -246,7 +249,7 @@ abstract class GeneratorCommand extends Command
 	 *
 	 * @return string
 	 */
-	protected function rootNamespace()
+	protected function rootNamespace() : string
 	{
 		return '';
 	}
@@ -256,7 +259,7 @@ abstract class GeneratorCommand extends Command
 	 *
 	 * @return array
 	 */
-	protected function getArguments()
+	protected function getArguments() : array
 	{
 		return [
 			['name', InputArgument::REQUIRED, 'The name of the class'],
@@ -268,7 +271,7 @@ abstract class GeneratorCommand extends Command
 	 *
 	 * @return array
 	 */
-	protected function getOptions()
+	protected function getOptions() : array
 	{
 		return [
 			['force', null, InputOption::VALUE_NONE, 'Force this action.'],

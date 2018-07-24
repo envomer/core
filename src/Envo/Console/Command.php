@@ -3,6 +3,7 @@
 namespace Envo\Console;
 
 use Envo\Database\Migration\Manager;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
@@ -240,4 +241,38 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
     {
         return $this->argument();
     }
+	
+	/**
+	 * Call another console command.
+	 *
+	 * @param  string $command
+	 * @param  array $arguments
+	 *
+	 * @return int
+	 * @throws \Exception
+	 */
+	public function call($command, array $arguments = [])
+	{
+		$arguments['command'] = $command;
+		return $this->getApplication()->find($command)->run(
+			$this->createInputFromArguments($arguments), $this->output
+		);
+	}
+	
+	/**
+	 * Create an input instance from the given arguments.
+	 *
+	 * @param  array  $arguments
+	 * @return \Symfony\Component\Console\Input\ArrayInput
+	 */
+	protected function createInputFromArguments(array $arguments): \Symfony\Component\Console\Input\ArrayInput
+	{
+		$input = new ArrayInput($arguments);
+		
+		if ($input->hasParameterOption(['--no-interaction'], true)) {
+			$input->setInteractive(false);
+		}
+		
+		return $input;
+	}
 }

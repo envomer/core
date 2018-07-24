@@ -15,6 +15,7 @@ use Envo\Foundation\Console\ConfigCacheCommand;
 use Envo\Foundation\Console\FuseStartCommand;
 use Envo\Foundation\Console\MakeAPICommand;
 use Envo\Foundation\Console\MakeControllerCommand;
+use Envo\Foundation\Console\MakeEventCommand;
 use Envo\Foundation\Console\MakeModelCommand;
 use Envo\Foundation\Console\RouteCacheCommand;
 use Envo\Foundation\Console\RouteClearCommand;
@@ -44,6 +45,11 @@ class Console extends \Phalcon\Application
     public $argv;
 	
 	/**
+	 * @var bool
+	 */
+    public $dbRegistered = false;
+	
+	/**
 	 * Console constructor.
 	 *
 	 * @param array $argv
@@ -60,6 +66,8 @@ class Console extends \Phalcon\Application
 	 */
     public function start()
     {
+    	error_reporting(E_ALL);
+    	
     	$name = 'envome';
     	$version = '0.2.0';
 		//$di = new Di();
@@ -77,12 +85,12 @@ class Console extends \Phalcon\Application
 		
 		/** Set config */
 		$di->setShared('config', Config::class);
+		$di->setShared('app', $this);
 	
 		$this->setDI($di);
     	$this->setup();
         $this->registerServices();
         $this->setupConfig();
-
 	
 		if( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
 			$this->registerDatabases($di);
@@ -110,6 +118,7 @@ class Console extends \Phalcon\Application
 		$app->add(new MakeAPICommand);
 		$app->add(new MakeControllerCommand);
 		$app->add(new MakeModelCommand);
+		$app->add(new MakeEventCommand);
 	
 		if($inFuseMode) {
 			$app->add(new StartCommand);
@@ -119,6 +128,9 @@ class Console extends \Phalcon\Application
         $app->run();
     }
 	
+	/**
+	 * @return void
+	 */
 	public function registerServices()
 	{
 		/**
@@ -149,10 +161,10 @@ class Console extends \Phalcon\Application
 	 */
 	public function setup()
 	{
-		define('APP_START', microtime(true));
-		define('ENVO_PATH', __DIR__ . '/../');
+		\define('APP_START', microtime(true));
+		\define('ENVO_PATH', __DIR__ . '/../');
 		
-		if( ! defined('APP_PATH') ) {
+		if( ! \defined('APP_PATH') ) {
 			exit('APP_PATH not defined');
 		}
 		
@@ -182,7 +194,7 @@ class Console extends \Phalcon\Application
 		}
 		
 		foreach($config as $key => $conf) {
-			if( is_array($conf) ) {
+			if( \is_array($conf) ) {
 				continue;
 			}
 			putenv($key.'='.$conf);
@@ -195,8 +207,16 @@ class Console extends \Phalcon\Application
 	 * @param DI $di
 	 * @param bool $debug
 	 */
-	public function registerDatabases(DI $di, $debug = false)
+	public function registerDatabases(DI $di = null, $debug = false)
 	{
+		if($this->dbRegistered) {
+			return;
+		}
+		
+		if(!$di) {
+			$di = Di::getDefault();
+		}
+		
 		$databaseConfig = config('database');
 		$connections = ['db' => $databaseConfig['default']];
 		if(isset($databaseConfig['use'])) {
@@ -224,5 +244,7 @@ class Console extends \Phalcon\Application
 				return $connection;
 			});
 		}
+		
+		$this->dbRegistered = true;
 	}
 }

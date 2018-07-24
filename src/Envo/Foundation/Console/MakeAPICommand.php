@@ -3,6 +3,8 @@
 namespace Envo\Foundation\Console;
 
 use Envo\Console\GeneratorCommand;
+use Envo\Support\Str;
+use Symfony\Component\Console\Input\InputOption;
 
 class MakeAPICommand extends GeneratorCommand
 {
@@ -36,6 +38,7 @@ class MakeAPICommand extends GeneratorCommand
 	 * Execute the console command.
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public function handle()
 	{
@@ -43,58 +46,23 @@ class MakeAPICommand extends GeneratorCommand
 			return;
 		}
 		
-		if ($this->option('all')) {
+		if ($this->option('all', false)) {
 			$this->input->setOption('model', true);
 			$this->input->setOption('migration', true);
-			$this->input->setOption('controller', true);
 			$this->input->setOption('events', true);
 		}
 		
-		if ($this->option('model')) {
-			//$this->createFactory();
+		if ($this->option('model', false)) {
+			//$this->createModel();
 		}
 		
-		if ($this->option('migration')) {
-			//$this->createMigration();
+		if ($this->option('migration', false)) {
+			$this->createMigration();
 		}
 		
-		if ($this->option('controller')) {
-			//$this->createController();
+		if($this->option('events', false)) {
+			$this->createEvents();
 		}
-		
-		if($this->option('events')) {
-		
-		}
-	}
-	
-	/**
-	 * Create a model factory for the model.
-	 *
-	 * @return void
-	 */
-	protected function createFactory()
-	{
-		$factory = Str::studly(class_basename($this->argument('name')));
-		
-		$this->call('make:factory', [
-			'name' => "{$factory}Factory",
-			'--model' => $this->argument('name'),
-		]);
-	}
-	
-	/**
-	 * Create a migration file for the model.
-	 *
-	 * @return void
-	 */
-	protected function createMigration()
-	{
-		$table = Str::plural(Str::snake(class_basename($this->argument('name'))));
-		
-		$this->call('make:migration', [
-			'name' => "create_{$table}_table",
-			'--create' => $table,
-		]);
 	}
 	
 	/**
@@ -104,11 +72,7 @@ class MakeAPICommand extends GeneratorCommand
 	 */
 	protected function getStub()
 	{
-		if ($this->option('pivot')) {
-			return __DIR__.'/stubs/pivot.model.stub';
-		}
-		
-		return __DIR__.'/stubs/model.stub';
+		return __DIR__.'/stubs/api.stub';
 	}
 	
 	/**
@@ -120,5 +84,59 @@ class MakeAPICommand extends GeneratorCommand
 	protected function getDefaultNamespace($rootNamespace)
 	{
 		return $rootNamespace;
+	}
+	
+	/**
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function createEvents()
+	{
+		$name = $this->getNameInput();
+		$module = $this->getModuleInput();
+		$forced = $this->option('force', false);
+		
+		$this->call('make:event', ['name' => $name . 'Created', 'module' => $module, '--force' => $forced ]);
+		$this->call('make:event', ['name' => $name . 'Updated', 'module' => $module, '--force' => $forced ]);
+		$this->call('make:event', ['name' => $name . 'Deleted', 'module' => $module, '--force' => $forced ]);
+	}
+	
+	/**
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function createModel()
+	{
+		$name = $this->getNameInput();
+		$module = $this->getModuleInput();
+		$forced = $this->option('force', false);
+		
+		$this->call('make:model', ['name' => $name, 'module' => $module, '--force' => $forced]);
+	}
+	
+	/**
+	 * @return void
+	 * @throws \Exception
+	 */
+	public function createMigration()
+	{
+		$name = $this->getNameInput();
+		
+		$this->call('make:migration', ['name' => 'create_' . Str::snake($name) . '_table', '--create' => '']);
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getOptions() : array
+	{
+		$options = parent::getOptions();
+		
+		return array_merge($options, [
+			['all', null, InputOption::VALUE_NONE, 'Create api class including model, events and migration.'],
+			['events', null, InputOption::VALUE_NONE, 'Create events for api (created, updated, deleted)'],
+			['model', null, InputOption::VALUE_NONE, 'Create model'],
+			['migration', null, InputOption::VALUE_NONE, 'Create migration create_NAME_table'],
+		]);
 	}
 }
