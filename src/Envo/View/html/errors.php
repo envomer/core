@@ -100,11 +100,15 @@
             echo '<h3>Included files</h3>';
             echo $debug->variables(get_included_files());
 		
-		    echo '<h3>Event manager</h3>';
-            echo $debug->variables(resolve('eventsManager')->getResponses());
-		
-		    echo '<h3>Profiles</h3>';
-            echo $debug->variables(resolve('profiler')->getProfiles());
+            if($eventManager = resolve('eventsManager')) {
+                echo '<h3>Event manager</h3>';
+                echo $debug->variables($eventManager->getResponses());
+            }
+        
+            if($profiler = resolve('profiler')) {
+                echo '<h3>Profiles</h3>';
+                echo $debug->variables($profiler->getProfiles());
+            }
 
             //  foreach($error->getTrace() as $trace) {
             //      echo isset($trace['class']) ? $trace['class'] : '';

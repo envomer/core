@@ -264,7 +264,11 @@ class Application extends \Phalcon\Mvc\Application
 			}
 
 			require_once APP_PATH . 'app/routes.php';
-			$router->mount($api);
+			
+			if(isset($api)) {
+				$router->mount($api);
+			}
+			
 			$router->extensions();
 			
 			return $router;
@@ -368,7 +372,7 @@ class Application extends \Phalcon\Mvc\Application
 			$di->set('escaper', Escaper::class, true);
 			$di->set('profiler', Profiler::class, true);
 			
-			//$debug = new Debug();
+			//$debug = new \Phalcon\Debug();
 			//$debug->listen();
 		}
 
@@ -510,32 +514,35 @@ class Application extends \Phalcon\Mvc\Application
 		}
 		
 		// @see https://docs.phalconphp.com/en/3.2/db-models#disabling-enabling-features
+		$dbConfig = config('database');
 		Model::setup(
 			[
-				'astCache'              => config( 'database.astCache', null ),
-				'cacheLevel'            => config( 'database.cacheLevel', 3 ),
-				'castOnHydrate'         => config( 'database.castOnHydrate', false ),
-				'columnRenaming'        => config( 'database.columnRenaming', true ),
-				'disableAssignSetters'  => config( 'database.disableAssignSetters', false ),
-				'enableImplicitJoins'   => config( 'database.enableImplicitJoins', true ),
-				'enableLiterals'        => config( 'database.enableLiterals', true ),
-				'escapeIdentifiers'     => config( 'database.escapeIdentifiers', true ),
-				'events'                => config( 'database.events', true ),
-				'exceptionOnFailedSave' => config( 'database.exceptionOnFailedSave', true ),
-				'forceCasting'          => config( 'database.forceCasting', false ),
-				'ignoreUnknownColumns'  => config( 'database.ignoreUnknownColumns', false ),
-				'lateStateBinding'      => config( 'database.lateStateBinding', false ),
-				'notNullValidations'    => config( 'database.notNullValidations', true ),
-				'parserCache'           => config( 'database.parserCache', null ),
-				'phqlLiterals'          => config( 'database.phqlLiterals', true ),
-				'uniqueCacheId'         => config( 'database.uniqueCacheId', 3 ),
-				'updateSnapshotOnSave'  => config( 'database.updateSnapshotOnSave', true ),
-				'virtualForeignKeys'    => config( 'database.virtualForeignKeys', true ),
+				'astCache'              => $dbConfig['astCache'] ?? null,
+				'cacheLevel'            => $dbConfig['cacheLevel'] ?? 3,
+				'castOnHydrate'         => $dbConfig['castOnHydrate'] ?? false,
+				'columnRenaming'        => $dbConfig['columnRenaming'] ?? true,
+				'disableAssignSetters'  => $dbConfig['disableAssignSetters'] ?? false,
+				'enableImplicitJoins'   => $dbConfig['enableImplicitJoins'] ?? true,
+				'enableLiterals'        => $dbConfig['enableLiterals'] ?? true,
+				'escapeIdentifiers'     => $dbConfig['escapeIdentifiers'] ?? true,
+				'events'                => $dbConfig['events'] ?? true,
+				'exceptionOnFailedSave' => $dbConfig['exceptionOnFailedSave'] ?? true,
+				'forceCasting'          => $dbConfig['forceCasting'] ?? false,
+				'ignoreUnknownColumns'  => $dbConfig['ignoreUnknownColumns'] ?? false,
+				'lateStateBinding'      => $dbConfig['lateStateBinding'] ?? false,
+				'notNullValidations'    => $dbConfig['notNullValidations'] ?? true,
+				'parserCache'           => $dbConfig['parserCache'] ?? null,
+				'phqlLiterals'          => $dbConfig['phqlLiterals'] ?? true,
+				'uniqueCacheId'         => $dbConfig['uniqueCacheId'] ?? 3,
+				'updateSnapshotOnSave'  => $dbConfig['updateSnapshotOnSave'] ?? true,
+				'virtualForeignKeys'    => $dbConfig['virtualForeignKeys'] ?? true,
 			]
 		);
 	}
 	
 	/**
+	 * Register namespaces
+	 *
 	 * @param DI $di
 	 */
 	public function registerNamespaces(Di $di)

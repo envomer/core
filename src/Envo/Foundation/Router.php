@@ -141,6 +141,10 @@ class Router extends \Phalcon\Mvc\Router
 	 */
 	public function extensions()
 	{
+		if(!$this->apiHandler) {
+			return;
+		}
+		
 		$this->addGet('/placeholder/{size}', [
 			'namespace' => 'Envo\Extension\Placeholder',
 			'controller' => 'PlaceholderApi',

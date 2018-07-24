@@ -18,7 +18,6 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=7.0.0",
-        "robmorgan/phinx": "v0.8.1",
         "symfony/console": "~3.1",
         "xi/sms": "^0.3.0",
         "sendgrid/sendgrid": "~5.0.9",
@@ -29,7 +28,6 @@
             "Envo\\": ["src/Envo", "src/Envo/Abstract"]
         }
     },
-    "bin": ["bin/envo"],
     "require-dev": {
         "phpunit/phpunit": "^6.4",
         "phalcon/incubator": "^3.2"

@@ -202,7 +202,7 @@ if(!function_exists('envo_exception_handler'))
 			http_response_code(500);
 		}
 
-		if(!($error instanceof AbstractException)) {
+		if(!($error instanceof AbstractException) && class_exists(\Envo\Exception\InternalException::class)) {
 			$isJson = isset($error->isJson);
 			$error = new \Envo\Exception\InternalException($error->getMessage(), $error->getCode(), $error instanceof \Exception ? $error : null);
 			if($isJson) {
