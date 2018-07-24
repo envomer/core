@@ -120,6 +120,10 @@ class Router extends \Phalcon\Mvc\Router
 	 */
     public function addApi($name, $class)
     {
+    	if(!$this->apiHandler) {
+    		return;
+		}
+		
         if(strpos($name, '/')) {
             // die(var_dump($name));
             $this->addApiGroup($name);

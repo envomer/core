@@ -257,9 +257,9 @@ class Application extends \Phalcon\Mvc\Application
 
 			$appConfig = $config->get('app.api', []);
 			
-			if(isset($appConfig['enabled']) && $appConfig['enabled']) {
-				$router->apiPrefix = $appConfig['prefix'] ?? 'api/v1';
-				$api = $router->api(); // @TODO make the api better
+			if(!isset($appConfig['enabled']) || $appConfig['enabled']) {
+				$router->apiPrefix = $appConfig['prefix'] ?? $router->apiPrefix;
+				$api = $router->api();
 				$router->setHandler($di->get('apiHandler'));
 			}
 

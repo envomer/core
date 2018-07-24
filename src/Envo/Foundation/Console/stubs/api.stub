@@ -129,6 +129,14 @@ class DummyClass extends AbstractAPI
 	}
 
 	/**
+	 * Post create hook
+	 */
+	public function postDelete()
+	{
+		new DummyDeleted(null, true, $this->model, $this->dto);
+	}
+
+	/**
 	 * Cast the entity response the way you need it
 	 *
 	 * @param AbstractModel|\stdClass $model
