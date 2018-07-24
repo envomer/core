@@ -14,6 +14,8 @@ use Envo\Foundation\Console\ConfigClearCommand;
 use Envo\Foundation\Console\ConfigCacheCommand;
 use Envo\Foundation\Console\FuseStartCommand;
 use Envo\Foundation\Console\MakeAPICommand;
+use Envo\Foundation\Console\MakeControllerCommand;
+use Envo\Foundation\Console\MakeModelCommand;
 use Envo\Foundation\Console\RouteCacheCommand;
 use Envo\Foundation\Console\RouteClearCommand;
 use Envo\Foundation\Console\BackupCommand;
@@ -58,20 +60,17 @@ class Console extends \Phalcon\Application
 	 */
     public function start()
     {
-		error_reporting(E_ALL);
-		ini_set('display_errors','On');
-		
     	$name = 'envome';
     	$version = '0.2.0';
 		//$di = new Di();
 		$di = new FactoryDefault();
 		
-        define('APP_CLI', true);
-        define('ENVO_CLI', true);
+        \define('APP_CLI', true);
+        \define('ENVO_CLI', true);
         
         $inFuseMode = getenv('FUSE_CLI');
 		if($inFuseMode) {
-			define('FUSE_CLI', true);
+			\define('FUSE_CLI', true);
 			$name = 'Burning ' . $name;
 			$version = '0.0.1';
 		}
@@ -109,6 +108,8 @@ class Console extends \Phalcon\Application
 		$app->add(new MigrationStatus);
 		$app->add(new MigrationCreate);
 		$app->add(new MakeAPICommand);
+		$app->add(new MakeControllerCommand);
+		$app->add(new MakeModelCommand);
 	
 		if($inFuseMode) {
 			$app->add(new StartCommand);

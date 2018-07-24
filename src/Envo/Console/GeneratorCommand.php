@@ -4,7 +4,6 @@ namespace Envo\Console;
 
 use Envo\Model\User;
 use Envo\Support\File;
-use Envo\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputOption;
 
@@ -30,10 +29,7 @@ abstract class GeneratorCommand extends Command
 	protected $suffix = '';
 	
 	/**
-	 * Create a new controller creator command instance.
-	 *
-	 * @param  \Illuminate\Filesystem\Filesystem  $files
-	 * @return void
+	 * Create a new creator command instance.
 	 */
 	public function __construct()
 	{
@@ -57,7 +53,6 @@ abstract class GeneratorCommand extends Command
 	public function handle()
 	{
 		$module = $this->getModuleClass();
-		$name = $this->getNameInput();
 		
 		$name = ucfirst($module . '\\'.$this->type.'\\' . $this->getClassName()) . $this->suffix;
 		
@@ -66,7 +61,7 @@ abstract class GeneratorCommand extends Command
 		// First we will check to see if the class already exists. If it does, we don't want
 		// to create the class and overwrite the user's code. So, we will bail out so the
 		// code is untouched. Otherwise, we will continue generating this class' files.
-		if ((! $this->input->hasOption('force') || ! $this->option('force')) && $this->alreadyExists($path)) {
+		if ($this->alreadyExists($path) && (! $this->input->hasOption('force') || ! $this->option('force'))) {
 			$this->line('');
 			$this->error($this->getClassName() .' ' . $this->type.' already exists!');
 			
@@ -154,8 +149,10 @@ abstract class GeneratorCommand extends Command
 	/**
 	 * Build the class with the given name.
 	 *
-	 * @param  string  $name
+	 * @param  string $name
+	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	protected function buildClass($name)
 	{
@@ -169,9 +166,9 @@ abstract class GeneratorCommand extends Command
 	 *
 	 * @param  string  $stub
 	 * @param  string  $name
-	 * @return $this
+	 * @return string
 	 */
-	protected function replaceNamespace(&$stub, $name)
+	protected function replaceNamespace(&$stub, $name) : string
 	{
 		$class = str_replace($this->getNamespace($name).'\\', '', $name);
 		$stub = str_replace(
@@ -182,6 +179,7 @@ abstract class GeneratorCommand extends Command
 				'DummyClass',
 				'DummyModule',
 				'Dummy',
+				'dummy'
 			],
 			[
 				$this->getNamespace($name),
@@ -189,12 +187,11 @@ abstract class GeneratorCommand extends Command
 				config('app.classmap.user', User::class),
 				$class,
 				$this->getModuleClass(),
-				$this->getClassName()
+				$this->getClassName(),
+				lcfirst($class)
 			],
 			$stub
 		);
-		
-		//die(var_dump($name, $this->getNamespace($name), $this->getNameInput()));
 		
 		return $stub;
 	}
@@ -207,7 +204,7 @@ abstract class GeneratorCommand extends Command
 	 */
 	protected function getNamespace($name)
 	{
-		return trim(implode('\\', array_slice(explode('\\', $name), 0, -1)), '\\');
+		return trim(implode('\\', \array_slice(explode('\\', $name), 0, -1)), '\\');
 	}
 	
 	/**

@@ -5,6 +5,10 @@ namespace Envo\Model;
 use Envo\AbstractRole;
 use Envo\Support\Translator;
 
+/**
+ * Class User
+ * @package Envo\Model
+ */
 class User extends AbstractRole
 {
     const ACCESS_API_TOKEN = 1;

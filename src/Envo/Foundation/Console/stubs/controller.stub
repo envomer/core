@@ -1,0 +1,20 @@
+<?php
+
+namespace Core\Controller;
+
+use Envo\AbstractController;
+
+/**
+ * Class DummyController
+ * @package DummyModule\Controller
+ */
+class DummyController extends AbstractController
+{
+	/**
+	 * @return void
+	 */
+    public function indexAction()
+    {
+
+    }
+}

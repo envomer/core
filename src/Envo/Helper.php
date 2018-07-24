@@ -356,7 +356,7 @@ if( ! function_exists('public_exception') )
 	 * @param      $code
 	 * @param null $data
 	 *
-	 * @throws PublicException
+	 * @throws \Envo\Exception\PublicException
 	 */
 	function public_exception($messageCode, $code = 500, $data = null)
 	{

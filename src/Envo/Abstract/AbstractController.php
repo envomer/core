@@ -25,15 +25,26 @@ class AbstractController extends Controller
 	 * @var Auth
 	 */
 	protected $auth;
-
+	
+	/**
+	 * @var bool
+	 */
 	protected $isAjaxRequest = false;
-
-	public function xhr($set = true)
+	
+	/**
+	 * @param bool $set
+	 *
+	 * @return bool
+	 */
+	public function xhr($set = true) : bool
 	{
 		return $this->isAjaxRequest = $set;
 	}
-
-	public function isXhr()
+	
+	/**
+	 * @return bool
+	 */
+	public function isXhr() : bool
 	{
 		return $this->isAjaxRequest;
 	}
@@ -88,7 +99,7 @@ class AbstractController extends Controller
 			$rawInputData = file_get_contents('php://input');
 			$post_vars = json_decode($rawInputData,true);
 
-			if( ! is_array($post_vars) ) {
+			if( ! \is_array($post_vars) ) {
 				parse_str($rawInputData,$post_vars);
 			}
 
@@ -123,16 +134,16 @@ class AbstractController extends Controller
 		$code = 200;
 		$loggedIn = ($this->user() && $this->user()->loggedIn);
 
-		if( is_bool($msg) ) {
+		if( \is_bool($msg) ) {
 			$msg = ['success' => $msg];
 		}
-		else if( is_string($msg) ) {
+		else if( \is_string($msg) ) {
 			$msg = [
 				'success' => false,
 				'message' => $msg
 			];
 		}
-		else if( is_array($msg) && ! isset($msg['success']) ) {
+		else if( \is_array($msg) && ! isset($msg['success']) ) {
 			$msg['success'] = true;
 		}
 		else if( $msg instanceof Exception ) {
@@ -149,10 +160,10 @@ class AbstractController extends Controller
 			$msg['message'] = $sentence;
 		}
 
-		if(! $loggedIn && is_array($msg)) {
+		if(! $loggedIn && \is_array($msg)) {
 			$msg['authenticated'] = $loggedIn;
 		}
-		else if( ! $loggedIn && is_object($msg) ) {
+		else if( ! $loggedIn && \is_object($msg) ) {
 			$msg->authenticated = $loggedIn;
 		}
 
@@ -160,7 +171,7 @@ class AbstractController extends Controller
 			unset($msg['success'], $msg['authenticated']);
 		}
 
-		if( is_array($msg) ) {
+		if( \is_array($msg) ) {
 			$msg['render_time'] = \render_time();
 		} else {
 			$msg->render_time = render_time();
@@ -202,8 +213,9 @@ class AbstractController extends Controller
 	 * Abort unless user is admin
 	 *
 	 * @return boolean
+	 * @throws \Envo\Exception\PublicException
 	 */
-	public function mustBeAdmin()
+	public function mustBeAdmin() : bool
 	{
 		if( $this->user->isAdmin() ) {
 			return true;
@@ -211,13 +223,14 @@ class AbstractController extends Controller
 
 		return $this->abort();
 	}
-
+	
 	/**
 	 * Abort unless user is logged in
 	 *
 	 * @return bool
+	 * @throws \Envo\Exception\PublicException
 	 */
-	public function mustBeLoggedIn()
+	public function mustBeLoggedIn() : bool
 	{
 		if( $this->user() && $this->user->loggedIn ) {
 			return true;
@@ -230,11 +243,12 @@ class AbstractController extends Controller
 	 * Abort
 	 *
 	 * @param integer $code
-	 * @param string  $msgCode
+	 * @param string $msgCode
 	 *
 	 * @return bool
+	 * @throws \Envo\Exception\PublicException
 	 */
-	public function abort($code = 403, $msgCode = 'app.unauthorized')
+	public function abort($code = 403, $msgCode = 'app.unauthorized') : bool
 	{
 		public_exception($msgCode, $code);
 		

@@ -12,7 +12,7 @@ class MigrationCreate extends BaseCommand
      *
      * @var string
      */
-	protected $signature = 'migrate:make {name : The name of the migration.}
+	protected $signature = 'make:migration {name : The name of the migration.}
         {--create= : The table to be created.}
         {--table= : The table to migrate.}
         {--path= : The location where the migration file should be created.}';

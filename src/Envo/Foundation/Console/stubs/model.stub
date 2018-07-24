@@ -1,0 +1,34 @@
+<?php
+
+namespace DummyModule\Model;
+
+use Envo\AbstractModel;
+
+/**
+ * Class Dummy
+ * @package DummyModule\Model
+ */
+class Dummy extends AbstractModel
+{
+    /**
+     * Table name
+     *
+     * @var string
+     */
+    protected $table = 'dummys';
+
+    /**
+     * Identifier of entity
+     *
+     * @var string
+     */
+    public $id;
+
+	/**
+	 * Initialize
+	 */
+    public function initialize()
+	{
+		$this->softDeletes = false;
+	}
+}

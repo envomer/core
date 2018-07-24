@@ -3,8 +3,6 @@
 namespace Envo\Foundation\Console;
 
 use Envo\Console\GeneratorCommand;
-use Illuminate\Support\Str;
-use Symfony\Component\Console\Input\InputOption;
 
 class MakeAPICommand extends GeneratorCommand
 {
@@ -13,7 +11,7 @@ class MakeAPICommand extends GeneratorCommand
 	 *
 	 * @var string
 	 */
-	protected $signature = 'make:api {name : The name of the migration.} {module : The name of the module.}';
+	protected $signature = 'make:api {name : The name of the api.} {module : The name of the module.}';
 	
 	/**
 	 * The console command description.
@@ -45,23 +43,27 @@ class MakeAPICommand extends GeneratorCommand
 			return;
 		}
 		
-		if ($this->option('all', false)) {
-			$this->input->setOption('factory', true);
+		if ($this->option('all')) {
+			$this->input->setOption('model', true);
 			$this->input->setOption('migration', true);
 			$this->input->setOption('controller', true);
-			$this->input->setOption('resource', true);
+			$this->input->setOption('events', true);
 		}
 		
-		if ($this->option('factory', false)) {
+		if ($this->option('model')) {
 			//$this->createFactory();
 		}
 		
-		if ($this->option('migration', false)) {
+		if ($this->option('migration')) {
 			//$this->createMigration();
 		}
 		
-		if ($this->option('controller', false) || $this->option('resource', false)) {
+		if ($this->option('controller')) {
 			//$this->createController();
+		}
+		
+		if($this->option('events')) {
+		
 		}
 	}
 	
@@ -102,7 +104,11 @@ class MakeAPICommand extends GeneratorCommand
 	 */
 	protected function getStub()
 	{
-		return __DIR__.'/stubs/api.stub';
+		if ($this->option('pivot')) {
+			return __DIR__.'/stubs/pivot.model.stub';
+		}
+		
+		return __DIR__.'/stubs/model.stub';
 	}
 	
 	/**
