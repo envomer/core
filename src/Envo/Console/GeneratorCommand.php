@@ -2,9 +2,11 @@
 
 namespace Envo\Console;
 
+use Envo\Model\User;
 use Envo\Support\File;
 use Envo\Support\Str;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 
 abstract class GeneratorCommand extends Command
 {
@@ -54,24 +56,22 @@ abstract class GeneratorCommand extends Command
 	 */
 	public function handle()
 	{
-		$module = $this->getModuleInput();
+		$module = $this->getModuleClass();
 		$name = $this->getNameInput();
 		
-		$name = ucfirst($module . '\\'.$this->type.'\\' . ucfirst($name)) . $this->suffix;
+		$name = ucfirst($module . '\\'.$this->type.'\\' . $this->getClassName()) . $this->suffix;
 		
 		$path = $this->getPath($name);
 		
 		// First we will check to see if the class already exists. If it does, we don't want
 		// to create the class and overwrite the user's code. So, we will bail out so the
 		// code is untouched. Otherwise, we will continue generating this class' files.
-		if (! $this->input->hasOption('force') &&
-			$this->alreadyExists($path)) {
-			$this->error($this->type.' already exists!');
+		if ((! $this->input->hasOption('force') || ! $this->option('force')) && $this->alreadyExists($path)) {
+			$this->line('');
+			$this->error($this->getClassName() .' ' . $this->type.' already exists!');
 			
 			return false;
 		}
-		
-		die(var_dump($path, $this->buildClass($name)));
 		
 		// Next, we will generate the path to the location where this class' file should get
 		// written. Then, we will build the class and make the proper replacements on the
@@ -81,6 +81,26 @@ abstract class GeneratorCommand extends Command
 		$this->files->put($path, $this->buildClass($name));
 		
 		$this->info($this->type.' created successfully.');
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getClassName()
+	{
+		$name = $this->getNameInput();
+		
+		return ucfirst($name);
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getModuleClass()
+	{
+		$module = $this->getModuleInput();
+		
+		return ucfirst($module);
 	}
 	
 	/**
@@ -141,7 +161,7 @@ abstract class GeneratorCommand extends Command
 	{
 		$stub = $this->files->get($this->getStub());
 		
-		return $this->replaceNamespace($stub, $name)->replaceClass($stub, $name);
+		return $this->replaceNamespace($stub, $name);
 	}
 	
 	/**
@@ -153,13 +173,30 @@ abstract class GeneratorCommand extends Command
 	 */
 	protected function replaceNamespace(&$stub, $name)
 	{
+		$class = str_replace($this->getNamespace($name).'\\', '', $name);
 		$stub = str_replace(
-			['DummyNamespace', 'DummyRootNamespace', 'NamespacedDummyUserModel'],
-			[$this->getNamespace($name), $this->rootNamespace(), config('auth.providers.users.model')],
+			[
+				'DummyNamespace',
+				'DummyRootNamespace',
+				'NamespacedDummyUserModel',
+				'DummyClass',
+				'DummyModule',
+				'Dummy',
+			],
+			[
+				$this->getNamespace($name),
+				$this->rootNamespace(),
+				config('app.classmap.user', User::class),
+				$class,
+				$this->getModuleClass(),
+				$this->getClassName()
+			],
 			$stub
 		);
 		
-		return $this;
+		//die(var_dump($name, $this->getNamespace($name), $this->getNameInput()));
+		
+		return $stub;
 	}
 	
 	/**
@@ -226,6 +263,18 @@ abstract class GeneratorCommand extends Command
 	{
 		return [
 			['name', InputArgument::REQUIRED, 'The name of the class'],
+		];
+	}
+	
+	/**
+	 * Get the console command options.
+	 *
+	 * @return array
+	 */
+	protected function getOptions()
+	{
+		return [
+			['force', null, InputOption::VALUE_NONE, 'Force this action.'],
 		];
 	}
 }

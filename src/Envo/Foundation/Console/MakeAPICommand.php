@@ -13,8 +13,7 @@ class MakeAPICommand extends GeneratorCommand
 	 *
 	 * @var string
 	 */
-	protected $signature = 'make:api {name : The name of the migration.} {module : The name of the module.}
-		{--force= : Force create.}';
+	protected $signature = 'make:api {name : The name of the migration.} {module : The name of the module.}';
 	
 	/**
 	 * The console command description.
@@ -30,6 +29,9 @@ class MakeAPICommand extends GeneratorCommand
 	 */
 	protected $type = 'API';
 	
+	/**
+	 * @var string
+	 */
 	protected $suffix = 'API';
 	
 	/**
@@ -43,22 +45,22 @@ class MakeAPICommand extends GeneratorCommand
 			return;
 		}
 		
-		if ($this->option('all')) {
+		if ($this->option('all', false)) {
 			$this->input->setOption('factory', true);
 			$this->input->setOption('migration', true);
 			$this->input->setOption('controller', true);
 			$this->input->setOption('resource', true);
 		}
 		
-		if ($this->option('factory')) {
+		if ($this->option('factory', false)) {
 			//$this->createFactory();
 		}
 		
-		if ($this->option('migration')) {
+		if ($this->option('migration', false)) {
 			//$this->createMigration();
 		}
 		
-		if ($this->option('controller') || $this->option('resource')) {
+		if ($this->option('controller', false) || $this->option('resource', false)) {
 			//$this->createController();
 		}
 	}
@@ -100,11 +102,7 @@ class MakeAPICommand extends GeneratorCommand
 	 */
 	protected function getStub()
 	{
-		if ($this->option('pivot')) {
-			return __DIR__.'/stubs/pivot.model.stub';
-		}
-		
-		return __DIR__.'/stubs/model.stub';
+		return __DIR__.'/stubs/api.stub';
 	}
 	
 	/**

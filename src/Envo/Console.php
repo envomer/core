@@ -58,6 +58,9 @@ class Console extends \Phalcon\Application
 	 */
     public function start()
     {
+		error_reporting(E_ALL);
+		ini_set('display_errors','On');
+		
     	$name = 'envome';
     	$version = '0.2.0';
 		//$di = new Di();

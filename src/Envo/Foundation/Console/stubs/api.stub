@@ -2,24 +2,28 @@
 
 namespace DummyNamespace;
 
-use Core\DTO\UserDTO;
-use Core\Events\UserUpdated;
-use Core\Events\UserCreated;
+use DummyModule\Event\DummyUpdated;
+use DummyModule\Event\DummyCreated;
+
 use Envo\AbstractAPI;
+use Envo\AbstractModel;
 use Envo\Support\Date;
-use Envo\Support\Str;
 use Phalcon\Mvc\Model\Query\Builder;
 
 /**
- * Class User
+ * Class Dummy
  * @package DummyNamespace
- * @property UserDTO $dto
- * @property \Core\Model\User $user
- * @property \Core\Model\User $model
+ *
+ * @property DummyDTO $dto
+ * @property \NamespacedDummyUserModel $user
+ * @property \DummyModule\Model\Dummy $model
  */
 class DummyClass extends AbstractAPI
 {
 	/**
+	 * Here you can override the default API options such as the 'identifier'
+	 * that should be used to identify the corresponding entities
+	 *
 	 * @return void
 	 */
 	public function init()
@@ -28,14 +32,8 @@ class DummyClass extends AbstractAPI
 	}
 
 	/**
-	 * @return array
-	 */
-	public function config()
-	{
-		return [];
-	}
-
-	/**
+	 * Do some authorization check before allowing users to interact with this API endpoint
+	 *
 	 * @return bool
 	 */
 	public function authorize()
@@ -44,6 +42,10 @@ class DummyClass extends AbstractAPI
 	}
 
 	/**
+	 * Here you can extend the query when fetching all the entities
+	 * like only allowing the user to access his own collection
+	 * The response is paginated
+	 *
 	 * @param Builder $builder
 	 */
 	public function index($builder)
@@ -52,8 +54,10 @@ class DummyClass extends AbstractAPI
 	}
 
 	/**
+	 * Extend the logic when retrieving one entity with an identifier
+	 *
 	 * @param Builder $builder
-	 * @param         $id
+	 * @param int $id
 	 */
 	public function show($builder, $id)
 	{
@@ -62,6 +66,7 @@ class DummyClass extends AbstractAPI
 
 	/**
 	 * Pre update hook
+	 *
 	 * @throws \Envo\Exception\PublicException
 	 */
 	public function preUpdate()
@@ -78,6 +83,8 @@ class DummyClass extends AbstractAPI
 	}
 
 	/**
+	 * Pre create hook
+	 *
 	 * @throws \Envo\Exception\PublicException
 	 */
 	public function preCreate()
@@ -94,19 +101,23 @@ class DummyClass extends AbstractAPI
 	}
 
 	/**
-	 * @return void
+	 * Pre persist hook
+	 *
+	 * @return void|bool
 	 */
 	public function prePersist()
 	{
-
+		$this->model->name = $this->dto->name;
 	}
 
 	/**
 	 * Post create hook
+	 *
+	 * $return void|bool
 	 */
 	public function postCreate()
 	{
-		new UserCreated(null, true, $this->model, $this->dto);
+		new DummyCreated(null, true, $this->model, $this->dto);
 	}
 
 	/**
@@ -114,21 +125,25 @@ class DummyClass extends AbstractAPI
 	 */
 	public function postUpdate()
 	{
-		new UserUpdated(null, true, $this->model, $this->dto);
+		new DummyUpdated(null, true, $this->model, $this->dto);
 	}
 
 	/**
-	 * @param \CashRegister\Model\InvoiceTag|\stdClass $model
+	 * Cast the entity response the way you need it
+	 *
+	 * @param AbstractModel|\stdClass $model
 	 * @param array $definition
 	 *
-	 * @return UserDTO
+	 * @return mixed
 	 */
 	public function transformItem($model, $definition)
 	{
-		return new UserDTO($model);
+
 	}
 
 	/**
+	 * Validate the data that is passed to the API
+	 *
 	 * @return array
 	 * @throws \Envo\Exception\PublicException
 	 */

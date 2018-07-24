@@ -5,6 +5,7 @@ namespace Envo\Console;
 use Envo\Database\Migration\Manager;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputArgument;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -60,13 +61,22 @@ abstract class Command extends \Symfony\Component\Console\Command\Command
 		
 		parent::__construct($this->name = $name);
         
+        $definition = $this->getDefinition();
+        
         if($arguments || $options) {
 			foreach ($arguments as $argument) {
-				$this->getDefinition()->addArgument($argument);
+				$definition->addArgument($argument);
 			}
-	
+			
 			foreach ($options as $option) {
-				$this->getDefinition()->addOption($option);
+				$definition->addOption($option);
+			}
+		}
+		
+		if(method_exists($this, 'getOptions')) {
+        	$options = $this->getOptions();
+			foreach ($options as $option) {
+				$definition->addOption(new InputOption(...$option));
 			}
 		}
     }
