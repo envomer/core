@@ -86,13 +86,13 @@ class Auth extends Component
 			return $this->user;
 		}
 
-		if( defined('APP_CLI') ) {
+		if( \defined('APP_CLI') ) {
 			return null;
 		}
 
 		// TODO: if no session class is defined then return empty user object
 		$auth = @$this->session->get(self::TOKEN_NAME);
-
+		
 		$user = null;
 		if ( ! $auth ) {
 			if( ! $user && ($key = $this->usesApiKey())) {

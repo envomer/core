@@ -15,6 +15,7 @@ use Envo\Foundation\Console\ConfigCacheCommand;
 use Envo\Foundation\Console\FuseStartCommand;
 use Envo\Foundation\Console\MakeAPICommand;
 use Envo\Foundation\Console\MakeControllerCommand;
+use Envo\Foundation\Console\MakeDTOCommand;
 use Envo\Foundation\Console\MakeEventCommand;
 use Envo\Foundation\Console\MakeModelCommand;
 use Envo\Foundation\Console\RouteCacheCommand;
@@ -119,6 +120,7 @@ class Console extends \Phalcon\Application
 		$app->add(new MakeControllerCommand);
 		$app->add(new MakeModelCommand);
 		$app->add(new MakeEventCommand);
+		$app->add(new MakeDTOCommand);
 	
 		if($inFuseMode) {
 			$app->add(new StartCommand);

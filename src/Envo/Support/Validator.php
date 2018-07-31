@@ -41,6 +41,17 @@ class Validator
     }
 	
 	/**
+	 * @return void
+	 * @throws \Envo\Exception\PublicException
+	 */
+	public function throwError()
+	{
+		if($this->errors) {
+			public_exception('validation.failed', 400, $this);
+		}
+	}
+	
+	/**
 	 * @return bool
 	 */
     public function isValid()
@@ -61,7 +72,7 @@ class Validator
 	 */
     public function getErrors()
     {
-        return $this->error();
+        return $this->errors;
     }
 	
 	/**
@@ -74,28 +85,31 @@ class Validator
 	public function validate($key, $validations)
 	{
 		$validators = explode('|', $validations);
-        $isObject = is_object($this->data);
+        $isObject = \is_object($this->data);
 
 		$response = array();
 		foreach ($validators as $validator) {
 			$parameters = null;
 			if( strpos($validator, ':') !== false){
-				$parts = explode(':', $validator);
-				$validator = $parts[0];
-				$parameters = $parts[1];
+				list($validator, $parameters) = explode(':', $validator);
+				//$validator = $parts[0];
+				//$parameters = $parts[1];
 			}
 			$func = 'validate' . ucfirst($validator);
 
-			if( ! method_exists($this, $func) ) throw new \Exception("Validator method {$func} not found", 500);
+			if( ! method_exists($this, $func) ) {
+				throw new \Exception("Validator method {$func} not found", 500);
+			}
+			
             if( $isObject ) {
-                $value = isset($this->data->$key) ? $this->data->$key : null;
+                $value = $this->data->$key ?? null;
             } else {
-                $value = isset($this->data[$key]) ? $this->data[$key] : null;
+                $value = $this->data[ $key ] ?? null;
             }
 
 			$resp = $this->$func($key, $value, $parameters);
 
-			if( ! $resp || is_string($resp) ) {
+			if( ! $resp || \is_string($resp) ) {
                 $response[] = $this->addError($validator, $key, $parameters, $value);
             }
 		}
@@ -116,7 +130,7 @@ class Validator
 		$message = \_t('validation.' . $validator, [$attribute]);
         $message = $this->doReplacements($message, $attribute, $validator, $parameters);
 
-        if( is_array($message) ) {
+        if( \is_array($message) ) {
             $type = $value ? $this->getType($value) : 'numeric';
             if( isset($message[$type]) ) {
                 $message = $message[$type];
@@ -133,13 +147,13 @@ class Validator
 	 */
     protected function getType($value)
     {
-        if( is_array($value) ) {
+        if( \is_array($value) ) {
             return 'array';
         }
         if( is_numeric($value) ) {
             return 'numeric';
         }
-        if( is_string($value) ) {
+        if( \is_string($value) ) {
             return 'string';
         }
 
@@ -154,15 +168,19 @@ class Validator
 	 */
 	protected function validateRequired($attribute, $value)
 	{
-		if (is_null($value)) {
-            return false;
-        } elseif (is_string($value) && trim($value) === '') {
-            return false;
-        } elseif ((is_array($value) || $value instanceof \Countable) && count($value) < 1) {
+		if ( null === $value ) {
             return false;
         }
-
-        return true;
+		
+		if ( \is_string($value) && trim($value) === '' ) {
+			return false;
+		}
+		
+		if ( (\is_array($value) || $value instanceof \Countable) && \count($value) < 1 ) {
+			return false;
+		}
+		
+		return true;
 	}
 	
 	/**
@@ -172,11 +190,12 @@ class Validator
 	 *
 	 * @return bool
 	 */
-	protected function validateSame($attribute, $value, $parameters)
+	protected function validateSame($attribute, $value, $parameters) : bool
 	{
 		$this->requireParameterCount(1, $parameters, 'same');
 		$other = resolve(Arr::class)->get($this->data, $parameters);
-        return isset($other) && $value === $other;
+		
+        return $other !== null && $value === $other;
 	}
 
 	/**
@@ -191,8 +210,8 @@ class Validator
      */
     protected function requireParameterCount($count, $parameters, $rule)
     {
-    	die(var_dump($parameters, $count));
-        if (count($parameters) < $count) {
+    	//die(var_dump($parameters, $count));
+        if ( \count($parameters) < $count) {
             throw new \InvalidArgumentException("Validation rule $rule requires at least $count parameters.");
         }
     }
@@ -204,8 +223,8 @@ class Validator
      * @param  mixed   $value
      * @return bool
      */
-    protected function validateEmail($attribute, $value)
-    {
+    protected function validateEmail($attribute, $value) : bool
+	{
         return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
     }
 
@@ -230,7 +249,7 @@ class Validator
      */
     protected function validateAlpha($attribute, $value)
     {
-        return is_string($value) && preg_match('/^[\pL\pM]+$/u', $value);
+        return \is_string($value) && preg_match('/^[\pL\pM]+$/u', $value);
     }
 
     /**
@@ -242,7 +261,7 @@ class Validator
      */
     protected function validateAlphaNum($attribute, $value)
     {
-        if (! is_string($value) && ! is_numeric($value)) {
+        if (! \is_string($value) && ! is_numeric($value)) {
             return false;
         }
 
@@ -258,7 +277,7 @@ class Validator
      */
     protected function validateAlphaDash($attribute, $value)
     {
-        if (! is_string($value) && ! is_numeric($value)) {
+        if (! \is_string($value) && ! is_numeric($value)) {
             return false;
         }
 
@@ -522,9 +541,9 @@ class Validator
 
         $data = resolve(Arr::class)->get($this->data, $parameters[0]);
 
-        $values = array_slice($parameters, 1);
+        $values = \array_slice($parameters, 1);
 
-        if (! in_array($data, $values)) {
+        if (! \in_array($data, $values, false)) {
             return $this->validateRequired($attribute, $value);
         }
 
@@ -567,7 +586,7 @@ class Validator
         $attributeData = $this->extractDataFromPath($explicitPath);
 
         $otherValues = resolve(Arr::class)->where(resolve(Arr::class)->dot($attributeData), function ($value, $key) use ($parameters) {
-            return \Str::is($parameters[0], $key);
+            return Str::is($parameters[0], $key);
         });
 
         return in_array($value, $otherValues);
@@ -664,15 +683,19 @@ class Validator
         // return the proper size accordingly. If it is a number, then number itself
         // is the size. If it is a file, we take kilobytes, and for a string the
         // entire length of the string will be considered the attribute size.
-        if (is_numeric($value)) {
-            return $value;
-        } elseif (is_array($value)) {
-            return count($value);
-        } elseif ($value instanceof File) {
-            return $value->getSize() / 1024;
-        }
-
-        return mb_strlen($value);
+		if ( is_numeric($value) ) {
+			return $value;
+		}
+	
+		if ( \is_array($value) ) {
+			return \count($value);
+		}
+		
+		if ($value instanceof File) {
+			return $value->getSize() / 1024;
+		}
+	
+		return mb_strlen($value);
     }
 
     /**
@@ -684,7 +707,7 @@ class Validator
      */
     public function hasRule($attribute, $rules)
     {
-        return ! is_null($this->getRule($attribute, $rules));
+        return null !== $this->getRule($attribute, $rules);
     }
 
     /**
@@ -706,7 +729,7 @@ class Validator
         foreach ($this->rules[$attribute] as $rule) {
             list($rule, $parameters) = $this->parseRule($rule);
 
-            if (in_array($rule, $rules)) {
+            if ( \in_array($rule, $rules, false)) {
                 return [$rule, $parameters];
             }
         }
@@ -777,7 +800,7 @@ class Validator
      */
     public function validateUrl($attribute, $value)
     {
-        if (! is_string($value)) {
+        if (! \is_string($value)) {
             return false;
         }
         /*
@@ -800,6 +823,7 @@ class Validator
             (:[0-9]+)?                              # a port (optional)
             (/?|/\S+|\?\S*|\#\S*)                   # a /, nothing, a / with something, a query or a fragment
         $~ixu';
+        
         return preg_match($pattern, $value) > 0;
     }
 }

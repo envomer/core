@@ -55,7 +55,11 @@ abstract class GeneratorCommand extends Command
 	{
 		$module = $this->getModuleClass();
 		
-		$name = ucfirst($module . '\\'.$this->type.'\\' . $this->getClassName()) . $this->suffix;
+		$name = ucfirst($module . '\\'.$this->type.'\\' . $this->getClassName());
+		
+		if($this->suffix && substr($name, -\strlen($this->suffix)) !== $this->suffix) {
+			$name .= $this->suffix;
+		}
 		
 		$path = $this->getPath($name);
 		

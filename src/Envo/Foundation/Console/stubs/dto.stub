@@ -1,0 +1,14 @@
+<?php
+
+namespace DummyModule\DTO;
+
+use Envo\AbstractDTO;
+
+/**
+ * Class Dummy
+ * @package DummyModule\DTO
+ */
+class Dummy extends AbstractDTO
+{
+
+}

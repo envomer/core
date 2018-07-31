@@ -96,6 +96,12 @@ class User extends AbstractRole
 	 * @var string
 	 */
     private $permissionString;
+    
+    public $created_at;
+    
+    public $updated_at;
+    
+    public $email;
 	
 	/**
 	 * Initialize
