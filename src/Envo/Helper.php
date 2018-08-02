@@ -131,18 +131,18 @@ if (! function_exists('cache'))
     function cache()
     {
         $arguments = func_get_args();
-        $instance = resolve(Cache::class);
+        $instance = resolve('cache');
 
         if (empty($arguments)) {
             return $instance;
         }
-
-        if (is_string($arguments[0])) {
-        	return $instance->get($arguments[0], (isset($arguments[1]) ? $arguments[1] : null)) ?: (isset($arguments[2]) ? $arguments[2] : null);
+		
+        if (is_string($arguments[0])) { // get cached item
+        	return $instance->get($arguments[0], $arguments[1] ?? null, $arguments[2] ?? null);
         }
 
-        if (is_array($arguments[0])) {
-            return $instance->save(key($arguments[0]), reset($arguments[0]), (isset($arguments[1]) ? $arguments[1] : null));
+        if (is_array($arguments[0])) { // save cached entry
+            return $instance->save(key($arguments[0]), reset($arguments[0]), $arguments[1] ?? null);
         }
     }
 }

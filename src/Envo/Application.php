@@ -3,6 +3,7 @@
 namespace Envo;
 
 use Envo\API\Handler;
+use Envo\Foundation\Cache;
 use Envo\Foundation\Config;
 use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\Loader;
@@ -183,6 +184,11 @@ class Application extends \Phalcon\Mvc\Application
 		 * Set request
 		 */
 		$di->setShared('request', Request::class);
+		
+		/**
+		 * Set caching
+		 */
+		$di->setShared('cache', Cache::class);
 
 		/**
 		 * Set response

@@ -7,35 +7,79 @@ use Phalcon\Cache\Frontend\Data as FrontData;
 
 class Cache
 {
-	protected static $cache = null;
-
-	public static function getInstance()
+	protected $cache;
+	
+	/**
+	 */
+	public function __construct()
 	{
-		if( self::$cache ) {
-            return self::$cache;
-        }
-
 		$frontCache = new FrontData(
 		    array(
-                /** TODO add to config file **/
-		        "lifetime" => 172800 // 2 days 
+				/** TODO add to config file **/
+				'lifetime' => 172800 // 2 days
 		    )
 		);
 
-		$cache = new BackFile(
+		$this->cache = new BackFile(
 		    $frontCache,
 		    array(
-		    	'prefix' => 'cache_',
-		        "cacheDir" => APP_PATH . 'storage/framework/cache/'
+				'prefix'   => 'cache_',
+				'cacheDir' => APP_PATH . 'storage/framework/cache/'
 		    )
 		);
-
-		return self::$cache = $cache;
 	}
-
-	public static function delete($key)
+	
+	/**
+	 * @param $key
+	 * @param null $lifeTime
+	 * @param null $defaultValue
+	 *
+	 * @return mixed|null
+	 */
+	public function get($key, $lifeTime = null, $defaultValue = null)
 	{
-		$cache = self::getInstance();
-		return $cache->delete($key);
+		$value = $this->cache->get($key);
+		if(!$value) {
+			$value = \is_callable($defaultValue) ? $defaultValue() : $defaultValue;
+			
+			if($lifeTime) {
+				$this->set($key, $value, $lifeTime);
+			}
+		}
+		
+		return $value;
 	}
+	
+	/**
+	 * @param $key
+	 * @param $value
+	 * @param null $lifeTime
+	 *
+	 * @return void
+	 */
+	public function set($key, $value, $lifeTime = null)
+	{
+		$this->cache->save($key, $value, $lifeTime);
+	}
+	
+	/**
+	 * @param $key
+	 *
+	 * @return void
+	 */
+	public function delete($key)
+	{
+		$this->cache->delete($key);
+	}
+	
+	/**
+	 * @param null $prefix
+	 *
+	 * @return array
+	 */
+	public function keys($prefix = null): array
+	{
+		return $this->cache->queryKeys($prefix);
+	}
+	
 }
