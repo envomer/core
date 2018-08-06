@@ -211,7 +211,7 @@ class Validator
     protected function requireParameterCount($count, $parameters, $rule)
     {
     	//die(var_dump($parameters, $count));
-        if ( \count($parameters) < $count) {
+        if ( $parameters instanceof \Countable && \count($parameters) < $count) {
             throw new \InvalidArgumentException("Validation rule $rule requires at least $count parameters.");
         }
     }
