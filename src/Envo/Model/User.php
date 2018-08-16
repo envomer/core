@@ -8,6 +8,8 @@ use Envo\Support\Translator;
 /**
  * Class User
  * @package Envo\Model
+ *
+ * @method static User findFirstByIdentifier(string $name)
  */
 class User extends AbstractRole
 {
