@@ -5,10 +5,10 @@ namespace DummyModule\DTO;
 use Envo\AbstractDTO;
 
 /**
- * Class Dummy
+ * Class DummyDTO
  * @package DummyModule\DTO
  */
-class Dummy extends AbstractDTO
+class DummyDTO extends AbstractDTO
 {
 
 }
