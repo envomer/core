@@ -4,7 +4,7 @@
 		<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <?php if($section->title): ?>
 			<tr>
-				<td style="padding: 40px 40px 20px; text-align: center;">
+				<td style="padding: 40px 40px 20px; ">
 					<h1 style="margin: 0; font-family: sans-serif; font-size: 20px; line-height: 125%; color: #444444; font-weight: bold;"><?php echo strtoupper($section->title) ?></h1>
 				</td>
 			</tr>
@@ -13,7 +13,7 @@
             if($section->paragraphs):
             ?>
 			<tr>
-				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>; text-align: <?php echo $section->align ?: 'center' ?>;">
+				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>; text-align: <?php echo $section->align ?: 'left' ?>;">
 					<?php
 					/** @var \Core\Controller\EmailSection $paragraph */
 					foreach($section->paragraphs as $paragraph) {
