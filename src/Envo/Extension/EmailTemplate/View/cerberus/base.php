@@ -135,8 +135,8 @@
 	<![endif]-->
 
 </head>
-<body width="100%" style="margin: 0; mso-line-height-rule: exactly;" bgcolor="<?php echo $this->getStyle('backgroundColor', '#ebebeb') ?>">
-    <center style="width: 100%; background: <?php echo $this->getStyle('backgroundColor', '#ebebeb') ?>; text-align: left;">
+<body width="100%" style="margin: 0; mso-line-height-rule: exactly;" bgcolor="<?php echo $this->getStyle('backgroundColor', '#f0f6fa') ?>">
+    <center style="width: 100%; background: <?php echo $this->getStyle('backgroundColor', '#f0f6fa') ?>; text-align: left;">
     <!--[if mso | IE]>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#222222">
     <tr>

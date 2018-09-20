@@ -4,8 +4,8 @@
 		<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
             <?php if($section->title): ?>
 			<tr>
-				<td style="padding: 40px 40px 20px; text-align: center;">
-					<h1 style="margin: 0; font-family: sans-serif; font-size: 20px; line-height: 125%; color: #444444; font-weight: bold;"><?php echo strtoupper($section->title) ?></h1>
+				<td style="padding: 40px 40px 20px; text-align: <?php echo $section->align ?: 'left' ?>;">
+					<h1 style="margin: 0; font-family: sans-serif; font-size: 20px; line-height: 125%; color: #b1c1d9; font-weight: bold;"><?php echo ($section->title) ?></h1>
 				</td>
 			</tr>
             <?php
@@ -13,7 +13,7 @@
             if($section->paragraphs):
             ?>
 			<tr>
-				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>; text-align: <?php echo $section->align ?: 'center' ?>;">
+				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php echo $this->getStyle('color', '#2e415f') ?>; text-align: <?php echo $section->align ?: 'left' ?>;">
 					<?php
 					/** @var \Core\Controller\EmailSection $paragraph */
 					foreach($section->paragraphs as $paragraph) {
@@ -27,7 +27,7 @@
             if($section->link):
             ?>
 			<tr>
-				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php $this->getStyle('color', '#222222') ?>;">
+				<td style="padding: 0 40px 40px; font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php echo $this->getStyle('color', '#2e415f') ?>;">
 					<!-- Button : BEGIN -->
 					<table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin: auto;">
 						<tr>
