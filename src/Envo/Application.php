@@ -453,7 +453,9 @@ class Application extends \Phalcon\Mvc\Application
 		$eventsManager->collectResponses(true);
 		
 		// Listen all the database events
-		$eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler) {
+		$requestDebug = isset($_GET['cc2']); // add this to config or so...
+		$logger = !$requestDebug ? null : new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
+		$eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler, $requestDebug, $logger) {
 			if ($event->getType() === 'beforeQuery') {
 				// $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				$profiler->startProfile($connection->getSQLStatement());
@@ -461,7 +463,7 @@ class Application extends \Phalcon\Mvc\Application
 				$item->setSqlVariables($connection->getSqlVariables() ?: []);
 				$item->setSqlBindTypes($connection->getSqlBindTypes() ?: []);
 				
-				if(isset($_GET['cc2'])) {
+				if($requestDebug) {
 					$ignoreClasses = ['Phalcon\\', 'Application'];
 					$path = '';
 					foreach(debug_backtrace() as $trace) {
@@ -470,9 +472,10 @@ class Application extends \Phalcon\Mvc\Application
 						}
 						$path .= (isset($trace['class']) ? $trace['class'] : '') . '::' .$trace['function'].';';
 					}
-					var_dump($connection->getSQLStatement(), $connection->getSQLVariables());
-					echo "Execution Time: {$profiler->getTotalElapsedSeconds()}. <br> PATH: {$path}\n\r";
-					echo '<br><br>-----------------------------------------------------------------------<br><br>';
+					//var_dump($connection->getSQLStatement(), $connection->getSQLVariables());
+					//echo "Execution Time: {$profiler->getTotalElapsedSeconds()}. <br> PATH: {$path}\n\r";
+					//echo '<br><br>-----------------------------------------------------------------------<br><br>';
+					$logger->log($connection->getSQLStatement() . " [Execution Time: {$profiler->getTotalElapsedSeconds()}. PATH: {$path}]\n\r", \Phalcon\Logger::DEBUG);
 				}
 			}
 			if ($event->getType() === 'afterQuery') {
