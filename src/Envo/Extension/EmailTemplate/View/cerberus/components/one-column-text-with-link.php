@@ -5,7 +5,7 @@
             <?php if($section->title): ?>
 			<tr>
 				<td style="padding: 40px 40px 20px; text-align: <?php echo $section->align ?: 'left' ?>;">
-					<h1 style="margin: 0; font-family: sans-serif; font-size: 20px; line-height: 125%; color: #b1c1d9; font-weight: bold;"><?php echo ($section->title) ?></h1>
+					<h1 style="margin: 0; font-family: sans-serif; font-size: 20px; line-height: 125%; color: #b1c1d9; font-weight: normal;"><?php echo ($section->title) ?></h1>
 				</td>
 			</tr>
             <?php
