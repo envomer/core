@@ -17,4 +17,9 @@ class Model extends AbstractModel
 	 * @var int
 	 */
 	public $batch;
+	
+	/**
+	 * @var string
+	 */
+	public $migrated_at;
 }

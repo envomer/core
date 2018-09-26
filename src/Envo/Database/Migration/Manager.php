@@ -4,6 +4,7 @@ namespace Envo\Database\Migration;
 
 use Envo\AbstractMigration;
 use Envo\Support\Arr;
+use Envo\Support\Date;
 use Envo\Support\File;
 use Envo\Support\Str;
 use Phalcon\Di;
@@ -190,6 +191,10 @@ class Manager
 			$name = $this->getMigrationName($file)
 		);
 		
+		if(!$migration) {
+			return;
+		}
+		
 		if ($pretend) {
 			return $this->pretendToRun($migration, 'up');
 		}
@@ -355,6 +360,10 @@ class Manager
 			$name = $this->getMigrationName($file)
 		);
 		
+		if(!$instance) {
+			return;
+		}
+		
 		$this->note("<comment>Rolling back:</comment> {$name}");
 		
 		if ($pretend) {
@@ -443,6 +452,11 @@ class Manager
 	public function resolve($file)
 	{
 		$class = Str::studly(implode('_', array_slice(explode('_', $file), 1)));
+		
+		if(!class_exists($class)) {
+			$this->note("<error>Class not found:</error> {$class} <info>in {$file}</info>");
+			return null;
+		}
 		
 		return new $class($this->connection);
 	}
@@ -561,6 +575,7 @@ class Manager
 		$table = new Table($name);
 		$table->string('migration');
 		$table->integer('batch');
+		$table->dateTime('migrated_at');
 		
 		$this->note("<comment>Creating migrations table:</comment> {$name}");
 		
@@ -596,6 +611,7 @@ class Manager
 		$migration = new Model();
 		$migration->migration = $name;
 		$migration->batch = $batch;
+		$migration->migrated_at = Date::now();
 		
 		return $migration->save();
 	}
