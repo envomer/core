@@ -52,7 +52,7 @@ class AbstractEvent
 		$eventClass = config('app.classmap.event', Event::class);
 		/** @var Event $event */
 		$event = new $eventClass;
-		$user = ! defined('APP_CLI') ? user() : null;
+		$user = ! \defined('APP_CLI') ? user() : null;
 		if( $user && $user->loggedIn ) {
 			$event->user_id = $user->id;
 			
@@ -63,21 +63,24 @@ class AbstractEvent
 		}
 
 		$event->created_at = date('Y-m-d H:i:s');
-		$ip = resolve(IP::class)->getIpAddress();
-
-		 if( $ip ) {
-		 	$ipModel = config('app.classmap.ip', IPModel::class);
-		 	/** @var IPModel $userIP */
-		 	$userIP = $ipModel::repo()->where('ip', $ip)->getOne();
-		 	if( ! $userIP ) {
-		 		$userIP = new $ipModel();
-		 		$userIP->ip = $ip;
-		 		$userIP->created_at = Date::now();
-		 		$userIP->user_id = $user ? $user->id : null;
-		 		$userIP->save();
-		 	}
-		 	$event->ip_id = $userIP->id;
-		 }
+		
+		if(config('app.events.track_ip', false)) {
+			$ip = resolve(IP::class)->getIpAddress();
+	
+			 if( $ip ) {
+				$ipModel = config('app.classmap.ip', IPModel::class);
+				/** @var IPModel $userIP */
+				$userIP = $ipModel::repo()->where('ip', $ip)->getOne();
+				if( ! $userIP ) {
+					$userIP = new $ipModel();
+					$userIP->ip = $ip;
+					$userIP->created_at = Date::now();
+					$userIP->user_id = $user ? $user->id : null;
+					$userIP->save();
+				}
+				$event->ip_id = $userIP->id;
+			 }
+		}
 
 		$this->setMessage($event, $message);
 
@@ -134,7 +137,7 @@ class AbstractEvent
 	/**
 	 * Set data
 	 *
-	 * @param AbstractEvent $event
+	 * @param AbstractEvent|Event $event
 	 * @param string $data
 	 *
 	 * @return bool|AbstractEvent

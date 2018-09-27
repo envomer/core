@@ -2,7 +2,8 @@
 
 namespace Envo\Model;
 
-use Envo\AbstractRole;
+use Envo\AbstractModel;
+//use Envo\AbstractRole; Not fully working. Disabled for now.
 use Envo\Support\Translator;
 
 /**
@@ -11,7 +12,7 @@ use Envo\Support\Translator;
  *
  * @method static User findFirstByIdentifier(string $name)
  */
-class User extends AbstractRole
+class User extends AbstractModel
 {
     const ACCESS_API_TOKEN = 1;
     const ACCESS_SESSION = 2;
