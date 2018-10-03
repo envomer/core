@@ -556,8 +556,8 @@ class Arr
         }
 		
         $result = array();
-        $isObject = isset($array[0]) && is_object($array[0]);
-        $isObjectAndHasMethod = $isObject && method_exists($array[0], $by);
+        $isObject = current($array) && is_object(current($array));
+        $isObjectAndHasMethod = $isObject && method_exists(current($array), $by);
 
         foreach ($array as $value) {
             $key = null;
