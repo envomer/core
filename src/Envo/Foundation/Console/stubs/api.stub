@@ -2,8 +2,9 @@
 
 namespace DummyNamespace;
 
-use DummyModule\Event\DummyUpdated;
 use DummyModule\Event\DummyCreated;
+use DummyModule\Event\DummyUpdated;
+use DummyModule\Event\DummyDeleted;
 
 use Envo\AbstractAPI;
 use Envo\AbstractModel;
@@ -28,7 +29,7 @@ class DummyClass extends AbstractAPI
 	 */
 	public function init()
 	{
-
+		return $this->user && $this->user->isLoggedIn();
 	}
 
 	/**
