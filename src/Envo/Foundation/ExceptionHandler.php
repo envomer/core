@@ -33,10 +33,7 @@ class ExceptionHandler
              . ' Date:' . date('Y-m-d H:i:s') . "\n"
              . ' Line:' . $e->getLine(). "\n";
 
-		if( $exception->getCode() === 404 ) {
-			$code = 404;
-			$message = null;
-		}
+		
 
 		if( method_exists($exception, 'json') ) {
 			$message = json_encode($exception->json());
@@ -45,6 +42,11 @@ class ExceptionHandler
 		$requestMethod = null;
 		if( isset($_SERVER['REQUEST_METHOD']) ) {
 			$requestMethod = $_SERVER['REQUEST_METHOD'] . ' ' . $_SERVER['REQUEST_URI'];
+		}
+
+		if( $exception->getCode() === 404 ) {
+			$code = 404;
+			$message = $requestMethod;
 		}
 		
 		/**
