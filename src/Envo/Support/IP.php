@@ -32,6 +32,14 @@ class IP
 
     protected static $ip = null;
 
+    public function __construct()
+    {
+        $proxy = config('app.proxy');
+        
+        $this->useProxy = $proxy->enabled ?? false;
+        $this->trustedProxies = $proxy->trusted_proxies ?? [];
+    }
+
     /**
      * Returns client IP address.
      *

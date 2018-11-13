@@ -237,17 +237,35 @@ class Auth extends Component
 
 		$loginEvent = $loginFailedEvent->getEvent();
 
-		$ipId = isset($loginEvent->ip_id) ? $loginEvent->ip_id : $user->getId();
+		// $ipId = isset($loginEvent->ip_id) ? $loginEvent->ip_id : $user->getId();
+		// $ipId = !$loginEvent->ip_id;
 
-		$attempts = Event::count([
-			'ip_id = ?0 AND created_at >= ?1',
+		if(!config('app.guard.throttle', false)) {
+			return;
+		}
+
+		$ip = \Envo\Support\IP::getIpAddress();
+
+		if(!$ip) {
+			return; // ip is not returned;
+		}
+
+		$failed = new \Envo\Model\FailedLogin();
+		$failed->user_id = $user ? $user->getId() : null;
+		$failed->ip = $ip;
+		$failed->created_at = \Envo\Support\Date::now();
+		$failed->save();
+
+		$attempts = \Envo\Model\FailedLogin::count([
+			'ip = ?0 AND created_at >= ?1',
 			'bind' => array(
-				$ipId,
+				$ip,
 				date('Y-m-d H:i:s', strtotime('-15 min')),
 			),
 		]);
-		
+
 		switch ($attempts) {
+			case 0:
 			case 1:
 			case 2:
 				// no delay
@@ -257,10 +275,16 @@ class Auth extends Component
 				sleep( 2 );
 				break;
 			case 5:
+			case 6:
 				sleep( 4 );
 				break;
-			default:
+			case 7:
+			case 8:
+			case 9:
 				sleep( 12 );
+				break;
+			default:
+				sleep( 30 );
 				break;
 		}
 	}
