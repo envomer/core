@@ -34,10 +34,8 @@ class IP
 
     public function __construct()
     {
-        $proxy = \config('app.proxy');
-
-        $this->useProxy = $proxy->enabled ?? false;
-        $this->trustedProxies = $proxy->trusted_proxies ?? [];
+        $this->useProxy = \config('app.proxy.enabled', false);
+        $this->trustedProxies = \config('app.proxy.trusted_proxies', []);
     }
 
     /**
