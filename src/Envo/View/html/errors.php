@@ -81,7 +81,11 @@
 			echo '<h2>'. $error->getMessage() .'</h2>';
 	        echo '<pre style="word-wrap:break-word">' .  $message . "\n";
 
-            echo $error->getTraceAsString();
+	        if(isset($exceptionActual)) {
+				echo $exceptionActual->getTraceAsString();
+            } else {
+	            echo $error->getTraceAsString();
+            }
 
             $debug = (new \Phalcon\Debug\Dump());
 

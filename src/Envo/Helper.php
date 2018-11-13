@@ -122,7 +122,7 @@ if (! function_exists('value')) {
  * If an array is passed, we'll assume you want to put to the cache.
  *
  * @param  dynamic  key|key,default|data,expiration|null
- * @return mixed
+ * @return mixed|\Envo\Foundation\Cache
  *
  * @throws \Exception
  */
@@ -194,50 +194,20 @@ if(!function_exists('envo_exception_handler'))
 {
 	function envo_exception_handler($error)
 	{
-		$trace = true;
-		if ( $error instanceof PublicException ) {
-			http_response_code($error->getCode());
-			// $trace = false;
+		if($error instanceof \Exception) {
+			\Envo\Foundation\ExceptionHandler::handle($error);
+		}
+		
+		if($error) {
+			/** @var $error \Error */
+			echo '<pre>';
+			echo $error->getMessage() . "\n\n";
+			echo $error->getTraceAsString();
 		} else {
-			http_response_code(500);
-		}
-
-		if(!($error instanceof AbstractException) && class_exists(\Envo\Exception\InternalException::class)) {
-			$isJson = isset($error->isJson);
-			$error = new \Envo\Exception\InternalException($error->getMessage(), $error->getCode(), $error instanceof \Exception ? $error : null);
-			if($isJson) {
-				$error->isJson = true;
-			}
+			die(var_dump($error));
 		}
 		
-		//TODO: sure about this??
-		// TODO: catch offline database exception?
-		try {
-			if ( $error instanceof AbstractException ) {
-				if($trace) {
-					$error->trace = true;
-				}
-				$json = $error->json();
-				new \Envo\Event\Exception($error->getMessage(), true, null, $json);
-				if ( $error->isJson || (($router = resolve('router')) && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/') === 0 )) {
-					header('Content-Type: application/json');
-					echo json_encode($json);
-					exit;
-				}
-				
-			} else if(class_exists(\Envo\Event\Exception::class)) {
-				new \Envo\Event\Exception($error->getMessage(), true, null, ['trace' => $error->getTraceAsString()]);
-			}
-		} catch (\Exception $e) {
-			// die(var_dump($e));
-		}
-
-		if(defined('APP_CLI') && APP_CLI) {
-			die(var_dump($error->getMessage()));
-		}
-		
-		require_once __DIR__ . '/View/html/errors.php';
-		exit;
+		die;
 	}
 }
 

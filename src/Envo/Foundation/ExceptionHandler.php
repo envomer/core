@@ -19,6 +19,72 @@ use Phalcon\Mvc\Dispatcher as MvcDispatcher;
  */
 class ExceptionHandler
 {
+	public static function handle(Exception $exception)
+	{
+		$trace = true;
+		$exceptionActual = $exception;
+		
+		if ( $exception instanceof PublicException ) {
+			http_response_code($exception->getCode());
+			// $trace = false;
+		} else {
+			http_response_code(500);
+		}
+		
+		// hmmm
+		if(!($exception instanceof AbstractException) && class_exists(\Envo\Exception\InternalException::class)) {
+			$isJson = property_exists($exception, 'isJson');
+			$exception = new \Envo\Exception\InternalException($exception->getMessage(), $exception->getCode(), $exception instanceof \Exception ? $exception : null);
+			if($isJson) {
+				$exception->isJson = true;
+			}
+		}
+		
+		//TODO: sure about this??
+		// TODO: catch offline database exception?
+		try {
+			//die(var_dump('here?'));
+			if ( $exception instanceof AbstractException ) {
+				if($trace) {
+					$exception->trace = true;
+				}
+				$json = $exception->json();
+				//die(var_dump('here?', $trace));
+				$dataEvent = $json;
+				if( $_REQUEST !== null ) {
+					$dataEvent['request'] = $_REQUEST;
+					$dataEvent['uri'] = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+				}
+				new \Envo\Event\Exception($exception->getMessage(), true, null, $dataEvent);
+				if ( $exception->isJson || (($router = resolve('router')) && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/') === 0 )) {
+					header('Content-Type: application/json');
+					echo json_encode($json);
+					exit;
+				}
+				
+			} else if(class_exists(\Envo\Event\Exception::class)) {
+				//die(var_dump('here?'));
+				new \Envo\Event\Exception($exception->getMessage(), true, null, [
+					'request' => isset($_REQUEST) ? $_REQUEST : '',
+					'uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
+					'trace_string' => $exceptionActual->getTraceAsString(),
+					'trace' => $exceptionActual->getTrace()
+				]);
+			}
+		} catch (\Exception $e) {
+			// die(var_dump($e));
+		}
+		
+		if(defined('APP_CLI') && APP_CLI) {
+			die(var_dump($exception->getMessage()));
+		}
+		
+		$error = $exception;
+		//require_once __DIR__ . '/View/html/errors.php';
+		require_once ENVO_PATH . 'Envo/View/html/errors.php';
+		exit;
+	}
+	
 	/**
 	 * Handle all exceptions types here
 	 */
@@ -32,8 +98,6 @@ class ExceptionHandler
              . ' File:' . $e->getFile(). "\n"
              . ' Date:' . date('Y-m-d H:i:s') . "\n"
              . ' Line:' . $e->getLine(). "\n";
-
-		
 
 		if( method_exists($exception, 'json') ) {
 			$message = json_encode($exception->json());
@@ -53,7 +117,7 @@ class ExceptionHandler
 		 * 2002: Means database is down. so don't record event in database
 		 * 1049: Means database couldn't be found
 		 */
-		if( config('app.events.enabled', false) && ! is_a($e, 'PDOException') &&  $e->getCode() != 2002 && $e->getCode() != 1049 && ! env('APP_TESTING') ) {
+		if( config('app.events.enabled', false) && ! is_a($e, 'PDOException') &&  $e->getCode() !== 2002 && $e->getCode() !== 1049 && ! env('APP_TESTING') ) {
 			// $event = new \Envo\Event\Exception($code .' '. $requestMethod. ' ', false, null, $message);
 
 			// if( $exception instanceof AbstractException ) {
@@ -93,8 +157,15 @@ class ExceptionHandler
 				$exception->isJson = true;
 			}
 		}
-		$error = self::handleError($exception);
-		envo_exception_handler($exception);
+		
+		//die(var_dump($exception->getTraceAsString()));
+		self::handleError($exception);
+		//envo_exception_handler($exception);
+		
+		self::handle($exception);
+		
+		//$error = $exception;
+		//require_once ENVO_PATH . 'Envo/View/html/errors.php';
 	}
 
 	/**
@@ -105,6 +176,7 @@ class ExceptionHandler
 		if( defined('APP_CLI') && APP_CLI ) {
 			throw $exception;
 		}
+		//die(var_dump($exception->getTraceAsString()));
 
 		$error = self::handleError($exception);
 		envo_exception_handler($exception);

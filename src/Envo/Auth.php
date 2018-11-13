@@ -234,10 +234,15 @@ class Auth extends Component
 	public function registerUserThrottling($user = null)
 	{
 		$loginFailedEvent = new LoginFailed(null, true, $user);
+
+		$loginEvent = $loginFailedEvent->getEvent();
+
+		$ipId = isset($loginEvent->ip_id) ? $loginEvent->ip_id : $user->getId();
+
 		$attempts = Event::count([
 			'ip_id = ?0 AND created_at >= ?1',
 			'bind' => array(
-				$loginFailedEvent->getEvent()->ip_id,
+				$loginEvent->ip_id,
 				date('Y-m-d H:i:s', strtotime('-15 min')),
 			),
 		]);

@@ -1,3 +1,4 @@
+<?php if($section && $section->images): ?>
 <!-- Hero Image, Flush : BEGIN -->
 <tr>
 	<td bgcolor="#ffffff" align="center">
@@ -5,3 +6,4 @@
 	</td>
 </tr> 
 <!-- Hero Image, Flush : END -->
+<?php endif; ?>

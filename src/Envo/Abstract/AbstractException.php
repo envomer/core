@@ -19,6 +19,7 @@ class AbstractException extends Exception
     public $exception = [];
     public $trace = false;
     public $isJson = false;
+    public $request;
 	
 	/**
 	 * AbstractException constructor.
@@ -31,8 +32,12 @@ class AbstractException extends Exception
     {
         $this->reference = Str::quickRandom() . '.' . time();
         $this->messageCode = $messageCode;
+
+        if(isset($_REQUEST)) {
+            $this->request = $_REQUEST;
+        }
 		
-        parent::__construct(\_t($messageCode), $code, $previous);
+        parent::__construct($messageCode, $code, $previous);
     }
 	
 	/**
@@ -47,7 +52,8 @@ class AbstractException extends Exception
                 $this->internalData[] = [
                     'field' => $message->getField(),
                     'type' => $message->getType(),
-					'message' => $message->getMessage()
+					'message' => $message->getMessage(),
+                    // 'request' => isset($_REQUEST) ? $_REQUEST : null
                 ];
             }
         }
@@ -58,6 +64,7 @@ class AbstractException extends Exception
             $this->internalData =[
                 'message' => $data->getMessage(),
                 'code' => $data->getCode(),
+                // 'request' => isset($_REQUEST) ? $_REQUEST : null
             ];
         }
         else {
@@ -108,12 +115,14 @@ class AbstractException extends Exception
             die(var_dump('AbstractException::json', $exception));
         }
 
+        // die(var_dump($this->getMessage(), $code));
+
         $response = [
             'message' => $message,
             'success' => false,
             'data' => $this->data,
             'reference' => $this->reference,
-            'code' => ! $publicException ? $message : $this->messageCode
+            'code' => ! $publicException ? $message : $this->messageCode,
         ];
 
 
@@ -127,7 +136,8 @@ class AbstractException extends Exception
             ];
 
             if( $this->trace ) {
-                $response['internal']['trace'] = $this->getTrace();
+            	$previous = $this->getPrevious() ?: $this;
+                $response['internal']['trace'] = $previous->getTraceAsString();
             }
         }
 
