@@ -242,7 +242,7 @@ class Auth extends Component
 		$attempts = Event::count([
 			'ip_id = ?0 AND created_at >= ?1',
 			'bind' => array(
-				$loginEvent->ip_id,
+				$ipId,
 				date('Y-m-d H:i:s', strtotime('-15 min')),
 			),
 		]);
