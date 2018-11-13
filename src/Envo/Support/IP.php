@@ -129,6 +129,8 @@ class IP
             return false;
         }
 
+        return $_SERVER[$header];
+
         // Extract IPs
         $ips = explode(',', $_SERVER[$header]);
         // trim, so we can compare against trusted proxies properly
