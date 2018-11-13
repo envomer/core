@@ -30,15 +30,19 @@ class ExceptionHandler
 		} else {
 			http_response_code(500);
 		}
+
+
+		// die(var_dump($exception->getMessage()));
 		
 		// hmmm
 		if(!($exception instanceof AbstractException) && class_exists(\Envo\Exception\InternalException::class)) {
 			$isJson = property_exists($exception, 'isJson');
-			$exception = new \Envo\Exception\InternalException($exception->getMessage(), $exception->getCode(), $exception instanceof \Exception ? $exception : null);
+			$exception = new \Envo\Exception\InternalException($exception->getMessage(), is_numeric($exception->getCode()) ? $exception->getCode() : null, $exception instanceof \Exception ? $exception : null);
 			if($isJson) {
 				$exception->isJson = true;
 			}
 		}
+
 		
 		//TODO: sure about this??
 		// TODO: catch offline database exception?
