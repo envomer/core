@@ -138,7 +138,8 @@ class Handler
 		$builder->limit(null);
 		$builder->offset(null);
 		$counter = $builder->getQuery()->execute();
-		$countTotal = $counter->getFirst()->{0};
+		$count = $counter->getFirst();
+		$countTotal = $count ? $count->{0} : 0;
 		
 		return new Paginator($data, $countTotal, (int)$page, (int)$limit);
 	}
