@@ -6,6 +6,12 @@ use Envo\AbstractModel;
 use Envo\Model\User;
 use Envo\Support\IP;
 
+/**
+ * Class Event
+ * @package Envo\Event\Model
+ *
+ * @property EventType $type
+ */
 class Event extends AbstractModel
 {
 	protected $table = 'core_events';

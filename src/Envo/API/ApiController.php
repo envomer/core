@@ -62,7 +62,7 @@ class ApiController extends AbstractController
             $name = str_replace('.' . $method, '', $route->getName());
             $id = $model;
         }
-
+		
         $parameters = $this->get();
         $this->apiHandler->request = new RequestDTO($parameters);
         $this->apiHandler->request->parameters = $parameters;

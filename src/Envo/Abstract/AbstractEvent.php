@@ -29,9 +29,9 @@ class AbstractEvent
 	 * @param null $model
 	 * @param null $data
 	 */
-	public function __construct($message = null, $save = true, $model = null, $data = null)
+	public function __construct($message = null, $save = true, $model = null, $data = null, $init = true)
 	{
-		if( ! config('app.events.enabled', false) ) {
+		if( !$init || ! config('app.events.enabled', false) ) {
 			return;
 		}
 
@@ -103,12 +103,12 @@ class AbstractEvent
 	 */
 	public static function getInstance()
 	{
-		if(! self::$instance) {
+		//if(! static::$instance) {
 			$class = static::class;
-			self::$instance = new $class(null, false);
-		}
+			return new $class(null, null, null, null, false);
+		//}
 
-		return self::$instance;
+		//return static::$instance;
 	}
 
 	/**

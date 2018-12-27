@@ -641,6 +641,10 @@ class Validator
      */
     public function validateMax($attribute, $value, $parameters)
     {
+        // die(var_dump($this->getSize($attribute, $value), $attribute, $value, $parameters));
+        if(!is_array($parameters)) {
+            $parameters = [$parameters];
+        }
         return $this->getSize($attribute, $value) <= $parameters[0];
     }
 
@@ -775,6 +779,20 @@ class Validator
     protected function replaceMin($message, $attribute, $rule, $parameters)
     {
         return str_replace(':min', $parameters[0], $message);
+    }
+
+    /**
+     * Replace all place-holders for the min rule.
+     *
+     * @param  string  $message
+     * @param  string  $attribute
+     * @param  string  $rule
+     * @param  array   $parameters
+     * @return string
+     */
+    protected function replaceMax($message, $attribute, $rule, $parameters)
+    {
+        return str_replace(':max', $parameters, $message);
     }
 
     /**
