@@ -68,7 +68,7 @@ class User extends AbstractModel
 	/**
 	 * @var int
 	 */
-    protected $team_id;
+    public $team_id;
 	
 	/**
 	 * @var string
@@ -105,7 +105,7 @@ class User extends AbstractModel
     public $updated_at;
     
     public $email;
-	
+    
 	/**
 	 * Initialize
 	 */

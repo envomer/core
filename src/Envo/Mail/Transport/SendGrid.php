@@ -154,6 +154,10 @@ class SendGrid implements TransportInterface
 				$this->message->to => $this->message->to
 			];
 		}
+		
+		if(!$to) {
+			public_exception('validation.noEmailIsSet', 400);
+		}
 
 		$bccArray = [];
 		$bccAdded = false;

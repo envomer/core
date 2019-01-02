@@ -36,6 +36,16 @@ class Team extends AbstractModel
 	public $name;
 	
 	/**
+	 * @var string
+	 */
+	public $created_at;
+	
+	/**
+	 * @var string
+	 */
+	public $updated_at;
+	
+	/**
 	 * get a name representation of this entity
 	 *
 	 * @return string
