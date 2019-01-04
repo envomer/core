@@ -2,6 +2,8 @@
 
 namespace Envo\Support;
 
+use Envo\Foundation\Config;
+
 class IP
 {
     /**
@@ -34,7 +36,7 @@ class IP
 
     public function __construct()
     {
-    	if(function_exists('config')) {
+    	if(function_exists('config') && class_exists(Config::class)) {
 			$this->useProxy = \config('app.proxy.enabled', false);
 			$this->trustedProxies = \config('app.proxy.trusted_proxies', []);
 		}
