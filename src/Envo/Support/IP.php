@@ -34,22 +34,88 @@ class IP
 
     public function __construct()
     {
-        $this->useProxy = \config('app.proxy.enabled', false);
-        $this->trustedProxies = \config('app.proxy.trusted_proxies', []);
+    	if(function_exists('config')) {
+			$this->useProxy = \config('app.proxy.enabled', false);
+			$this->trustedProxies = \config('app.proxy.trusted_proxies', []);
+		}
     }
+	
+	/**
+	 * @return bool
+	 */
+	public function isUseProxy()
+	{
+		return $this->useProxy;
+	}
+	
+	/**
+	 * @param bool $useProxy
+	 */
+	public function setUseProxy($useProxy)
+	{
+		$this->useProxy = $useProxy;
+	}
+	
+	/**
+	 * @return array
+	 */
+	public function getTrustedProxies()
+	{
+		return $this->trustedProxies;
+	}
+	
+	/**
+	 * @param array $trustedProxies
+	 */
+	public function setTrustedProxies($trustedProxies)
+	{
+		$this->trustedProxies = $trustedProxies;
+	}
+	
+	/**
+	 * @return string
+	 */
+	public function getProxyHeader()
+	{
+		return $this->proxyHeader;
+	}
+	
+	/**
+	 * @param string $proxyHeader
+	 */
+	public function setProxyHeader($proxyHeader)
+	{
+		$this->proxyHeader = $proxyHeader;
+	}
+	
+	/**
+	 * @return null
+	 */
+	public static function getIp()
+	{
+		return self::$ip;
+	}
+	
+	/**
+	 * @param null $ip
+	 */
+	public static function setIp($ip)
+	{
+		self::$ip = $ip;
+	}
 
     /**
      * Returns client IP address.
      *
      * @return string IP address.
      */
-    public static function getIpAddress()
+    public static function getIpAddress($instance = null)
     {
         if( ! is_null(self::$ip) ) {
             return self::$ip;
         }
-
-        $class = new self();
+		
+        $class = $instance ?: new self();
         $ip = $class->getIpAddressFromProxy();
         if ($ip) {
             return self::$ip = $ip;
