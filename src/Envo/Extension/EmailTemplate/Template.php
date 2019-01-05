@@ -121,7 +121,7 @@ class Template extends AbstractDTO
 		if(!$value) {
 			// check what kind of theme
 			$cerberus = [
-				'backgroundColor' => '#e8ecf1'
+				'backgroundColor' => '#e9ecef'
 			];
 			
 			

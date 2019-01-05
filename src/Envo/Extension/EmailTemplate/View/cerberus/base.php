@@ -1,8 +1,9 @@
-<!DOCTYPE html>
-<html lang="en" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html data-editor-version="2" class="sg-campaigns" xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta charset="utf-8"> <!-- utf-8 works for most cases -->
-	<meta name="viewport" content="width=device-width"> <?php // Forcing initial-scale shouldn't be necessary ?>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1"> <?php // Forcing initial-scale shouldn't be necessary ?>
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"> <?php // Use the latest (edge) version of IE rendering engine ?>
 	<meta name="x-apple-disable-message-reformatting">  <?php // Disable auto-scale in iOS 10 Mail entirely ?>
 	<title></title>
