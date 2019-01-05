@@ -91,8 +91,42 @@
 		
 		<?php // What it does: Forces Gmail app to display email full width ?>
 		u ~ div .email-container { min-width: 100vw; }
-	
-	</style>
+
+        @media only screen and (max-width: 800px) {
+            .body-wrapper {
+                width: 98% !important;
+                margin: auto !important;
+            }
+        }
+        
+        @media only screen and (max-width: 600px){
+            .stack-column, .stack-column table, .stack-column table img{
+                width:100% !important;
+                max-width:100% !important;
+            }
+
+            .templateColumnContainer{
+                display:block !important;
+                width:100% !important;
+            }
+
+            .columnImage{
+                height:auto !important;
+                max-width:480px !important;
+                width:100% !important;
+            }
+
+            .leftColumnContent{
+                font-size:16px !important;
+                line-height:125% !important;
+            }
+
+            .rightColumnContent{
+                font-size:16px !important;
+                line-height:125% !important;
+            }
+        }
+    </style>
 	<!-- CSS Reset : END -->
 	
 	<!-- Progressive Enhancements : BEGIN -->
@@ -135,8 +169,8 @@
 	<![endif]-->
 
 </head>
-<body width="100%" style="margin: 0; mso-line-height-rule: exactly;" bgcolor="<?php echo $this->getStyle('backgroundColor', '#f0f6fa') ?>">
-    <center style="width: 100%; background: <?php echo $this->getStyle('backgroundColor', '#f0f6fa') ?>; text-align: left;">
+<body width="100%" style="margin: 0; mso-line-height-rule: exactly;" bgcolor="<?php echo $this->getStyle('backgroundColor') ?>">
+    <center style="width: 100%; background: <?php echo $this->getStyle('backgroundColor') ?>; text-align: left;" class="body-wrapper">
     <!--[if mso | IE]>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" bgcolor="#222222">
     <tr>

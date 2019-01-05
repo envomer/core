@@ -85,6 +85,15 @@ class Template extends AbstractDTO
 	 */
 	public function parse(Section $section)
 	{
+		$bbCode = $this->getBBCode();
+		
+		$section->title = $bbCode->render($section->title);
+		if($section->paragraphs) {
+			foreach ($section->paragraphs as $i => $paragraph) {
+				$section->paragraphs[$i] = $bbCode->render($section->paragraphs[$i], true, 0);
+			}
+		}
+		
 		include __DIR__ . '/View/'.$this->template.'/components/'.$section->type.'.php';
 	}
 	
@@ -104,9 +113,24 @@ class Template extends AbstractDTO
 	 *
 	 * @return mixed
 	 */
-	public function getStyle($key, $default)
+	public function getStyle($key, $default = null)
 	{
-		return ($this->style && $this->style->$key) ? $this->style->$key : $default;
+		$value = ($this->style && $this->style->$key) ? $this->style->$key : $default;
+		
+		// Refactor
+		if(!$value) {
+			// check what kind of theme
+			$cerberus = [
+				'backgroundColor' => '#e8ecf1'
+			];
+			
+			
+			if(isset($cerberus[$key])) {
+				$value = $cerberus[$key];
+			}
+		}
+		
+		return $value;
 	}
 	
 	/**

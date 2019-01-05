@@ -38,7 +38,9 @@
 						<table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
 							<tr>
 								<td dir="ltr" style="font-family: sans-serif; font-size: 15px; line-height: 140%; color: <?php echo $section->getStyle('color', '#555555') ?>; padding: 10px 10px 0; text-align: left;" class="center-on-narrow">
+                                    <?php if($section->title): ?>
 									<h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 18px; line-height: 125%; color: <?php echo $section->getStyle('color', '#333333') ?>; font-weight: bold;"><?php echo $section->title ?: '' ?></h2>
+                                    <?php endif ?>
 									<?php
 									/** @var \Core\Controller\EmailSection $paragraph */
 									foreach($section->paragraphs as $paragraph) {

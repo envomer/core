@@ -56,8 +56,23 @@ class Section extends AbstractDTO
 	 */
 	public $style;
 	
-	public function getStyle($key, $default)
+	public function getStyle($key, $default = null)
 	{
-		return ($this->style && $this->style->$key) ? $this->style->$key : $default;
+		$value = ($this->style && $this->style->$key) ? $this->style->$key : $default;
+		
+		// Refactor
+		if(!$value) {
+			// check what kind of theme
+			$cerberus = [
+				'backgroundColor' => '#e8ecf1'
+			];
+			
+			
+			if(isset($cerberus[$key])) {
+				$value = $cerberus[$key];
+			}
+		}
+		
+		return $value;
 	}
 }
