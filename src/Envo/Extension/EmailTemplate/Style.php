@@ -9,7 +9,7 @@ class Style extends AbstractDTO
 	/**
 	 * @var string
 	 */
-	public $backgroundColor;
+	public $backgroundColor = '#e9ecef';
 	
 	/**
 	 * @var string

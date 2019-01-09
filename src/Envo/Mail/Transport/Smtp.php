@@ -10,7 +10,7 @@ use Swift_Mailer;
 use Swift_Message;
 use Swift_SmtpTransport;
 
-class Smpt implements TransportInterface
+class Smtp implements TransportInterface
 {
 	/**
 	 * @var MessageDTO
@@ -29,9 +29,14 @@ class Smpt implements TransportInterface
 		$username = config('mail.username');
 		$password = config('mail.password');
 		$port = config('mail.port', 25);
+		$security = config('mail.encryption', '');
+		
+		if($security === 'null') {
+			$security = null;
+		}
 		
 		// Create the Transport
-		$transport = (new \Swift_SmtpTransport($host, $port))
+		$transport = (new \Swift_SmtpTransport($host, $port, $security))
 			->setUsername($username)
 			->setPassword($password)
 		;
@@ -84,6 +89,7 @@ class Smpt implements TransportInterface
 		
 		$response = new ResponseDTO();
 		$response->state = $result ? 'success' : 'error';
+		$response->data = $result;
 		
 		return $response;
 	}

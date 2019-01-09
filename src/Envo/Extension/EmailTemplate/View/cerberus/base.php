@@ -251,7 +251,7 @@
     
 
     <?php if($this->footer): ?>
-    <div style="width: 100%; background: <?php echo '#e4e4e4' ?: '#222222' ?>; text-align: left; text-align: center;">
+    <div style="width: 100%; background: <?php echo $this->adjustColorBrightness($this->getStyle('backgroundColor', '#222222'), 0) ?: '#222222' ?>; text-align: left; text-align: center;">
     	<?php
         /**
 			Set the email width. Defined in two places:
@@ -260,7 +260,7 @@
 			Note: The Fluid and Responsive templates have a different width (600px). The hybrid grid is more "fragile", and I've found that 680px is a good width. Change with caution.
 		*/
 		?>
-        <div style="max-width: 680px; margin: auto; background: #333" class="email-container">
+        <div style="max-width: 680px; margin: auto; background: <?php echo $this->adjustColorBrightness($this->getStyle('backgroundColor'), -10) ?: '#333333' ?>" class="email-container">
             <!--[if mso]>
             <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="680" align="center">
                 <tr>
@@ -268,9 +268,9 @@
             <![endif]-->
 
             <!-- Email Footer : BEGIN -->
-            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px; font-family: sans-serif; color: #eeeeee; font-size: 12px; line-height: 140%;">
+            <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 680px; font-family: sans-serif; color: <?php echo $this->adjustColorBrightness($this->getStyle('backgroundColor', '#222222'), -110) ?: '#222222' ?>; font-size: 12px; line-height: 140%;">
                 <tr>
-                    <td style="padding: 20px 10px 40px; width: 100%; font-family: sans-serif; font-size: 12px; line-height: 140%; text-align: center; color: #eeeeee;" class="x-gmail-data-detectors">
+                    <td style="padding: 20px 10px 40px; width: 100%; font-family: sans-serif; font-size: 12px; line-height: 140%; text-align: center; color: <?php echo $this->adjustColorBrightness($this->getStyle('backgroundColor', '#222222'), -110) ?: '#222222' ?>;" class="x-gmail-data-detectors">
                         <?php
                         if($this->footer) {
                             echo '<br><br>' . $this->footer;
@@ -279,7 +279,7 @@
 						<?php
 						if($this->unsubscribe) {
 							echo '<br><br>';
-							echo '<unsubscribe style="color: #eeeeee; text-decoration: underline;">unsubscribe</unsubscribe>';
+							echo '<unsubscribe style="color: #333333; text-decoration: underline;">unsubscribe</unsubscribe>';
 						}
 						?>
                     </td>

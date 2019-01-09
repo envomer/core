@@ -5,7 +5,7 @@ namespace Envo\Mail;
 use Envo\Extension\EmailTemplate\ResponseDTO;
 use Envo\Mail\DTO\MessageDTO;
 use Envo\Mail\Transport\SendGrid;
-use Envo\Mail\Transport\Smpt;
+use Envo\Mail\Transport\Smtp;
 use Envo\Mail\Transport\TransportInterface;
 
 class Mail
@@ -96,7 +96,7 @@ class Mail
 	public function getDrivers($driver = null)
 	{
 		$drivers = [
-			'smtp' => Smpt::class,
+			'smtp' => Smtp::class,
 			'sendgrid' => SendGrid::class
 		];
 		
@@ -109,5 +109,13 @@ class Mail
 		}
 		
 		return $drivers;
+	}
+	
+	/**
+	 * @return TransportInterface
+	 */
+	public function getTransport()
+	{
+		return $this->transport;
 	}
 }

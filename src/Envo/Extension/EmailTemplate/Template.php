@@ -41,7 +41,7 @@ class Template extends AbstractDTO
 	public $excerpt;
 	
 	/**
-	 * @var string
+	 * @var Style
 	 */
 	public $style;
 	
@@ -54,6 +54,19 @@ class Template extends AbstractDTO
 	 * @var BBCode
 	 */
 	public $bbCode;
+	
+	public function __construct($data = null, array $mapping = null)
+	{
+		parent::__construct($data, $mapping);
+		
+		if($this->style && is_array($this->style)) {
+			$this->style = new Style($this->style);
+		}
+		
+		if(!$this->style) {
+			$this->style = new Style();
+		}
+	}
 	
 	/**
 	 * @todo implement the option to override template
