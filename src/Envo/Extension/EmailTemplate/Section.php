@@ -58,7 +58,7 @@ class Section extends AbstractDTO
 	
 	public function getStyle($key, $default = null)
 	{
-		$value = ($this->style && $this->style->$key) ? $this->style->$key : $default;
+		$value = ($this->style && isset($this->style->$key)) ? $this->style->$key : $default;
 		
 		// Refactor
 		if(!$value) {
@@ -71,6 +71,10 @@ class Section extends AbstractDTO
 			if(isset($cerberus[$key])) {
 				$value = $cerberus[$key];
 			}
+		}
+		
+		if($value && $key === 'borderWidth' && strpos($value, 'px') === false) {
+			$value .= 'px';
 		}
 		
 		return $value;

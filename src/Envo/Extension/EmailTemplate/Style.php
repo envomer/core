@@ -30,4 +30,8 @@ class Style extends AbstractDTO
 	 * @var string
 	 */
 	public $btnBackgroundColor;
+	
+	public $borderColor;
+	
+	public $borderWidth;
 }
