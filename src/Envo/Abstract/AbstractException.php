@@ -126,7 +126,7 @@ class AbstractException extends Exception
         ];
 
 
-        if( env('APP_DEBUG') || ($user && $user->loggedIn && $user->isAdmin()) ) {
+        //if( env('APP_DEBUG') || ($user && $user->loggedIn && $user->isAdmin()) ) {
             $response['internal'] = [
                 // 'message' => $this->getMessage(),
                 'data' => $this->getInternalData(),
@@ -139,7 +139,7 @@ class AbstractException extends Exception
             	$previous = $this->getPrevious() ?: $this;
                 $response['internal']['trace'] = $previous->getTraceAsString();
             }
-        }
+        //}
 
         return $response;
     }

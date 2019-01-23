@@ -154,6 +154,10 @@ class AbstractController extends Controller
 
 			$code = $msg->getCode();
 			$msg = $msg->json();
+			
+			if(isset($msg['internal']) && env('APP_ENV') !== 'local') {
+				unset($msg['internal']);
+			}
 		}
 
 		if( $sentence ) {
