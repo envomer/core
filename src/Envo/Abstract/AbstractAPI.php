@@ -181,7 +181,9 @@ abstract class AbstractAPI
             return $this->name;
         }
 
-        return $this->name = strtolower(basename(str_replace('\\', '/', static::class)));
+        return $this->name = strtolower(
+        	basename(str_replace('\\', '/', static::class))
+		);
     }
 	
 	/**
@@ -218,4 +220,25 @@ abstract class AbstractAPI
 
         return $default;
     }
+	
+	/**
+	 * @param $message
+	 * @param int $code
+	 * @param null $data
+	 *
+	 * @return void
+	 * @throws APIFailedException
+	 */
+	public function fail($message, $data = null, $code = 400)
+	{
+		if(!$data && is_array($message)) {
+			$data = $message;
+			$message = null;
+		}
+		
+		$exception = new \Envo\Exception\APIFailedException($message, $code);
+		$exception->setData($data, true);
+		
+		throw $exception;
+	}
 }

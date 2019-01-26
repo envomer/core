@@ -43,13 +43,15 @@ class AbstractException extends Exception
 	/**
 	 * @param $data
 	 */
-    public function setData($data)
+    public function setData($data, $public = false)
     {
+    	$attribute = $public ? 'data' : 'internalData';
+    	
         if( $data instanceof AbstractModel ) {
 			$messages = $data->getMessages() ?: [];
 			
             foreach ($messages as $message) {
-                $this->internalData[] = [
+                $this->$attribute[] = [
                     'field' => $message->getField(),
                     'type' => $message->getType(),
 					'message' => $message->getMessage(),
@@ -61,14 +63,14 @@ class AbstractException extends Exception
             $this->data = $data->errors();
         }
         else if( $data instanceof Exception ) {
-            $this->internalData =[
+            $this->$attribute = [
                 'message' => $data->getMessage(),
                 'code' => $data->getCode(),
                 // 'request' => isset($_REQUEST) ? $_REQUEST : null
             ];
         }
         else {
-            $this->internalData = $data;
+            $this->$attribute = $data;
         }
     }
 	
@@ -104,12 +106,11 @@ class AbstractException extends Exception
         ];
 
         $message = isset($messages[$code]) ? $messages[$code] : 'api.somethingWentWrong';
+        $messagePublic = $this->messageCode;
 
         try {
             if(strpos($this->getMessage(), '.') !== false) {
                 $message = \_t($this->getMessage());
-            } else {
-                $message = \_t($message);
             }
         } catch(\Exception $exception) {
             die(var_dump('AbstractException::json', $exception));
@@ -122,10 +123,9 @@ class AbstractException extends Exception
             'success' => false,
             'data' => $this->data,
             'reference' => $this->reference,
-            'code' => ! $publicException ? $message : $this->messageCode,
+            'code' => $this->messageCode,
         ];
-
-
+        
         //if( env('APP_DEBUG') || ($user && $user->loggedIn && $user->isAdmin()) ) {
             $response['internal'] = [
                 // 'message' => $this->getMessage(),
