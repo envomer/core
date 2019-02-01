@@ -6,15 +6,12 @@ use Envo\Foundation\Loader;
 use Envo\Mail\DTO\MessageDTO;
 use Envo\Extension\EmailTemplate\ResponseDTO;
 
-use SendGrid as SendGridMailer;
-use SendGrid\Attachment;
-use SendGrid\Content;
-use SendGrid\Email;
-use SendGrid\Mail as SendGridMail;
-use SendGrid\MailSettings;
-use SendGrid\Personalization;
-use SendGrid\SandBoxMode;
-use SendGrid\Client;
+use Envo\Mail\DTO\RecipientDTO;
+use SendGrid as SendGridCore;
+use SendGrid\Mail\Attachment;
+use SendGrid\Mail\MailSettings;
+use SendGrid\Mail\Personalization;
+use SendGrid\Mail\SandBoxMode;
 
 class SendGrid implements TransportInterface
 {
@@ -59,21 +56,20 @@ class SendGrid implements TransportInterface
 		// require_once APP_PATH . 'vendor/sendgrid/sendgrid/lib/helpers/mail/Mail.php';
 		// require_once APP_PATH . 'vendor/sendgrid/php-http-client/lib/SendGrid/Client.php';
 		
-		$mail = $this->makeMail();
 		$batches = $this->getRecipientBatches();
 
 		// die(var_dump($mail, $batches, $this->message));
 		
-		$mailer = new SendGridMailer($this->token);
-		$client = $mailer->client;
+		$mailer = new SendGridCore($this->token);
 		
 		$responses = [];
 		foreach ($batches as $batch) {
-			$mail->personalization = $batch;
-
+			//$mail->personalization = $batch;
+			$mail = $this->makeMail($batch);
+			
 			// TODO validate sendgrid responses
 			
-			$responses[] = $client->mail()->send()->post($mail);
+			$responses[] = $mailer->send($mail);
 		}
 
 		$response = new ResponseDTO();
@@ -86,34 +82,33 @@ class SendGrid implements TransportInterface
 	}
 	
 	/**
-	 * @return SendGridMail
+	 * @return \SendGrid\Mail\Mail
 	 * @throws \Exception
 	 */
-	public function makeMail()
+	public function makeMail($batch)
 	{
-		$from = new Email($this->message->fromName, $this->message->from);
-
-		
-		//$newsletterId = strtotime($newsletter->created_at) . '-' . $newsletter->id;
-		
-		$mail = new SendGridMail();
-		$mail->setFrom($from);
-
+		$mail = new \SendGrid\Mail\Mail($this->message->from);
+		$mail->setFrom($this->message->from, $this->message->fromName);
 		$mail->setSubject($this->message->subject);
-
-		if($this->message->bodyRaw) {
-			$mail->addContent(new Content('text/plain', $this->message->bodyRaw));
+		
+		if($batch) {
+			foreach ($batch as $item) {
+				$mail->addPersonalization($item);
+			}
 		}
 
-		$mail->addContent(new Content('text/html', $this->message->body));
+		if($this->message->bodyRaw) {
+			$mail->addContent('text/plain', $this->message->bodyRaw);
+		}
 
-
+		$mail->addContent('text/html', $this->message->body);
+		
 		if($this->message->customArguments) {
 			$customArguments = is_array($this->message->customArguments) ? $this->message->customArguments : [$this->message->customArguments];
 
 			foreach ($customArguments as $key => $value) {
 				// $mail->addCustomArg('newsletterid', 'testing'); // ???
-				$mail->addCustomArg($key, $value); // ???
+				$mail->addCustomArg($key, is_int($value) ? '' . $value : $value); // ???
 			}
 		}
 		
@@ -142,6 +137,8 @@ class SendGrid implements TransportInterface
 	
 	/**
 	 * @return array
+	 * @throws \Envo\Exception\InternalException
+	 * @throws \Envo\Exception\PublicException
 	 */
 	public function getRecipientBatches()
 	{
@@ -164,7 +161,7 @@ class SendGrid implements TransportInterface
 		if($this->message->bcc) {
 			$bcc = is_string($this->message->bcc) ? [$this->message->bcc] : $this->message->bcc;
 			foreach ($bcc as $key => $value) {
-				$bccArray[] = new Email($value, $value);
+				$bccArray[] = new \SendGrid\Mail\Bcc($value, $value);
 			}
 		}
 		
@@ -187,7 +184,7 @@ class SendGrid implements TransportInterface
 				]);
 			}
 
-			$to = new Email(is_string($name) ? $name : $email, $email);
+			$to = new \SendGrid\Mail\To(is_string($name) ? $name : $email, $email);
 
 			$personalization = new Personalization();
 			$personalization->addTo($to);
@@ -218,11 +215,11 @@ class SendGrid implements TransportInterface
 	}
 	
 	
-	
 	/**
 	 * Validate pushover service
 	 *
 	 * @return bool
+	 * @throws \Envo\Exception\InternalException
 	 */
 	public function validate()
 	{
