@@ -43,12 +43,15 @@ class Smtp implements TransportInterface
 		
 		$to = $this->message->to;
 		if(!is_array($this->message->to)) {
-			$to = [$this->message->to];
+			$to = [trim($this->message->to)];
 		}
 
-		foreach ($to as $recipient) {
+		foreach ($to as $recipient => $name) {
 			if(!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
-				public_exception('validation.emailInvalid', 400);
+				public_exception('validation.emailInvalid', 400, [
+					'recipient' => $recipient,
+					'name' => $name,
+				]);
 			}
 		}
 		
