@@ -53,22 +53,30 @@ class Translator
 					return $translation;
 				}
 				
-				if( strpos($translation, ':' .$k) === false ) {
-					preg_match_all('/(?<!\w):\w+/', $translation, $matches);
-					$matches = $matches[0];
-
-					if( ! $matches ) {
-						return $translation;
-					}
-					
-					$pos = strpos($translation, $matches[$i]);
-					if ($pos !== false) {
-					    $translation = substr_replace($translation, $param, $pos, strlen($matches[$i]));
-					}
+				if(is_array($param)) {
+					continue;
 				}
-				else {
-					$translation = str_replace(':' . $k, $param, $translation);
-				}
+				
+				$translation = str_replace(':' . $k, $param, $translation);
+				
+				//if( strpos($translation, ':' .$k) === false ) {
+				//
+				//	preg_match_all('/(?<!\w):\w+/', $translation, $matches);
+				//	$matches = $matches[0];
+				//
+				//	if( ! $matches ) {
+				//		return $translation;
+				//	}
+				//
+				//	$pos = strpos($translation, $matches[$i]);
+				//	if ($pos !== false) {
+				//	    $translation = substr_replace($translation, $param, $pos, strlen($matches[$i]));
+				//	}
+				//}
+				//else {
+				//	$translation = str_replace(':' . $k, $param, $translation);
+				//}
+				
 				$i++;
 			}
 		}

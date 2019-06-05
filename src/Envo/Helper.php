@@ -331,7 +331,7 @@ if( ! function_exists('public_exception') )
 	function public_exception($messageCode, $code = 500, $data = null)
 	{
 		$exception = new \Envo\Exception\PublicException($messageCode, $code);
-		$exception->setData($data);
+		$exception->setData($data, true);
 
 		throw $exception;
 	}
