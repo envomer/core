@@ -319,7 +319,9 @@ class Table
      */
     public function float($column, $precision = 8, $scale = 2)
     {
-        return $this->addColumnNew('float', $column, compact('precision', 'scale'));
+    	$options = compact('precision', 'scale');
+    	$options['type'] = Column::TYPE_FLOAT;
+        return $this->addColumnNew( $column, $options);
     }
 
     /**
