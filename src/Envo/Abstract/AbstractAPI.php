@@ -22,7 +22,7 @@ abstract class AbstractAPI
     
     const REQUEST_METHOD_INDEX = 'index';
     const REQUEST_METHOD_SHOW = 'show';
-    const REQUEST_METHOD_CREATE = 'create';
+    const REQUEST_METHOD_CREATE = 'store';
     const REQUEST_METHOD_UPDATE = 'update';
 	
 	/**
