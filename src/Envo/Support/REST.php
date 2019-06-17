@@ -154,6 +154,22 @@ class REST
 		
 		return $this;
 	}
+
+	/**
+	 * @param $option
+	 * @param $value
+	 *
+	 * @return self
+	 */
+	public function setTimeout($value = 30, $connectTimeout = null) : self
+	{
+		$this->setOption(CURLOPT_TIMEOUT, $value);
+		if($connectTimeout) {
+			$this->setOption(CURLOPT_CONNECTTIMEOUT, $connectTimeout);
+		}
+		
+		return $this;
+	}
 	
 	/**
 	 * Set basic auth
@@ -210,7 +226,7 @@ class REST
 		$this->ch = curl_init();
 		
 		// Set default options
-		curl_setopt($this->ch, CURLOPT_TIMEOUT, 10);
+		// curl_setopt($this->ch, CURLOPT_TIMEOUT, 10000);
 		
 		curl_setopt($this->ch, CURLOPT_RETURNTRANSFER, true);
 		curl_setopt($this->ch, CURLOPT_USERAGENT, $this->userAgent);
@@ -243,7 +259,7 @@ class REST
 		if($errorCode = curl_errno($this->ch)){
 			$error = $errorCode . ': ' . curl_error($this->ch);
 			curl_close($this->ch);
-			throw new \Exception('Request Error:' . $error);
+			throw new \Exception('Request Error: ' . $error);
 		}
 		
 		curl_close($this->ch);
