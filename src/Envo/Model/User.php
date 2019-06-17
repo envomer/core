@@ -10,6 +10,8 @@ use Envo\Support\Translator;
  * Class User
  * @package Envo\Model
  *
+ * @property \Envo\Model\Team team
+ *
  * @method static User findFirstByIdentifier(string $name)
  */
 class User extends AbstractModel
@@ -60,7 +62,7 @@ class User extends AbstractModel
 
     /**
      * Username
-     * 
+     *
      * @var string
      */
     public $username;
@@ -112,6 +114,7 @@ class User extends AbstractModel
     public function initialize()
 	{
 		$this->softDeletes = false;
+		$this->belongsTo( 'team_id', Team::class, 'id', ['alias' => 'team'] );
 	}
 
     /**
