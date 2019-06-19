@@ -306,4 +306,9 @@ class User extends AbstractModel
 	{
 		return 'identifier';
 	}
+
+	public function getLevel()
+	{
+		return $this->level;
+	}
 }

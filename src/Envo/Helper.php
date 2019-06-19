@@ -194,7 +194,7 @@ if(!function_exists('envo_exception_handler'))
 {
 	function envo_exception_handler($error)
 	{
-		if($error instanceof \Exception) {
+		if($error instanceof \Exception && class_exists(\Envo\Foundation\ExceptionHandler::class)) {
 			\Envo\Foundation\ExceptionHandler::handle($error);
 		}
 		
