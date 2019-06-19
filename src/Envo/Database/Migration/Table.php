@@ -12,7 +12,7 @@ class Table
 	public $indexes;
 	
 	/**
-	 * @var \Phalcon\Db\Column[]
+	 * @var Column[]
 	 */
 	public $columns;
 	
@@ -611,4 +611,18 @@ class Table
     {
 
     }
+    
+    public function dropColumn($columns)
+	{
+		if(is_string($columns)) {
+			$columns = [$columns];
+		}
+		
+		foreach ($columns as $columnName) {
+			$column = $this->addColumnNew($columnName, [
+				'type' => 'string'
+			]);
+			$column->toBeRemoved = true;
+		}
+	}
 }

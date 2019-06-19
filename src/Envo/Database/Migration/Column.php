@@ -15,6 +15,10 @@ class Column extends \Phalcon\Db\Column
 	 */
 	public $table;
 	
+	public $toBeRemoved = false;
+	
+	public $toBeChanged = false;
+	
 	/**
 	 * @param bool $unique
 	 *
@@ -120,6 +124,11 @@ class Column extends \Phalcon\Db\Column
 		}
 		
 		return $this;
+	}
+	
+	public function change()
+	{
+		$this->toBeChanged = true;
 	}
 
 }
