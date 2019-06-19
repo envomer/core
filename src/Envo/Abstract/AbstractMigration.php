@@ -66,8 +66,18 @@ class AbstractMigration
         $table = $this->table($name);
 
         $closure($table);
+	
+		foreach ($table->columns as $column) {
+			if($column->toBeChanged) {
+				$this->connection->modifyColumn($table->name, null, $column);
+			} else if($column->toBeRemoved) {
+				$this->connection->dropColumn($table->name, null, $column->getName());
+			} else {
+				$this->connection->addColumn($table->name, null, $column);
+			}
+        }
 
-        $table->update();
+        //$table->update();
     }
 	
 	/**
@@ -93,4 +103,5 @@ class AbstractMigration
 	{
 		return $this->connection->dropTable($name);
 	}
+	
 }
