@@ -80,7 +80,7 @@ class User extends AbstractModel
 	/**
 	 * @var int
 	 */
-    protected $level;
+    public $level;
 	
 	/**
 	 * @var int
