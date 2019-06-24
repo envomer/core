@@ -123,6 +123,62 @@ class Table
 			'size' => $length
 		]);
     }
+	
+	/**
+	 * Create a new string column on the table.
+	 *
+	 * @param  string $column
+	 * @param  int $length
+	 * @return Column
+	 */
+	public function blob($column)
+	{
+		return $this->addColumnNew($column,[
+			'type' => Column::TYPE_BLOB,
+		]);
+	}
+	
+	/**
+	 * Create a new string column on the table.
+	 *
+	 * @param  string $column
+	 * @param  int $length
+	 * @return Column
+	 */
+	public function tinyBlob($column)
+	{
+		return $this->addColumnNew($column,[
+			'type' => Column::TYPE_TINYBLOB,
+		]);
+	}
+	
+	/**
+	 * Create a new string column on the table.
+	 *
+	 * @param  string $column
+	 * @param  int $length
+	 * @return Column
+	 */
+	public function mediumBlob($column)
+	{
+		return $this->addColumnNew($column,[
+			'type' => Column::TYPE_MEDIUMBLOB,
+		]);
+	}
+	
+	/**
+	 * Create a new string column on the table.
+	 *
+	 * @param  string $column
+	 * @param  int $length
+	 * @return Column
+	 */
+	public function longBlob($column)
+	{
+		return $this->addColumnNew($column,[
+			'type' => Column::TYPE_LONGBLOB,
+		]);
+	}
 
     /**
      * Create a new text column on the table.
@@ -192,7 +248,7 @@ class Table
     {
 		return $this->addColumnNew($column, [
 			'type' => Column::TYPE_INTEGER,
-			'size' => 2,
+			'size' => 4,
 			'unsigned' => $unsigned,
 			'autoIncrement' => $autoIncrement
 		]);
@@ -210,7 +266,7 @@ class Table
     {
         return $this->addColumnNew($column, [
         	'type' => Column::TYPE_INTEGER,
-			'size' => 4,
+			'size' => 6,
 			'unsigned' => $unsigned,
 			'autoIncrement' => $autoIncrement
 		]);
@@ -228,7 +284,7 @@ class Table
     {
 		return $this->addColumnNew($column, [
 			'type' => Column::TYPE_INTEGER,
-			'size' => 4,
+			'size' => 9,
 			'unsigned' => $unsigned,
 			'autoIncrement' => $autoIncrement
 		]);
@@ -244,9 +300,13 @@ class Table
      */
     public function bigInteger($column, $autoIncrement = false, $unsigned = false)
     {
-        $signed = !$unsigned;
-        $limit = MysqlAdapter::INT_BIG;
-        return $this->addColumnNew('bigInteger', $column, compact('limit', 'signed'));
+		return $this->addColumnNew($column, [
+			'type' => Column::TYPE_BIGINTEGER,
+			'unsigned' => $unsigned,
+			'autoIncrement' => $autoIncrement
+		]);
+        //$limit = MysqlAdapter::INT_BIG;
+        //return $this->addColumnNew('bigInteger', $column, compact('limit', 'signed'));
     }
 
     /**

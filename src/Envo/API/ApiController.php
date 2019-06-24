@@ -67,9 +67,7 @@ class ApiController extends AbstractController
         $this->apiHandler->request = new RequestDTO($parameters);
         $this->apiHandler->request->parameters = $parameters;
         $this->apiHandler->name = $model;
-
-        $router = $this->router;
-
+        
         try {
             $this->apiHandler->setApi($name);
             if( ! $this->apiHandler->isAuthorized() ) {
