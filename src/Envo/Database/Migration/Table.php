@@ -478,7 +478,9 @@ class Table
      */
     public function date($column)
     {
-        return $this->addColumnNew('date', $column);
+        return $this->addColumnNew($column, [
+        	'type' => Column::TYPE_DATE
+		]);
     }
 
     /**

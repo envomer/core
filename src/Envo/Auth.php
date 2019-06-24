@@ -173,7 +173,7 @@ class Auth extends Component
 		// Check if the user exist
 		$userClass = $this->userClass;
 		/** @var User $user */
-		$user = $userClass::repo()->where('email = :email: OR username = :username:',[
+		$user = $userClass::repo()->where('deleted_at IS NULL AND (email = :email: OR username = :username:)',[
 			'email' => $email,
 			'username' => $email
 		])->getOne();
