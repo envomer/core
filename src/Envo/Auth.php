@@ -214,7 +214,9 @@ class Auth extends Component
 			'name' => $user->username,
 		]);
 
-		$event = new LoggedIn(null, false, $user);
+		$event = new LoggedIn(null, false, $user, [
+			'username' => $user->username
+		]);
 		$event = $event->getEvent();
 		if($event) {
 			$event->user_id = $user->getId();
