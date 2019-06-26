@@ -201,7 +201,10 @@ class Table
      */
     public function mediumText($column)
     {
-        return $this->addColumnNew('mediumText', $column, ['limit' => MysqlAdapter::TEXT_MEDIUM]);
+       return $this->addColumnNew($column, [
+		   'type' => defined('Column::TYPE_MEDIUMTEXT') ? Column::TYPE_MEDIUMTEXT : Column::TYPE_TEXT,
+        	//'type' => 23 //
+		]);
     }
 
     /**
@@ -213,7 +216,10 @@ class Table
     public function longText($column)
     {
         //longText
-        return $this->addColumnNew('text', $column, ['limit' => MysqlAdapter::TEXT_LONG]);
+       return $this->addColumnNew($column, [
+		   'type' => defined('Column::TYPE_LONGTEXT') ? Column::TYPE_LONGTEXT : Column::TYPE_TEXT,
+        	//'type' => 24
+		]);
     }
 
     /**
