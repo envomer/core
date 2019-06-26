@@ -172,8 +172,20 @@ class Auth extends Component
 	{
 		// Check if the user exist
 		$userClass = $this->userClass;
+		
+		$emailProp = 'email';
+		
+		$config = $this->di->get( 'config');
+		
+		if($config->get('app.auth.wildcard_email_login', true)) {
+			//normalize the email
+			$email = preg_replace( '/(\+.*)(@)/', '$2', $email);
+			//if enabled then we have to check the email this way
+			$emailProp = 'REGEXP_REPLACE(email, "\\\+.*@", "@")';
+		}
+		
 		/** @var User $user */
-		$user = $userClass::repo()->where('deleted_at IS NULL AND (email = :email: OR username = :username:)',[
+		$user = $userClass::repo()->where('deleted_at IS NULL AND ('. $emailProp .' = :email: OR '. $emailProp .' = :username:)',[
 			'email' => $email,
 			'username' => $email
 		])->getOne();
@@ -354,7 +366,7 @@ class Auth extends Component
 
 	/**
 	 * Login into the app with a Authorization header
-	 * 
+	 *
 	 * @return User|null
 	 */
 	public function loginWithAuthorizationHeaders()
