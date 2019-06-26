@@ -134,8 +134,12 @@ class Str
      * @param  string  $end
      * @return string
      */
-    public static function limit($value, $limit = 100, $end = '...'): string
+    public static function limit($value, $limit = 100, $end = '...'): ?string
 	{
+		if(!$value) {
+			return $value;
+		}
+		
         if (mb_strwidth($value, 'UTF-8') <= $limit) {
             return $value;
         }
