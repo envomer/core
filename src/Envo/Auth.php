@@ -177,7 +177,7 @@ class Auth extends Component
 		
 		$config = $this->di->get( 'config');
 		
-		if($config->get('app.auth.wildcard_email_login', true)) {
+		if($config->get('app.auth.wildcard_email_login', false)) {
 			//normalize the email
 			$email = preg_replace( '/(\+.*)(@)/', '$2', $email);
 			//if enabled then we have to check the email this way
@@ -185,7 +185,7 @@ class Auth extends Component
 		}
 		
 		/** @var User $user */
-		$user = $userClass::repo()->where('deleted_at IS NULL AND ('. $emailProp .' = :email: OR '. $emailProp .' = :username:)',[
+		$user = $userClass::repo()->where('deleted_at IS NULL AND ('. $emailProp .' = :email: OR username = :username:)',[
 			'email' => $email,
 			'username' => $email
 		])->getOne();
