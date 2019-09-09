@@ -28,8 +28,13 @@ class REST
     public function __construct($config = null)
     {
         if($config) {
-	        $this->setHeaders($config['headers']);
-	        $this->setAuth($config['auth_user'], $config['auth_pass']);
+        	if(isset($config['headers'])) {
+        		$this->setHeaders($config['headers']);
+			}
+        	
+        	if(isset($config['auth_user'], $config['auth_pass'])) {
+        		$this->setAuth($config['auth_user'], $config['auth_pass']);
+			}
         }
 		
 		$this->userAgent = $_SERVER['HTTP_USER_AGENT'];

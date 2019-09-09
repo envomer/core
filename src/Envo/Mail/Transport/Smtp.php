@@ -43,7 +43,7 @@ class Smtp implements TransportInterface
 		
 		$to = $this->message->to;
 		if(!is_array($this->message->to)) {
-			$to = [trim($this->message->to)];
+			$to = [trim($this->message->to) => trim($this->message->to)];
 		}
 
 		foreach ($to as $recipient => $name) {
