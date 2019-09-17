@@ -103,7 +103,7 @@ class ApiController extends AbstractController
 	 */
     public function store($model)
     {
-        $resp = $this->apiHandler->save($this->get());
+        $resp = $this->apiHandler->create($this->get());
 
         return $this->json($resp);
     }

@@ -205,8 +205,12 @@ class Handler
 	 * @return array
 	 * @throws PublicException
 	 */
-	public function save()
+	public function create()
 	{
+		if( method_exists($this->api, 'create') ) {
+			return $this->api->create();
+		}
+		
 		$validation = $this->hook('validate');
 		if( is_array($validation) ) {
 			$this->api->check($validation);
@@ -239,6 +243,10 @@ class Handler
 	 */
 	public function update($entityId)
 	{
+		if( method_exists($this->api, 'update') ) {
+			return $this->api->update($entityId);
+		}
+		
 		$entry = $this->find($entityId, false);
 		if( ! $entry ) {
 			public_exception('api.entityNotFound', 404);

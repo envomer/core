@@ -17,6 +17,7 @@ class MigrationScaffold extends BaseCommand
                 {--path= : The path of migrations files to be executed.}
                 {--pretend : Dump the SQL queries that would be run.}
                 {--seed : Indicates if the seed task should be re-run.}
+                {--migrate= : Define the migration you want to migrate.}
                 {--step : Force the migrations to be run so they can be rolled back individually.}';
 	
 	/**
@@ -93,8 +94,12 @@ class MigrationScaffold extends BaseCommand
         if( $group === 'ALL' ) {
             return Arr::flatten($files);
         }
+        
+        if(!isset($files[$group])) {
+        	throw new \Exception('Migration not found');
+		}
 
-        return $files[$group];
+        return $files[$group] ?? null;
     }
 	
 	/**
@@ -105,8 +110,9 @@ class MigrationScaffold extends BaseCommand
 	public function handle()
 	{
 		// Ask the user which of their defined paths they'd like to use:
-		$answer = $this->askWhichMigration();
-		if( $answer === 'none' ) {
+		$option = $this->option('migrate');
+		$answer = $option ?: $this->askWhichMigration();
+		if( !$answer || $answer === 'none' ) {
 			return true;
 		}
 		$files = $this->getFiles($answer);

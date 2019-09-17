@@ -31,7 +31,7 @@ class AbstractMigration
      * @param array $options
      * @return Table
      */
-    public function table($tableName, array $options = array())
+    public function table($tableName, $options)
     {
         return new Table($tableName, $options);
     }
