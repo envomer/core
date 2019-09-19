@@ -93,9 +93,9 @@ class Console extends \Phalcon\Application
         $this->registerServices();
         $this->setupConfig();
 	
-		if( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
+		//if( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
 			$this->registerDatabases($di);
-		}
+		//}
 
         $app = new Application($name, $version);
 		
@@ -126,8 +126,10 @@ class Console extends \Phalcon\Application
 			$app->add(new StartCommand);
 			$app->add(new InstallCommand);
 		}
-		
-        $app->run();
+	
+		$this->registerAppCommands($app);
+	
+		$app->run();
     }
 	
 	/**
@@ -248,5 +250,31 @@ class Console extends \Phalcon\Application
 		}
 		
 		$this->dbRegistered = true;
+	}
+	
+	/**
+	 * @param Application $app
+	 *
+	 * @throws \Exception
+	 */
+	public function registerAppCommands(Application $app): void
+	{
+		if( class_exists(\Console::class) ) {
+			$console = new \Console();
+			
+			if( method_exists($console, 'register') ) {
+				$commands = $console->register();
+				
+				if( $commands && !is_array($commands) ) {
+					throw new \Exception('Console::register must return an array');
+				}
+				
+				if( $commands ) {
+					foreach ($commands as $command) {
+						$app->add($command);
+					}
+				}
+			}
+		}
 	}
 }
