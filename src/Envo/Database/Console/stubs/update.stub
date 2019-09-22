@@ -12,7 +12,7 @@ class DummyClass extends AbstractMigration
      */
     public function up()
     {
-        $this->table('DummyTable', function (Table $table) {
+        $this->update('DummyTable', function (Table $table) {
             //
         });
     }
@@ -24,7 +24,7 @@ class DummyClass extends AbstractMigration
      */
     public function down()
     {
-        $this->table('DummyTable', function (Table $table) {
+        $this->update('DummyTable', function (Table $table) {
             //
         });
     }

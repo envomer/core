@@ -331,7 +331,7 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set the database configuration
 		 */
-		$this->registerDatabases($di, $debug);
+		$this->registerDatabases($di, $config->get('database.log', false));
 
 		/**
 		* If the configuration specify the use of metadata adapter use it or use memory otherwise
@@ -453,9 +453,9 @@ class Application extends \Phalcon\Mvc\Application
 		$eventsManager->collectResponses(true);
 		
 		// Listen all the database events
-		$requestDebug = isset($_GET['cc2']); // add this to config or so...
-		$logger = !$requestDebug ? null : new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
-		$eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler, $requestDebug, $logger) {
+		//$requestDebug = isset($_GET['cc2']); // add this to config or so...
+		$logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
+		$eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler, $logger) {
 			if ($event->getType() === 'beforeQuery') {
 				// $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 				$profiler->startProfile($connection->getSQLStatement());
@@ -463,7 +463,7 @@ class Application extends \Phalcon\Mvc\Application
 				$item->setSqlVariables($connection->getSqlVariables() ?: []);
 				$item->setSqlBindTypes($connection->getSqlBindTypes() ?: []);
 				
-				if($requestDebug) {
+				//if($requestDebug) {
 					$ignoreClasses = ['Phalcon\\', 'Application'];
 					$path = '';
 					foreach(debug_backtrace() as $trace) {
@@ -476,7 +476,7 @@ class Application extends \Phalcon\Mvc\Application
 					//echo "Execution Time: {$profiler->getTotalElapsedSeconds()}. <br> PATH: {$path}\n\r";
 					//echo '<br><br>-----------------------------------------------------------------------<br><br>';
 					$logger->log($connection->getSQLStatement() . " [Execution Time: {$profiler->getTotalElapsedSeconds()}. PATH: {$path}]\n\r", \Phalcon\Logger::DEBUG);
-				}
+				//}
 			}
 			if ($event->getType() === 'afterQuery') {
 				$profiler->stopProfile();
@@ -492,7 +492,7 @@ class Application extends \Phalcon\Mvc\Application
 	 * @param DI $di
 	 * @param bool $debug
 	 */
-	public function registerDatabases(DI $di, $debug = false)
+	public function registerDatabases(DI $di, $log = false)
 	{
 		$databaseConfig = config('database');
 		$connections = ['db' => $databaseConfig['default']];
@@ -505,7 +505,7 @@ class Application extends \Phalcon\Mvc\Application
 		
 		$self = $this;
 		foreach ($connections as $key => $connectionName){
-			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connectionName, $self) {
+			$di->setShared($key, function () use($log, $databaseConfig, $key, $connectionName, $self) {
 				$data = $databaseConfig['connections'][$connectionName];
 				
 				if( $data['driver'] === 'sqlite' ) {
@@ -514,7 +514,7 @@ class Application extends \Phalcon\Mvc\Application
 					$connection = new Mysql($data);
 				}
 				
-				if( $debug ) {
+				if( $log ) {
 					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
 				
