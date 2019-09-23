@@ -43,7 +43,6 @@ trait EncryptColumn
 		$columns = $this->getEncryptedColumns();
 		
 		if($data) {
-			// what??
 			foreach ($columns as $column) {
 				if(!isset($data[$column])) {
 					continue;

@@ -51,6 +51,11 @@ class Application extends \Phalcon\Mvc\Application
 	 * @var bool
 	 */
 	public $initialized = false;
+	
+	/**
+	 * @var bool
+	 */
+	public $debug = false;
 
 	/**
 	 * Check if app is maintenance
@@ -152,7 +157,7 @@ class Application extends \Phalcon\Mvc\Application
 	public function registerServices()
 	{
 		$di = new DI();
-		$debug = env('APP_ENV') === 'local' && env('APP_DEBUG');
+		$this->debug = $debug = env('APP_DEBUG');
 		
 		$this->registerNamespaces($di);
 		
@@ -446,6 +451,9 @@ class Application extends \Phalcon\Mvc\Application
 	 */
 	public function dbDebug($databaseName, $di)
 	{
+		if(!$this->debug) {
+			return;
+		}
 		// log the mysql queries if APP_DEBUG is set to true
 		/** @var Profiler $profiler */
 		$profiler = $di->get('profiler');
@@ -492,7 +500,7 @@ class Application extends \Phalcon\Mvc\Application
 	 * @param DI $di
 	 * @param bool $debug
 	 */
-	public function registerDatabases(DI $di, $log = false)
+	public function registerDatabases(DI $di, $logging = false)
 	{
 		$databaseConfig = config('database');
 		$connections = ['db' => $databaseConfig['default']];
@@ -505,7 +513,7 @@ class Application extends \Phalcon\Mvc\Application
 		
 		$self = $this;
 		foreach ($connections as $key => $connectionName){
-			$di->setShared($key, function () use($log, $databaseConfig, $key, $connectionName, $self) {
+			$di->setShared($key, function () use($logging, $databaseConfig, $key, $connectionName, $self) {
 				$data = $databaseConfig['connections'][$connectionName];
 				
 				if( $data['driver'] === 'sqlite' ) {
@@ -514,7 +522,7 @@ class Application extends \Phalcon\Mvc\Application
 					$connection = new Mysql($data);
 				}
 				
-				if( $log ) {
+				if( $logging && $self->debug ) {
 					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
 				
