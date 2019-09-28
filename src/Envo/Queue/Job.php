@@ -12,6 +12,7 @@ class Job extends AbstractDTO
     public $queue;
     public $id = null;
     public $type_id;
+    public $type_name;
     public $payload;
     public $attempts = 1;
     public $reserved_at;

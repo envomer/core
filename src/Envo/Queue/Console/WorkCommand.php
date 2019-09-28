@@ -3,6 +3,8 @@
 namespace Envo\Queue\Console;
 
 use Envo\Console\Command;
+use Envo\Queue;
+use Envo\Support\Date;
 
 class WorkCommand extends Command
 {
@@ -32,31 +34,23 @@ class WorkCommand extends Command
     {
         echo "Running queue worker...\n";
 
-        $queue = new \Queue;
+        $queue = new Queue();
 
         while (true) {
             if( $jobs = $queue->getNextJobs(5) ) {
-                echo "\n";
                 foreach ($jobs as $i => $job) {
-                    if( $i > 0 ) {
-                        echo "\n";
-                    }
-                    
-                    echo 'Executing job (' . $job->type_name .')' . '. ';
+					$this->line(Date::now() . ' ' . $job->type_name . ' (' . $job->id . ') : <comment>Executing...</comment>');
 
-                    $result = $queue->work($job);
-                    if($result ) {
-                        echo "Done. Deleted job. \n";
-                    }
-                    else {
-                        echo "Done. Error: {$result}";
+                    $result = $queue->run($job);
+                    if(is_bool($result) && $result) {
+						$this->line(Date::now() . ' ' . $job->type_name . ' (' . $job->id . ') : <info>Finished and released.</info>');
+                    } else {
+						$this->line(Date::now() . ' ' . $job->type_name . ' (' . $job->id . ') : <fg=red>Failed ('.$result.')</>');
                     }
                 }
-                echo "\n";
             }
 
             sleep(5);
-            // echo ".";
         }
     }
 }

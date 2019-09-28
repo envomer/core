@@ -3,21 +3,24 @@
 namespace Envo\Queue;
 
 use Envo\AbstractJob;
+use Envo\Queue\Connector\ConnectorInterface;
 
 class Manager
 {
     /**
      * The connector for the queue.
      *
-     * @var string
+     * @var ConnectorInterface
      */
     protected $connector;
-
-    /**
-     * Set up connector
-     *
-     * @param [type] $connectorName
-     */
+	
+	/**
+	 * Set up connector
+	 *
+	 * @param string $connectorName
+	 *
+	 * @throws \Envo\Exception\InternalException
+	 */
     public function __construct($connectorName = null)
     {
         if( ! $connectorName ) {
@@ -26,15 +29,17 @@ class Manager
 
         $this->setConnector($connectorName);
     }
-
-    /**
-     * Push a new job onto the queue.
-     *
-     * @param  string  $queue
-     * @param  string  $job
-     * @param  mixed   $data
-     * @return mixed
-     */
+	
+	/**
+	 * Push a new job onto the queue.
+	 *
+	 * @param string $job
+	 * @param int $delay
+	 * @param string $queue
+	 *
+	 * @return mixed
+	 * @throws \ReflectionException
+	 */
     public function push($job, $delay = null, $queue = null)
     {
         $data = $this->sleep($job);
@@ -48,7 +53,7 @@ class Manager
 	 * @return $this
 	 * @throws \Envo\Exception\InternalException
 	 */
-    public function setConnector(string $connectorName)
+    public function setConnector(string $connectorName): self
 	{
 		if(class_exists($connectorName)) {
 			$this->connector = new $connectorName;
@@ -79,29 +84,33 @@ class Manager
     {
         return $this->later($delay, $job, $data, $queue);
     }
-
-    /**
-     * Push an array of jobs onto the queue.
-     *
-     * @param  array $jobs
-     * @param  integer $delay
-     * @param  string $queue
-     * @return mixed
-     */
+	
+	/**
+	 * Push an array of jobs onto the queue.
+	 *
+	 * @param array $jobs
+	 * @param integer $delay
+	 * @param string $queue
+	 *
+	 * @throws \ReflectionException
+	 */
     public function bulk($jobs, $delay = 0, $queue = null)
     {
         foreach ((array) $jobs as $job) {
             $this->push($job, $delay, $queue);
         }
     }
-
-    /**
-     * Prepare the instance for serialization.
-     *
-     * @return array
-     */
-    protected function sleep($class)
-    {
+	
+	/**
+	 * Prepare the instance for serialization.
+	 *
+	 * @param $class
+	 *
+	 * @return array
+	 * @throws \ReflectionException
+	 */
+    protected function sleep($class): array
+	{
     	$reflector = new \ReflectionClass($class);
         $properties = $reflector->getProperties();
 
@@ -114,10 +123,10 @@ class Manager
 	/**
 	 * @param int $limit
 	 *
-	 * @return AbstractJob[]
+	 * @return Job[]
 	 */
-    public function getNextJobs($limit = 5)
-    {
+    public function getNextJobs($limit = 5): array
+	{
         return $this->connector->getNextJobs($limit) ?: [];
     }
 	
@@ -125,8 +134,9 @@ class Manager
 	 * @param int $limit
 	 *
 	 * @return bool
+	 * @throws \ReflectionException
 	 */
-	public function process($limit = 5)
+	public function process($limit = 5): bool
 	{
 		$jobs = $this->getNextJobs($limit);
 		
@@ -140,21 +150,27 @@ class Manager
 		
 		return true;
 	}
-    
+	
+	/**
+	 * @param Job $job
+	 *
+	 * @return bool|string|null
+	 * @throws \ReflectionException
+	 */
     public function work(Job $job)
     {
         $class = $this->wakeup($job->payload);
 
-        $job->attempts += 1;
+        ++$job->attempts;
         $result = null;
 
         try {
             $result = $class->handle();
         } catch (\Exception $e) {
             $result = $e->getMessage(). "\n"
-             . " Class=" . get_class($e) . "\n"
-             . " File=". $e->getFile(). "\n"
-             . " Line=". $e->getLine(). "\n"
+             . ' Class=' . get_class($e) . "\n"
+             . ' File=' . $e->getFile(). "\n"
+             . ' Line=' . $e->getLine(). "\n"
              . $e->getTraceAsString() . "\n";
 
             $job->failed_at = time();
@@ -171,16 +187,19 @@ class Manager
 
         return $result;
     }
-
-    /**
-     * Restore the model after serialization.
-     *
-     * @return void
-     */
+	
+	/**
+	 * Restore the model after serialization.
+	 *
+	 * @param $data
+	 *
+	 * @return object|AbstractJob
+	 * @throws \ReflectionException
+	 */
     protected function wakeup($data)
     {
         $class = $data['class'];
-        $parameters = isset($data['properties']) ? $data['properties'] : [];
+        $parameters = $data['properties'] ?? [];
 
         $reflector = new \ReflectionClass($class);
 
@@ -237,8 +256,8 @@ class Manager
      * @param  array  $parameters
      * @return array
      */
-    protected function keyParametersByArgument(array $dependencies, array $parameters)
-    {
+    protected function keyParametersByArgument(array $dependencies, array $parameters): array
+	{
         foreach ($parameters as $key => $value) {
             if (is_numeric($key)) {
                 unset($parameters[$key]);
