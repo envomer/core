@@ -4,6 +4,7 @@ namespace Envo\Extension\EmailTemplate;
 
 use Envo\AbstractDTO;
 use Envo\Extension\BBCode\BBCode;
+use Envo\Extension\Markdown\Markdown;
 use Envo\Mail\DTO\MessageDTO;
 
 class Template extends AbstractDTO
@@ -53,7 +54,11 @@ class Template extends AbstractDTO
 	/**
 	 * @var BBCode
 	 */
-	public $bbCode;
+	private $bbCode;
+	
+	private $markdownEngine;
+	
+	public $useMarkdown = false;
 	
 	public function __construct($data = null, array $mapping = null)
 	{
@@ -98,12 +103,18 @@ class Template extends AbstractDTO
 	 */
 	public function parse(Section $section)
 	{
-		$bbCode = $this->getBBCode();
+		if($this->useMarkdown) {
+			$engine = $this->getMarkdownEngine();
+			$method = 'parse';
+		} else {
+			$engine = $this->getBBCode();
+			$method = 'render';
+		}
 		
-		$section->title = $bbCode->render($section->title);
+		$section->title = $engine->$method($section->title);
 		if($section->paragraphs) {
 			foreach ($section->paragraphs as $i => $paragraph) {
-				$section->paragraphs[$i] = $bbCode->render($section->paragraphs[$i], true, 0);
+				$section->paragraphs[$i] = $engine->$method($section->paragraphs[$i], true, 0);
 			}
 		}
 		
@@ -171,7 +182,7 @@ class Template extends AbstractDTO
 			}
 
 			if($section->paragraphs) {
-				$raw .= implode("\n", $section->paragraphs) . "\n";
+				$raw .= implode("\n\n", $section->paragraphs) . "\n";
 			}
 		}
 
@@ -205,6 +216,18 @@ class Template extends AbstractDTO
 		}
 		
 		return $this->bbCode;
+	}
+	
+	/**
+	 * @return BBCode
+	 */
+	public function getMarkdownEngine()
+	{
+		if(!$this->markdownEngine) {
+			$this->markdownEngine = Markdown::instance();
+		}
+		
+		return $this->markdownEngine;
 	}
 	
 	/**

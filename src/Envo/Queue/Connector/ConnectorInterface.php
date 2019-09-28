@@ -17,5 +17,5 @@ interface ConnectorInterface
 
     public function getNextJobs($limit = 5);
 
-    public function deleteJob(Job $job);
+    public function release(Job $job);
 }

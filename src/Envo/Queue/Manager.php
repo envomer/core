@@ -2,6 +2,8 @@
 
 namespace Envo\Queue;
 
+use Envo\AbstractJob;
+
 class Manager
 {
     /**
@@ -22,12 +24,7 @@ class Manager
             $connectorName = config('app.queue.connector', 'mysql');
         }
 
-        $connectorClass = '\Envo\Queue\Connector\\' . ucfirst($connectorName) . 'Connector';
-        if( ! class_exists($connectorClass) ) {
-            internal_exception('app.queueConnectorNotFound', 500);
-        }
-
-        $this->connector = new $connectorClass;
+        $this->setConnector($connectorName);
     }
 
     /**
@@ -44,6 +41,30 @@ class Manager
 
         return $this->connector->store($data, $delay, $queue);
     }
+	
+	/**
+	 * @param string $connectorName
+	 *
+	 * @return $this
+	 * @throws \Envo\Exception\InternalException
+	 */
+    public function setConnector(string $connectorName)
+	{
+		if(class_exists($connectorName)) {
+			$this->connector = new $connectorName;
+			
+			return $this;
+		}
+		
+		$connectorClass = '\Envo\Queue\Connector\\' . ucfirst($connectorName) . 'Connector';
+		if( ! class_exists($connectorClass) ) {
+			internal_exception('app.queueConnectorNotFound', 500);
+		}
+		
+		$this->connector = new $connectorClass;
+		
+		return $this;
+	}
 
     /**
      * Push a new job onto the queue after a delay.
@@ -62,15 +83,15 @@ class Manager
     /**
      * Push an array of jobs onto the queue.
      *
-     * @param  array   $jobs
-     * @param  mixed   $data
-     * @param  string  $queue
+     * @param  array $jobs
+     * @param  integer $delay
+     * @param  string $queue
      * @return mixed
      */
-    public function bulk($jobs, $data = '', $queue = null)
+    public function bulk($jobs, $delay = 0, $queue = null)
     {
         foreach ((array) $jobs as $job) {
-            $this->push($job, $data, $queue);
+            $this->push($job, $delay, $queue);
         }
     }
 
@@ -89,12 +110,37 @@ class Manager
         	'properties' => (array)$class
         );
     }
-
+	
+	/**
+	 * @param int $limit
+	 *
+	 * @return AbstractJob[]
+	 */
     public function getNextJobs($limit = 5)
     {
-        return $this->connector->getNextJobs($limit) ?: null;
+        return $this->connector->getNextJobs($limit) ?: [];
     }
-
+	
+	/**
+	 * @param int $limit
+	 *
+	 * @return bool
+	 */
+	public function process($limit = 5)
+	{
+		$jobs = $this->getNextJobs($limit);
+		
+		if(!$jobs) {
+			return false;
+		}
+		
+		foreach ($jobs as $job) {
+			$this->work($job);
+		}
+		
+		return true;
+	}
+    
     public function work(Job $job)
     {
         $class = $this->wakeup($job->payload);
@@ -104,8 +150,7 @@ class Manager
 
         try {
             $result = $class->handle();
-        }
-        catch (\Exception $e) {
+        } catch (\Exception $e) {
             $result = $e->getMessage(). "\n"
              . " Class=" . get_class($e) . "\n"
              . " File=". $e->getFile(). "\n"
@@ -116,12 +161,12 @@ class Manager
             $job->exception = $result;
             $job->status = $job::STATUS_FAILED;
 
-            $this->connector->retryJob($job);
+            $this->connector->retryJob($job, $e);
         }
 
         $job->done = 1;
         if ( $job->status !== $job::STATUS_FAILED ) {
-            $this->connector->deleteJob($job);
+            $this->connector->release($job);
         }
 
         return $result;

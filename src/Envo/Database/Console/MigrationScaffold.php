@@ -43,6 +43,7 @@ class MigrationScaffold extends BaseCommand
             'team',
             'event',
             'mail',
+            'queue',
             'extension_email_template',
             'permissions',
         ];
@@ -88,7 +89,10 @@ class MigrationScaffold extends BaseCommand
             ],
 			'extension_email_template' => [
 				ENVO_PATH . '../migrations/20180106203020_create_extensionEmailTemplate_table.php',
-			]
+			],
+			'queue' => [
+				ENVO_PATH . '../migrations/20190928102722_create_queue_table.php',
+			],
         ];
 
         if( $group === 'ALL' ) {

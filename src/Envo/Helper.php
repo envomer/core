@@ -269,10 +269,19 @@ if( ! function_exists('resolve') )
 		if(!$di) {
 			return null;
 		}
-
-		if( $di && ! ($repo = $di->getShared($class)) ) {
-			$repo = $instance ?: new $repo;
-			$di->setShared($class, $repo);
+		
+		if($di->has($class)) {
+			return $di->getShared($class);
+		}
+		
+		if(!$instance) {
+			$instance = $class;
+		}
+		
+		if($instance) {
+			$di->setShared($class, $instance);
+			
+			return $di->getShared($class);
 		}
 
         return $repo;
