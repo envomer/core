@@ -37,7 +37,7 @@ class REST
 			}
         }
 		
-		$this->userAgent = $_SERVER['HTTP_USER_AGENT'];
+		$this->userAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
     }
 	
 	/**
