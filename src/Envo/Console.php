@@ -83,10 +83,20 @@ class Console extends \Phalcon\Application
 			$name = 'Burning ' . $name;
 			$version = '0.0.1';
 		}
+	
+		$config = new Config();
 		
 		/** Set config */
-		$di->setShared('config', Config::class);
+		$di->setShared('config', $config);
 		$di->setShared('app', $this);
+	
+		$di->setShared('crypt', function() use($config) {
+			$crypt = new \Phalcon\Crypt();
+			$crypt->setCipher($config->get('app.cipher'));
+			$crypt->setKey($config->get('app.key'));
+		
+			return $crypt;
+		});
 	
 		$this->setDI($di);
     	$this->setup();
