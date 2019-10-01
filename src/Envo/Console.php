@@ -90,17 +90,9 @@ class Console extends \Phalcon\Application
 		$di->setShared('config', $config);
 		$di->setShared('app', $this);
 	
-		$di->setShared('crypt', function() use($config) {
-			$crypt = new \Phalcon\Crypt();
-			$crypt->setCipher($config->get('app.cipher'));
-			$crypt->setKey($config->get('app.key'));
-		
-			return $crypt;
-		});
-	
 		$this->setDI($di);
     	$this->setup();
-        $this->registerServices();
+        $this->registerServices($di, $config);
         $this->setupConfig();
 	
 		//if( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
@@ -145,7 +137,7 @@ class Console extends \Phalcon\Application
 	/**
 	 * @return void
 	 */
-	public function registerServices()
+	public function registerServices($di, $config)
 	{
 		/**
 		 * Register the module directories
@@ -158,6 +150,19 @@ class Console extends \Phalcon\Application
 
 		$loader->registerNamespaces($namespaces);
 		$loader->register();
+		
+		/**
+		 * Custom authentication component
+		 */
+		$di->setShared('auth', Auth::class);
+		
+		$di->setShared('crypt', function() use($config) {
+			$crypt = new \Phalcon\Crypt();
+			$crypt->setCipher($config->get('app.cipher'));
+			$crypt->setKey($config->get('app.key'));
+			
+			return $crypt;
+		});
 	}
 	
 	/**
