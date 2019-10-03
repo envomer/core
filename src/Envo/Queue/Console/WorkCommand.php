@@ -19,9 +19,8 @@ class WorkCommand extends Command
                             {--once : Only process the next job on the queue}
                             {--delay=0 : Amount of time to delay failed jobs}
                             {--force : Force the worker to run even in maintenance mode}
-                            {--memory=128 : The memory limit in megabytes}
                             {--sleep=3 : Number of seconds to sleep when no job is available}
-                            {--timeout=60 : The number of seconds a child process can run}
+                            {--lifetime=-1 : Number of seconds to sleep when no job is available}
                             {--tries=0 : Number of times to attempt a job before logging it failed}';
     /**
      * The console command description.
@@ -29,12 +28,24 @@ class WorkCommand extends Command
      * @var string
      */
     protected $description = 'Start processing jobs on the queue as a daemon';
-
+	
+	/**
+	 * @return mixed|void
+	 * @throws \Envo\Exception\InternalException
+	 * @throws \ReflectionException
+	 */
     public function handle()
     {
-        echo "Running queue worker...\n";
+    	$this->info('Running queue worker...');
 
         $queue = new Queue();
+        
+        $sleep = $this->option('sleep') ?: 5;
+        $lifetime = $this->option('lifetime') ?: -1;
+        $once = $this->option('once') ?: false;
+        $end = ! $lifetime ? null : time() + $lifetime;
+        
+        $counter = 0;
 
         while (true) {
             if( $jobs = $queue->getNextJobs(5) ) {
@@ -49,8 +60,18 @@ class WorkCommand extends Command
                     }
                 }
             }
+            
+            if($once) {
+            	break;
+			}
 
-            sleep(5);
+            sleep($sleep);
+            $counter++;
+            
+            if($lifetime && $end <= time()) {
+				$this->warn('Lifetime ended.');
+            	break;
+			}
         }
     }
 }
