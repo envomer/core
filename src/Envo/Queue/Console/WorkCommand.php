@@ -41,9 +41,9 @@ class WorkCommand extends Command
         $queue = new Queue();
         
         $sleep = $this->option('sleep') ?: 5;
-        $lifetime = $this->option('lifetime') ?: -1;
+        $lifetime = (int)$this->option('lifetime') ?: -1;
         $once = $this->option('once') ?: false;
-        $end = ! $lifetime ? null : time() + $lifetime;
+        $end = $lifetime <= 0 ? null : time() + $lifetime;
         
         $counter = 0;
 
@@ -68,7 +68,7 @@ class WorkCommand extends Command
             sleep($sleep);
             $counter++;
             
-            if($lifetime && $end <= time()) {
+            if($end && $end <= time()) {
 				$this->warn('Lifetime ended.');
             	break;
 			}
