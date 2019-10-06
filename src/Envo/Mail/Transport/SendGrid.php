@@ -152,6 +152,20 @@ class SendGrid implements TransportInterface
 			];
 		}
 		
+		/**
+		 * Validate emails again
+		 */
+		if(is_array($to)) {
+			$emails = [];
+			foreach ($to as $key => $mail) {
+				if(is_integer($recipient)) {
+					$recipient = $mail;
+				}
+				$emails[$recipient] = $mail;
+			}
+			$to = $emails;
+		}
+		
 		if(!$to) {
 			public_exception('validation.noEmailIsSet', 400);
 		}

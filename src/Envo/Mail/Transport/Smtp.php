@@ -47,6 +47,9 @@ class Smtp implements TransportInterface
 		}
 
 		foreach ($to as $recipient => $name) {
+			if(is_integer($recipient)) {
+				$recipient = $name;
+			}
 			if(!filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
 				public_exception('validation.emailInvalid', 400, [
 					'recipient' => $recipient,
