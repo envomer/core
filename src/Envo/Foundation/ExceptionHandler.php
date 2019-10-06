@@ -57,11 +57,15 @@ class ExceptionHandler
 				$dataEvent = $json;
 				if( $_REQUEST !== null ) {
 					$dataEvent['request'] = $_REQUEST;
-					$dataEvent['uri'] = isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '';
+					$dataEvent['uri'] = $_SERVER['REQUEST_URI'] ?? '';
 				}
+				
 				new \Envo\Event\Exception($exception->getMessage(), true, null, $dataEvent);
 				if ( $exception->isJson || (($router = resolve('router')) && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/') === 0 )) {
 					header('Content-Type: application/json');
+					if(!function_exists('env') || !env('APP_DEBUG')) {
+						unset($json['internal']);
+					}
 					echo json_encode($json);
 					exit;
 				}
@@ -70,7 +74,7 @@ class ExceptionHandler
 				//die(var_dump('here?'));
 				new \Envo\Event\Exception($exception->getMessage(), true, null, [
 					'request' => isset($_REQUEST) ? $_REQUEST : '',
-					'uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : '',
+					'uri' => $_SERVER['REQUEST_URI'] ?? '',
 					'trace_string' => $exceptionActual->getTraceAsString(),
 					'trace' => $exceptionActual->getTrace()
 				]);
