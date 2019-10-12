@@ -2,6 +2,7 @@
 
 namespace Envo;
 
+use Envo\Console\Cron\RunCommand;
 use Envo\Database\Console\Migrate;
 use Envo\Database\Console\MigrationCreate;
 use Envo\Database\Console\MigrationReset;
@@ -78,7 +79,7 @@ class Console extends \Phalcon\Application
         \define('ENVO_CLI', true);
         
         $inFuseMode = getenv('FUSE_CLI');
-		if($inFuseMode) {
+		if ($inFuseMode) {
 			\define('FUSE_CLI', true);
 			$name = 'Burning ' . $name;
 			$version = '0.0.1';
@@ -95,7 +96,7 @@ class Console extends \Phalcon\Application
         $this->registerServices($di, $config);
         $this->setupConfig();
 	
-		//if( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
+		//if ( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
 			$this->registerDatabases($di);
 		//}
 
@@ -123,8 +124,9 @@ class Console extends \Phalcon\Application
 		$app->add(new MakeModelCommand);
 		$app->add(new MakeEventCommand);
 		$app->add(new MakeDTOCommand);
+		$app->add(new RunCommand());
 	
-		if($inFuseMode) {
+		if ($inFuseMode) {
 			$app->add(new StartCommand);
 			$app->add(new InstallCommand);
 		}
@@ -183,14 +185,14 @@ class Console extends \Phalcon\Application
 		\define('APP_START', microtime(true));
 		\define('ENVO_PATH', __DIR__ . '/../');
 		
-		if( ! \defined('APP_PATH') ) {
+		if ( ! \defined('APP_PATH') ) {
 			exit('APP_PATH not defined');
 		}
 		
 		/**
 		 * Read configuration file
 		 */
-		if(! file_exists(APP_PATH . '.env') ) {
+		if (! file_exists(APP_PATH . '.env') ) {
 			throw new \Exception('Configuration file not set. Contact support team.', 500);
 		}
 		
@@ -198,7 +200,6 @@ class Console extends \Phalcon\Application
 		
 		// IP check
 		require_once 'Helper.php';
-		//(new IP())->isBlocked();
 	}
 	
 	/**
@@ -208,14 +209,15 @@ class Console extends \Phalcon\Application
 	{
 		$config = parse_ini_file(APP_PATH . '.env');
 		
-		if( getenv('APP_ENV') === 'testing' ) {
+		if ( getenv('APP_ENV') === 'testing' ) {
 			unset($config['APP_ENV']);
 		}
 		
 		foreach($config as $key => $conf) {
-			if( \is_array($conf) ) {
+			if ( \is_array($conf) ) {
 				continue;
 			}
+			
 			putenv($key.'='.$conf);
 		}
 	}
@@ -228,17 +230,17 @@ class Console extends \Phalcon\Application
 	 */
 	public function registerDatabases(DI $di = null, $debug = false)
 	{
-		if($this->dbRegistered) {
+		if ($this->dbRegistered) {
 			return;
 		}
 		
-		if(!$di) {
+		if (!$di) {
 			$di = Di::getDefault();
 		}
 		
 		$databaseConfig = config('database');
 		$connections = ['db' => $databaseConfig['default']];
-		if(isset($databaseConfig['use'])) {
+		if (isset($databaseConfig['use'])) {
 			/** @var array $databaseConfig */
 			foreach ($databaseConfig['use'] as $item){
 				$connections[$item] = $item;
@@ -250,13 +252,13 @@ class Console extends \Phalcon\Application
 			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connectionName, $self) {
 				$data = $databaseConfig['connections'][$connectionName];
 				
-				if( $data['driver'] === 'sqlite' ) {
+				if ( $data['driver'] === 'sqlite' ) {
 					$connection = new Sqlite($data);
 				} else {
 					$connection = new Mysql($data);
 				}
 				
-				if( $debug ) {
+				if ( $debug ) {
 					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
 				
@@ -272,24 +274,36 @@ class Console extends \Phalcon\Application
 	 *
 	 * @throws \Exception
 	 */
-	public function registerAppCommands(Application $app): void
+	public function registerAppCommands(Application $app)
 	{
-		if( class_exists(\Console::class) ) {
-			$console = new \Console();
-			
-			if( method_exists($console, 'register') ) {
-				$commands = $console->register();
-				
-				if( $commands && !is_array($commands) ) {
-					throw new \Exception('Console::register must return an array');
-				}
-				
-				if( $commands ) {
-					foreach ($commands as $command) {
-						$app->add($command);
-					}
-				}
-			}
+		if ( ! class_exists('Console') ) {
+			return false;
 		}
+		
+		$console = new \Console();
+		
+		if ( !method_exists($console, 'commands') ) {
+			return false;
+		}
+		
+		$commands = $console->commands();
+		
+		if (!$commands) {
+			return false;
+		}
+		
+		if ( !is_array($commands) ) {
+			throw new \Exception('Console::commands() must return an array');
+		}
+		
+		foreach ($commands as $command) {
+			if (is_string(($command))) {
+				$command = new $command();
+			}
+			
+			$app->add($command);
+		}
+		
+		return true;
 	}
 }

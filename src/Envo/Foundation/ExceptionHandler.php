@@ -84,7 +84,8 @@ class ExceptionHandler
 		}
 		
 		if(defined('APP_CLI') && APP_CLI) {
-			die(var_dump($exception->getMessage()));
+			throw $exception;
+			//die(var_dump($exception->getMessage()));
 		}
 		
 		$error = $exception;

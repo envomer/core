@@ -1,39 +1,61 @@
 <?php
+//
+//use Phalcon\Di;
+//use Phalcon\Di\FactoryDefault;
+//use Phalcon\Loader;
+//
+//ini_set("display_errors", 1);
+//error_reporting(E_ALL);
+//
+//define("ROOT_PATH", __DIR__);
+//
+//set_include_path(
+//	ROOT_PATH . PATH_SEPARATOR . get_include_path()
+//);
+//
+//// Required for phalcon/incubator
+//include __DIR__ . "/../vendor/autoload.php";
+//
+//include __DIR__ . '/UnitTestCase.php';
+//
+//// Use the application autoloader to autoload the classes
+//// Autoload the dependencies found in composer
+//$loader = new Loader();
+//
+//$loader->registerDirs(
+//	[
+//		ROOT_PATH,
+//	]
+//);
+//
+//$loader->register();
+//
+//$di = new FactoryDefault();
+//
+//Di::reset();
+//
+//// Add any needed services to the DI here
+//
+//Di::setDefault($di);
 
-use Phalcon\Di;
-use Phalcon\Di\FactoryDefault;
-use Phalcon\Loader;
+if (! defined( 'APP_PATH')){
+	/**
+	 * @const APP_PATH Define the APPLICATION PATH constant
+	 */
+	define('APP_PATH', __DIR__ . '/../');
+}
 
-ini_set("display_errors", 1);
-error_reporting(E_ALL);
+/**
+ * Include the framework layer
+ */
+require_once APP_PATH . 'vendor/envome/core/src/Envo/Application.php';
 
-define("ROOT_PATH", __DIR__);
+/**
+ * Instantiate the application
+ */
+$application = new \Envo\Application();
 
-set_include_path(
-	ROOT_PATH . PATH_SEPARATOR . get_include_path()
-);
-
-// Required for phalcon/incubator
-include __DIR__ . "/../vendor/autoload.php";
-
-include __DIR__ . '/UnitTestCase.php';
-
-// Use the application autoloader to autoload the classes
-// Autoload the dependencies found in composer
-$loader = new Loader();
-
-$loader->registerDirs(
-	[
-		ROOT_PATH,
-	]
-);
-
-$loader->register();
-
-$di = new FactoryDefault();
-
-Di::reset();
-
-// Add any needed services to the DI here
-
-Di::setDefault($di);
+/**
+ * Bootstrap application
+ */
+return $application->start();

@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<phpunit bootstrap="./tests/TestHelper.php"
+<phpunit bootstrap="./tests/Bootstrap.php"
          backupGlobals="false"
          backupStaticAttributes="false"
          verbose="true"
-         colors="false"
+         colors="true"
          convertErrorsToExceptions="true"
          convertNoticesToExceptions="true"
          convertWarningsToExceptions="true"
          processIsolation="false"
-         stopOnFailure="false"
-         syntaxCheck="true">
+         stopOnFailure="false">
     <testsuites>
         <testsuite name="Unit Tests">
             <directory suffix="Test.php">./tests</directory>

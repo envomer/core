@@ -110,16 +110,13 @@ class Application extends \Phalcon\Mvc\Application
 	/**
 	 * @param bool $initialize
 	 *
+	 * @return bool
 	 * @throws \Exception
 	 */
 	public function start()
 	{
 		if(!$this->initialized) {
 			$this->initialize();
-		}
-
-		if(config('app.composer', true)) {
-			require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
 		}
 		
 		if(defined('APP_CLI') && APP_CLI) {
@@ -141,7 +138,6 @@ class Application extends \Phalcon\Mvc\Application
 			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
 		}
 		
-		
 		try {
 			echo $this->handle()->getContent();
 		} catch(\Exception $exception) {
@@ -159,7 +155,7 @@ class Application extends \Phalcon\Mvc\Application
 		$di = new DI();
 		$this->debug = $debug = env('APP_DEBUG');
 		
-		$this->registerNamespaces($di);
+		//$this->registerNamespaces($di);
 		
 		$config = new Config();
 		putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
@@ -174,9 +170,11 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Enable cookies
 		 */
-		$di->setShared('cookies', function () {
+		$di->setShared('cookies', function () use ($config) {
 			$cookies = new Cookies();
-			$cookies->useEncryption(false);
+			$settings = $config->get('app.cookies', []);
+			$cookies->useEncryption($settings['encryption'] ?? false);
+			$cookies->setSignKey($settings['sign_key'] ?? null);
 			return $cookies;
 		});
 
@@ -246,124 +244,13 @@ class Application extends \Phalcon\Mvc\Application
 		 * Initialize API handler
 		 */
 		$di->setShared('apiHandler', Handler::class);
-
-		/**
-		 * Register the router
-		 */
-		$di->setShared('router', function() use($di, $config, $debug) {
-			$router = new Router(false);
-			$router->removeExtraSlashes(true);
-			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
-
-			if(file_exists(APP_PATH . 'bootstrap/cache/routes.php')) {
-				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';
-				$router->import($routes);
-				
-				if(isset($routes['apis']) && $routes['apis']) {
-					$di->get('apiHandler')->setApis($routes['apis']);
-				}
-				
-				return $router;
-			}
-
-			$appConfig = $config->get('app.api', []);
-			
-			if(!isset($appConfig['enabled']) || $appConfig['enabled']) {
-				$router->apiPrefix = $appConfig['prefix'] ?? $router->apiPrefix;
-				$api = $router->api();
-				$router->setHandler($di->get('apiHandler'));
-			}
-
-			require_once APP_PATH . 'app/routes.php';
-			
-			if(isset($api)) {
-				$router->mount($api);
-			}
-			
-			$router->extensions();
-			
-			return $router;
-		});
-
-		/**
-		 * Register the VIEW component
-		 */
-		$di->setShared('view', function () use($config) {
-			$view = new View();
-			
-			$view->setViewsDir($config->get('view.defaultDirectory', [
-				APP_PATH . 'app/Core/views/',
-				APP_PATH . 'app/Core/Template/'
-			]));
-			
-			$engines = ['.php' => Php::class];
-			if($config->get('view.volt', false)) {
-				$engines['.volt'] = 'volt';
-				
-			}
-			$view->registerEngines($engines);
-			return $view;
-		});
 		
-		$voltConfig = $config->get('view.volt');
+		$this->initRouter($di, $config);
+		$this->initView($di, $config);
+		$this->initVolt($di, $config);
+		$this->initDatabase($di, $config);
 		
-		if(isset($voltConfig['enabled']) && $voltConfig['enabled']) {
-			$di->setShared('volt', function ($view, $di) use($config, $voltConfig){
-				$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
-				
-				$volt->setOptions([
-					'compiledPath' => $voltConfig['compiledPath'] ?? true,
-					'stat' => $voltConfig['stat'] ?? true,
-					'prefix' => $voltConfig['prefix'] ?? null,
-					'compiledSeparator' => $voltConfig['compiledSeparator'] ?? '%%',
-					'compiledExtension' => $voltConfig['compiledExtension'] ?? '.php',
-					'compileAlways' => $voltConfig['compileAlways'] ?? false,
-					'autoescape' => $voltConfig['autoescape'] ?? false,
-				]);
-				
-				// TODO: we need to move the volt functions. causes trouble with config:cache command (closures)!!
-				$compiler = $volt->getCompiler();
-				if(isset($voltConfig['functions']) && is_array($voltConfig['functions'])) {
-					foreach ($voltConfig['functions'] as $functionName => $function) {
-						$compiler->addFunction($functionName, $function);
-					}
-				}
-
-				return $volt;
-			});
-		}
-
-		/**
-		 * Set the database configuration
-		 */
-		$this->registerDatabases($di, $config->get('database.log', false));
-
-		/**
-		* If the configuration specify the use of metadata adapter use it or use memory otherwise
-		*/
-		$di->setShared('modelsMetadata', function () {
-			$metaData = new Files(array(
-				'metaDataDir' => APP_PATH . 'storage/framework/cache/'
-			));
-
-			return $metaData;
-		});
-
-		/**
-		 * Set the models cache service
-		 */
-		$di->setShared('modelsCache', function () {
-			// Cache data for one day by default
-			$frontCache = new FrontendData(['lifetime' => 86400]);
-
-			$cache = new File($frontCache, array(
-				'cacheDir' => APP_PATH . 'storage/framework/cache/'
-			));
-
-			return $cache;
-		});
-
-
+		
 		$di->setShared('crypt', function() use($config) {
 			$crypt = new \Phalcon\Crypt();
 			$crypt->setCipher($config->get('app.cipher'));
@@ -418,8 +305,9 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		if(! file_exists(APP_PATH . '.env') ) {
 			throw new \Exception('app.envConfigurationFileNotFound', 500);
-			// internal_exception('app.configurationFileNotFound', 500);
 		}
+		
+		require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
 	}
 	
 	/**
@@ -627,6 +515,151 @@ class Application extends \Phalcon\Mvc\Application
             }
 
 			return $session;
+		});
+	}
+	
+	/**
+	 * @param DI $di
+	 * @param Config $config
+	 */
+	private function initRouter(DI $di, Config $config): void
+	{
+		/**
+		 * Register the router
+		 */
+		$di->setShared('router', function () use ($di, $config) {
+			$router = new Router(false);
+			$router->removeExtraSlashes(true);
+			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
+			
+			if( file_exists(APP_PATH . 'bootstrap/cache/routes.php') ) {
+				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';
+				$router->import($routes);
+				
+				if( isset($routes['apis']) && $routes['apis'] ) {
+					$di->get('apiHandler')->setApis($routes['apis']);
+				}
+				
+				return $router;
+			}
+			
+			$appConfig = $config->get('app.api', []);
+			
+			if( !isset($appConfig['enabled']) || $appConfig['enabled'] ) {
+				$router->apiPrefix = $appConfig['prefix'] ?? $router->apiPrefix;
+				$api = $router->api();
+				$router->setHandler($di->get('apiHandler'));
+			}
+			
+			require_once APP_PATH . 'app/routes.php';
+			
+			if( isset($api) ) {
+				$router->mount($api);
+			}
+			
+			$router->extensions();
+			
+			return $router;
+		});
+	}
+	
+	/**
+	 * @param DI $di
+	 * @param Config $config
+	 */
+	private function initView(DI $di, Config $config): void
+	{
+		/**
+		 * Register the VIEW component
+		 */
+		$di->setShared('view', function () use ($config) {
+			$view = new View();
+			
+			$view->setViewsDir($config->get('view.defaultDirectory', [
+				APP_PATH . 'app/Core/views/',
+				APP_PATH . 'app/Core/Template/'
+			]));
+			
+			$engines = ['.php' => Php::class];
+			if( $config->get('view.volt', false) ) {
+				$engines['.volt'] = 'volt';
+				
+			}
+			$view->registerEngines($engines);
+			
+			return $view;
+		});
+	}
+	
+	/**
+	 * @param Config $config
+	 * @param DI $di
+	 */
+	private function initVolt(DI $di, Config $config): void
+	{
+		$voltConfig = $config->get('view.volt');
+		
+		if( isset($voltConfig['enabled']) && $voltConfig['enabled'] ) {
+			$di->setShared('volt', function ($view, $di) use ($config, $voltConfig) {
+				$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
+				
+				$volt->setOptions([
+					'compiledPath' => $voltConfig['compiledPath'] ?? true,
+					'stat' => $voltConfig['stat'] ?? true,
+					'prefix' => $voltConfig['prefix'] ?? null,
+					'compiledSeparator' => $voltConfig['compiledSeparator'] ?? '%%',
+					'compiledExtension' => $voltConfig['compiledExtension'] ?? '.php',
+					'compileAlways' => $voltConfig['compileAlways'] ?? false,
+					'autoescape' => $voltConfig['autoescape'] ?? false,
+				]);
+				
+				// TODO: we need to move the volt functions. causes trouble with config:cache command (closures)!!
+				$compiler = $volt->getCompiler();
+				if( isset($voltConfig['functions']) && is_array($voltConfig['functions']) ) {
+					foreach ($voltConfig['functions'] as $functionName => $function) {
+						$compiler->addFunction($functionName, $function);
+					}
+				}
+				
+				return $volt;
+			});
+		}
+	}
+	
+	/**
+	 * @param DI $di
+	 * @param Config $config
+	 */
+	private function initDatabase(DI $di, Config $config): void
+	{
+		/**
+		 * Set the database configuration
+		 */
+		$this->registerDatabases($di, $config->get('database.log', false));
+		
+		/**
+		 * If the configuration specify the use of metadata adapter use it or use memory otherwise
+		 */
+		$di->setShared('modelsMetadata', function () {
+			$metaData = new Files(array(
+				'metaDataDir' => APP_PATH . 'storage/framework/cache/'
+			));
+			
+			return $metaData;
+		});
+		
+		/**
+		 * Set the models cache service
+		 */
+		$di->setShared('modelsCache', function () {
+			// Cache data for one day by default
+			$frontCache = new FrontendData(['lifetime' => 86400]);
+			
+			$cache = new File($frontCache, array(
+				'cacheDir' => APP_PATH . 'storage/framework/cache/'
+			));
+			
+			return $cache;
 		});
 	}
 }

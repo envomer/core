@@ -182,7 +182,12 @@ if( ! function_exists('user') )
 	 */
 	function user()
 	{
-		return resolve('auth')->user();
+		$auth = resolve('auth');
+		if(!$auth) {
+			return null;
+		}
+		
+		return $auth->user();
 	}
 }
 
@@ -296,7 +301,7 @@ if( ! function_exists('config') )
 	function config($name = null, $default = null)
 	{
 		$config = resolve('config');
-		if(!$name) {
+		if(!$name || !$config) {
 			return $config;
 		}
 		return $config->get($name, $default);
