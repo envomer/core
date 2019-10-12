@@ -64,16 +64,16 @@ class Application extends \Phalcon\Mvc\Application
 	 */
 	public function isInMaintenance()
 	{
-		if( $this->inMaintenance === null ) {
+		if ( $this->inMaintenance === null ) {
 			$path = APP_PATH . 'storage/framework/down';
 			$this->inMaintenance = file_exists($path) ? @file_get_contents($path) : false;
 
-			if( $this->inMaintenance ) {
+			if ( $this->inMaintenance ) {
 				$this->inMaintenance = json_decode($this->inMaintenance);
 			}
 		}
 
-		if( $this->inMaintenance ) {
+		if ( $this->inMaintenance ) {
 			$maintenance = $this->inMaintenance;
 			$maintenance->retry = $maintenance->retry ?: 60;
 			$maintenance->progress = abs(floor((($maintenance->time + $maintenance->retry) - time())/$maintenance->retry));
@@ -93,7 +93,7 @@ class Application extends \Phalcon\Mvc\Application
 	 */
 	public function initialize()
 	{
-		if(!defined('APP_START')) {
+		if (!defined('APP_START')) {
 			define('APP_START', microtime(true));
 		}
 		
@@ -115,15 +115,15 @@ class Application extends \Phalcon\Mvc\Application
 	 */
 	public function start()
 	{
-		if(!$this->initialized) {
+		if (!$this->initialized) {
 			$this->initialize();
 		}
 		
-		if(defined('APP_CLI') && APP_CLI) {
+		if (defined('APP_CLI') && APP_CLI) {
 			return true;
 		}
 		
-		if(env('APP_DEBUGBAR', false)) {
+		if (env('APP_DEBUGBAR', false)) {
 			$this->di->setShared('app', $this);
 			
 			/** @var Loader $loader */
@@ -155,34 +155,12 @@ class Application extends \Phalcon\Mvc\Application
 		$di = new DI();
 		$this->debug = $debug = env('APP_DEBUG');
 		
-		//$this->registerNamespaces($di);
-		
-		$config = new Config();
-		putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
-		
-		$timezone = $config->get('app.timezone');
-		if($timezone) {
-			date_default_timezone_set($timezone);
-		}
+		$config = $this->initConfig($di);
 
 		$this->sessionSetup($di, $config);
-
-		/**
-		 * Enable cookies
-		 */
-		$di->setShared('cookies', function () use ($config) {
-			$cookies = new Cookies();
-			$settings = $config->get('app.cookies', []);
-			$cookies->useEncryption($settings['encryption'] ?? false);
-			$cookies->setSignKey($settings['sign_key'] ?? null);
-			return $cookies;
-		});
-
-		/**
-		 * Set config
-		 */
-		$di->setShared('config', $config);
-
+		
+		$this->initCookies($di, $config);
+		
 		/**
 		 * Set request
 		 */
@@ -201,7 +179,7 @@ class Application extends \Phalcon\Mvc\Application
 		/**
 		 * Set permission
 		 */
-		if($config->get('app.permissions.enabled')) {
+		if ($config->get('app.permissions.enabled')) {
 			$di->setShared('permission', Permission::class);
 		}
 
@@ -266,7 +244,7 @@ class Application extends \Phalcon\Mvc\Application
 		$url->setBaseUri('/');
 		$di->setShared('url', $url);
 		
-		if( $debug ) {
+		if ( $debug ) {
 			$di->set('escaper', Escaper::class, true);
 			$di->set('profiler', Profiler::class, true);
 			
@@ -289,21 +267,21 @@ class Application extends \Phalcon\Mvc\Application
 		error_reporting(-1);
 		set_exception_handler('envo_exception_handler');
 		set_error_handler('envo_error_handler');
+		
 		ini_set('error_log', APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W').'.log');
 	
-		if(!defined('ENVO_PATH')) {
+		if (!defined('ENVO_PATH')) {
 			define('ENVO_PATH', __DIR__ . '/../');
 		}
 		
-		if( ! defined('APP_PATH') ) {
+		if ( ! defined('APP_PATH') ) {
 			throw new \Exception('app.appPathNotDefined', 500);
-			// internal_exception('app.appPathNotDefined', 500);
 		}
 		
 		/**
 		 * Read configuration file
 		 */
-		if(! file_exists(APP_PATH . '.env') ) {
+		if (! file_exists(APP_PATH . '.env') ) {
 			throw new \Exception('app.envConfigurationFileNotFound', 500);
 		}
 		
@@ -317,12 +295,12 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		$config = parse_ini_file(APP_PATH . '.env');
 		
-		if( getenv('APP_ENV') === 'testing' ) {
+		if ( getenv('APP_ENV') === 'testing' ) {
 			unset($config['APP_ENV']);
 		}
 		
 		foreach($config as $key => $conf) {
-			if( is_array($conf) ) {
+			if ( is_array($conf) ) {
 				continue;
 			}
 			putenv($key.'='.$conf);
@@ -339,9 +317,10 @@ class Application extends \Phalcon\Mvc\Application
 	 */
 	public function dbDebug($databaseName, $di)
 	{
-		if(!$this->debug) {
+		if (!$this->debug) {
 			return;
 		}
+		
 		// log the mysql queries if APP_DEBUG is set to true
 		/** @var Profiler $profiler */
 		$profiler = $di->get('profiler');
@@ -359,11 +338,11 @@ class Application extends \Phalcon\Mvc\Application
 				$item->setSqlVariables($connection->getSqlVariables() ?: []);
 				$item->setSqlBindTypes($connection->getSqlBindTypes() ?: []);
 				
-				//if($requestDebug) {
+				//if ($requestDebug) {
 					$ignoreClasses = ['Phalcon\\', 'Application'];
 					$path = '';
 					foreach(debug_backtrace() as $trace) {
-						if( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ){
+						if ( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ){
 							continue;
 						}
 						$path .= (isset($trace['class']) ? $trace['class'] : '') . '::' .$trace['function'].';';
@@ -392,7 +371,7 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		$databaseConfig = config('database');
 		$connections = ['db' => $databaseConfig['default']];
-		if(isset($databaseConfig['use'])) {
+		if (isset($databaseConfig['use'])) {
 			/** @var array $databaseConfig */
 			foreach ($databaseConfig['use'] as $item){
 				$connections[$item] = $item;
@@ -404,13 +383,13 @@ class Application extends \Phalcon\Mvc\Application
 			$di->setShared($key, function () use($logging, $databaseConfig, $key, $connectionName, $self) {
 				$data = $databaseConfig['connections'][$connectionName];
 				
-				if( $data['driver'] === 'sqlite' ) {
+				if ( $data['driver'] === 'sqlite' ) {
 					$connection = new Sqlite($data);
 				} else {
 					$connection = new Mysql($data);
 				}
 				
-				if( $logging && $self->debug ) {
+				if ( $logging && $self->debug ) {
 					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
 				
@@ -420,50 +399,28 @@ class Application extends \Phalcon\Mvc\Application
 		
 		// @see https://docs.phalconphp.com/en/3.2/db-models#disabling-enabling-features
 		$dbConfig = config('database');
-		Model::setup(
-			[
-				'astCache'              => $dbConfig['astCache'] ?? null,
-				'cacheLevel'            => $dbConfig['cacheLevel'] ?? 3,
-				'castOnHydrate'         => $dbConfig['castOnHydrate'] ?? false,
-				'columnRenaming'        => $dbConfig['columnRenaming'] ?? true,
-				'disableAssignSetters'  => $dbConfig['disableAssignSetters'] ?? false,
-				'enableImplicitJoins'   => $dbConfig['enableImplicitJoins'] ?? true,
-				'enableLiterals'        => $dbConfig['enableLiterals'] ?? true,
-				'escapeIdentifiers'     => $dbConfig['escapeIdentifiers'] ?? true,
-				'events'                => $dbConfig['events'] ?? true,
-				'exceptionOnFailedSave' => $dbConfig['exceptionOnFailedSave'] ?? true,
-				'forceCasting'          => $dbConfig['forceCasting'] ?? false,
-				'ignoreUnknownColumns'  => $dbConfig['ignoreUnknownColumns'] ?? false,
-				'lateStateBinding'      => $dbConfig['lateStateBinding'] ?? false,
-				'notNullValidations'    => $dbConfig['notNullValidations'] ?? true,
-				'parserCache'           => $dbConfig['parserCache'] ?? null,
-				'phqlLiterals'          => $dbConfig['phqlLiterals'] ?? true,
-				'uniqueCacheId'         => $dbConfig['uniqueCacheId'] ?? 3,
-				'updateSnapshotOnSave'  => $dbConfig['updateSnapshotOnSave'] ?? true,
-				'virtualForeignKeys'    => $dbConfig['virtualForeignKeys'] ?? true,
-			]
-		);
-	}
-	
-	/**
-	 * Register namespaces
-	 *
-	 * @param DI $di
-	 */
-	public function registerNamespaces(Di $di)
-	{
-		$loader = new \Phalcon\Loader();
-		$namespaces = [];
-		$namespaces['Envo'] = [
-			ENVO_PATH . 'Envo',
-			ENVO_PATH . 'Envo/Abstract'
-		];
 		
-		$loader->registerNamespaces($namespaces);
-		$loader->register();
-		
-		$autoloader = new \Envo\Foundation\Loader($loader);
-		$di->setShared('autoloader', $autoloader);
+		Model::setup([
+			'astCache'              => $dbConfig['astCache'] ?? null,
+			'cacheLevel'            => $dbConfig['cacheLevel'] ?? 3,
+			'castOnHydrate'         => $dbConfig['castOnHydrate'] ?? false,
+			'columnRenaming'        => $dbConfig['columnRenaming'] ?? true,
+			'disableAssignSetters'  => $dbConfig['disableAssignSetters'] ?? false,
+			'enableImplicitJoins'   => $dbConfig['enableImplicitJoins'] ?? true,
+			'enableLiterals'        => $dbConfig['enableLiterals'] ?? true,
+			'escapeIdentifiers'     => $dbConfig['escapeIdentifiers'] ?? true,
+			'events'                => $dbConfig['events'] ?? true,
+			'exceptionOnFailedSave' => $dbConfig['exceptionOnFailedSave'] ?? true,
+			'forceCasting'          => $dbConfig['forceCasting'] ?? false,
+			'ignoreUnknownColumns'  => $dbConfig['ignoreUnknownColumns'] ?? false,
+			'lateStateBinding'      => $dbConfig['lateStateBinding'] ?? false,
+			'notNullValidations'    => $dbConfig['notNullValidations'] ?? true,
+			'parserCache'           => $dbConfig['parserCache'] ?? null,
+			'phqlLiterals'          => $dbConfig['phqlLiterals'] ?? true,
+			'uniqueCacheId'         => $dbConfig['uniqueCacheId'] ?? 3,
+			'updateSnapshotOnSave'  => $dbConfig['updateSnapshotOnSave'] ?? true,
+			'virtualForeignKeys'    => $dbConfig['virtualForeignKeys'] ?? true,
+		]);
 	}
 	
 	/**
@@ -482,7 +439,7 @@ class Application extends \Phalcon\Mvc\Application
 		$di->setShared('session', function () use($config) {
 			$driver = $config->get('session.driver', 'file');
 			
-			if($driver === 'redis') {
+			if ($driver === 'redis') {
 				$session = new \Phalcon\Session\Adapter\Redis([
 					'prefix'     => $config->get('session.prefix', ''),
 					'uniqueId'   => $config->get('database.uniqueId', ''),
@@ -493,7 +450,7 @@ class Application extends \Phalcon\Mvc\Application
 					'port'       => $config->get('database.redis.default.port', 6379),
 					'host'       => $config->get('database.redis.default.host', '127.0.0.1'),
 				]);
-			} else if($driver === 'memcache') {
+			} else if ($driver === 'memcache') {
 				$session = new \Phalcon\Session\Adapter\Memcache([
 					'uniqueId'   => $config->get('database.uniqueId', ''),
 					'host'       => $config->get('database.host', '127.0.0.1'),
@@ -532,11 +489,11 @@ class Application extends \Phalcon\Mvc\Application
 			$router->removeExtraSlashes(true);
 			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
 			
-			if( file_exists(APP_PATH . 'bootstrap/cache/routes.php') ) {
+			if ( file_exists(APP_PATH . 'bootstrap/cache/routes.php') ) {
 				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';
 				$router->import($routes);
 				
-				if( isset($routes['apis']) && $routes['apis'] ) {
+				if ( isset($routes['apis']) && $routes['apis'] ) {
 					$di->get('apiHandler')->setApis($routes['apis']);
 				}
 				
@@ -545,7 +502,7 @@ class Application extends \Phalcon\Mvc\Application
 			
 			$appConfig = $config->get('app.api', []);
 			
-			if( !isset($appConfig['enabled']) || $appConfig['enabled'] ) {
+			if ( !isset($appConfig['enabled']) || $appConfig['enabled'] ) {
 				$router->apiPrefix = $appConfig['prefix'] ?? $router->apiPrefix;
 				$api = $router->api();
 				$router->setHandler($di->get('apiHandler'));
@@ -553,7 +510,7 @@ class Application extends \Phalcon\Mvc\Application
 			
 			require_once APP_PATH . 'app/routes.php';
 			
-			if( isset($api) ) {
+			if ( isset($api) ) {
 				$router->mount($api);
 			}
 			
@@ -581,7 +538,7 @@ class Application extends \Phalcon\Mvc\Application
 			]));
 			
 			$engines = ['.php' => Php::class];
-			if( $config->get('view.volt', false) ) {
+			if ( $config->get('view.volt', false) ) {
 				$engines['.volt'] = 'volt';
 				
 			}
@@ -599,31 +556,33 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		$voltConfig = $config->get('view.volt');
 		
-		if( isset($voltConfig['enabled']) && $voltConfig['enabled'] ) {
-			$di->setShared('volt', function ($view, $di) use ($config, $voltConfig) {
-				$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
-				
-				$volt->setOptions([
-					'compiledPath' => $voltConfig['compiledPath'] ?? true,
-					'stat' => $voltConfig['stat'] ?? true,
-					'prefix' => $voltConfig['prefix'] ?? null,
-					'compiledSeparator' => $voltConfig['compiledSeparator'] ?? '%%',
-					'compiledExtension' => $voltConfig['compiledExtension'] ?? '.php',
-					'compileAlways' => $voltConfig['compileAlways'] ?? false,
-					'autoescape' => $voltConfig['autoescape'] ?? false,
-				]);
-				
-				// TODO: we need to move the volt functions. causes trouble with config:cache command (closures)!!
-				$compiler = $volt->getCompiler();
-				if( isset($voltConfig['functions']) && is_array($voltConfig['functions']) ) {
-					foreach ($voltConfig['functions'] as $functionName => $function) {
-						$compiler->addFunction($functionName, $function);
-					}
-				}
-				
-				return $volt;
-			});
+		if ( !isset($voltConfig['enabled']) || ! $voltConfig['enabled'] ) {
+			return;
 		}
+		
+		$di->setShared('volt', function ($view, $di) use ($config, $voltConfig) {
+			$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
+			
+			$volt->setOptions([
+				'compiledPath' => $voltConfig['compiledPath'] ?? true,
+				'stat' => $voltConfig['stat'] ?? true,
+				'prefix' => $voltConfig['prefix'] ?? null,
+				'compiledSeparator' => $voltConfig['compiledSeparator'] ?? '%%',
+				'compiledExtension' => $voltConfig['compiledExtension'] ?? '.php',
+				'compileAlways' => $voltConfig['compileAlways'] ?? false,
+				'autoescape' => $voltConfig['autoescape'] ?? false,
+			]);
+			
+			// TODO: we need to move the volt functions. causes trouble with config:cache command (closures)!!
+			$compiler = $volt->getCompiler();
+			if ( isset($voltConfig['functions']) && is_array($voltConfig['functions']) ) {
+				foreach ($voltConfig['functions'] as $functionName => $function) {
+					$compiler->addFunction($functionName, $function);
+				}
+			}
+			
+			return $volt;
+		});
 	}
 	
 	/**
@@ -661,5 +620,45 @@ class Application extends \Phalcon\Mvc\Application
 			
 			return $cache;
 		});
+	}
+	
+	/**
+	 * @param DI $di
+	 * @param Config $config
+	 */
+	private function initCookies(DI $di, Config $config): void
+	{
+		/**
+		 * Enable cookies
+		 */
+		$di->setShared('cookies', function () use ($config) {
+			$cookies = new Cookies();
+			$settings = $config->get('app.cookies', []);
+			$cookies->useEncryption($settings['encryption'] ?? false);
+			$cookies->setSignKey($settings['sign_key'] ?? null);
+			
+			return $cookies;
+		});
+	}
+	
+	/**
+	 * @return Config
+	 */
+	private function initConfig(DI $di): Config
+	{
+		$config = new Config();
+		putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
+		
+		$timezone = $config->get('app.timezone');
+		if ( $timezone ) {
+			date_default_timezone_set($timezone);
+		}
+		
+		/**
+		 * Set config
+		 */
+		$di->setShared('config', $config);
+		
+		return $config;
 	}
 }

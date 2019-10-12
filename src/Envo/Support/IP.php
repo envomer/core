@@ -36,7 +36,7 @@ class IP
 
     public function __construct()
     {
-    	if(function_exists('config') && class_exists(Config::class)) {
+    	if (function_exists('config') && class_exists(Config::class)) {
 			$this->useProxy = \config('app.proxy.enabled', false);
 			$this->trustedProxies = \config('app.proxy.trusted_proxies', []);
 		}
@@ -113,7 +113,7 @@ class IP
      */
     public static function getIpAddress($instance = null)
     {
-        if( ! is_null(self::$ip) ) {
+        if ( ! is_null(self::$ip) ) {
             return self::$ip;
         }
 		
@@ -133,7 +133,7 @@ class IP
 
     public function determine()
     {
-        if( $this->ip ) {
+        if ( $this->ip ) {
             return $this->ip;
         }
 
@@ -154,23 +154,23 @@ class IP
     {
         $path = APP_PATH . 'storage/blocked.txt';
 
-        if( ! file_exists($path) ) {
+        if ( ! file_exists($path) ) {
             return false;
         }
 
         $blockedIpsRaw = file_get_contents($path);
 
-        if( ! $blockedIpsRaw ) {
+        if ( ! $blockedIpsRaw ) {
             return false;
         }
 
         $blockedIps = explode("\n", $blockedIpsRaw);
 
-        if( ! $blockedIps ) {
+        if ( ! $blockedIps ) {
             return false;
         }
 
-        if( $this->ip && $isBlocked = in_array($this->ip, $blockedIps) !== false ) {
+        if ( $this->ip && $isBlocked = in_array($this->ip, $blockedIps) !== false ) {
             echo include ENVO_PATH . 'View/html/ip-blocked.php';
             exit;
         }
@@ -224,13 +224,13 @@ class IP
      */
     public static function trace($ip = null)
     {
-        if( ! $ip ) {
+        if ( ! $ip ) {
             $ip = self::getIpAddress();
         }
 
         $resp = json_decode(file_get_contents('http://ip-api.com/json/' . $ip));
 
-        if( ! $resp || $resp->status != 'success' ) {
+        if ( ! $resp || $resp->status != 'success' ) {
             return $resp->message;
         }
 

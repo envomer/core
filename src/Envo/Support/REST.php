@@ -27,12 +27,12 @@ class REST
 	 */
     public function __construct($config = null)
     {
-        if($config) {
-        	if(isset($config['headers'])) {
+        if ($config) {
+        	if (isset($config['headers'])) {
         		$this->setHeaders($config['headers']);
 			}
         	
-        	if(isset($config['auth_user'], $config['auth_pass'])) {
+        	if (isset($config['auth_user'], $config['auth_pass'])) {
         		$this->setAuth($config['auth_user'], $config['auth_pass']);
 			}
         }
@@ -169,7 +169,7 @@ class REST
 	public function setTimeout($value = 30, $connectTimeout = null) : self
 	{
 		$this->setOption(CURLOPT_TIMEOUT, $value);
-		if($connectTimeout) {
+		if ($connectTimeout) {
 			$this->setOption(CURLOPT_CONNECTTIMEOUT, $connectTimeout);
 		}
 		
@@ -237,16 +237,16 @@ class REST
 		curl_setopt($this->ch, CURLOPT_USERAGENT, $this->userAgent);
 		
 		// Set headers
-		if( $this->headers !== null && $this->headers ) {
+		if ( $this->headers !== null && $this->headers ) {
 			curl_setopt($this->ch, CURLOPT_HTTPHEADER, $this->headers);
 		}
 		
 		// Set basic auth
-		if( $this->user !== null && $this->pass !== null ) {
+		if ( $this->user !== null && $this->pass !== null ) {
 			curl_setopt($this->ch, CURLOPT_USERPWD, $this->user . ':' . $this->pass);
 		}
 		
-		if($this->options) {
+		if ($this->options) {
 			foreach( $this->options as $option => $value ) {
 				curl_setopt($this->ch, $option, $value);
 			}
@@ -261,7 +261,7 @@ class REST
 		$this->response = (string) curl_exec($this->ch);
 		$this->httpCode = (int) curl_getinfo($this->ch, CURLINFO_HTTP_CODE);
 		
-		if($errorCode = curl_errno($this->ch)){
+		if ($errorCode = curl_errno($this->ch)){
 			$error = $errorCode . ': ' . curl_error($this->ch);
 			curl_close($this->ch);
 			throw new \Exception('Request Error: ' . $error);

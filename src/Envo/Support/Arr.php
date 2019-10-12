@@ -16,10 +16,10 @@ class Arr
         $results = array();
         $i = 0;
         foreach($words as $key => $word) {
-            if( strpos(strtolower($word), strtolower($needle)) !== false ) {
+            if ( strpos(strtolower($word), strtolower($needle)) !== false ) {
                 $results[$key] = $word;
                 $i++;
-                if( $limit == $i ) break;
+                if ( $limit == $i ) break;
             }
         }
         return $results;
@@ -37,9 +37,9 @@ class Arr
 	 */
     public static function strpos($haystack, $needle, $offset = 0)
     {
-        if(!is_array($needle)) $needle = array($needle);
+        if (!is_array($needle)) $needle = array($needle);
         foreach($needle as $query) {
-            if(strpos($haystack, $query, $offset) !== false) return true; // stop on first true result
+            if (strpos($haystack, $query, $offset) !== false) return true; // stop on first true result
         }
         return false;
     }
@@ -274,7 +274,7 @@ class Arr
             return $array;
         }
 
-        if( is_object($array) ) {
+        if ( is_object($array) ) {
             return self::object_get($array, $key, $default);
         }
 
@@ -551,7 +551,7 @@ class Arr
 	 */
     public static function reference($array, $by, $group = false)
     {
-        if( ! $array || ! count($array) ) {
+        if ( ! $array || ! count($array) ) {
             return $array;
         }
 		
@@ -561,16 +561,16 @@ class Arr
 
         foreach ($array as $value) {
             $key = null;
-            if( $isObjectAndHasMethod && property_exists($value, $by) ) {
+            if ( $isObjectAndHasMethod && property_exists($value, $by) ) {
                 $key = $value->{$by}();
-            } else if( $isObject && property_exists($value, $by) ) {
+            } else if ( $isObject && property_exists($value, $by) ) {
                 $key = $value->{$by};
-            } else if(array_key_exists($by, $value)) {
+            } else if (array_key_exists($by, $value)) {
                 $key = $value[$by];
             }
 
-            if( $group ) {
-                if( ! isset($result[$key]) ) {
+            if ( $group ) {
+                if ( ! isset($result[$key]) ) {
                     $result[$key] = [];
                 }
                 $result[$key][] = $value;
@@ -605,7 +605,7 @@ class Arr
             return $a[$value] - $b[$value];
         });
 
-        if( $desc ) {
+        if ( $desc ) {
             $array = array_reverse($array);
         }
 

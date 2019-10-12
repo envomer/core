@@ -14,25 +14,25 @@ class Date
 
 	public static function diff($date1, $date2 = null, $format = null)
 	{
-		if( ! $date1 ) {
+		if ( ! $date1 ) {
             $date1 = date('Y-m-d H:i:s');
         }
 
-		if( ! $date2 ) {
+		if ( ! $date2 ) {
             $date2 = date('Y-m-d H:i:s');
         }
 
 	    $datediff = strtotime($date1) - strtotime($date2);
-	    if( ($hours = floor($datediff/(60*60*24))) ) {
+	    if ( ($hours = floor($datediff/(60*60*24))) ) {
             return $hours . ' ' . \_t('app.day', null, $hours);
         }
-	    if( ($hours = floor($datediff/(60*60))) ) {
+	    if ( ($hours = floor($datediff/(60*60))) ) {
             return $hours  . ' ' . \_t('app.hour', null, $hours);
         }
-	    if( ($hours = floor($datediff/(60))) ) {
+	    if ( ($hours = floor($datediff/(60))) ) {
             return $hours  . ' ' . \_t('app.minute', null, $hours);
         }
-	    if( ($hours = floor($datediff)) ) {
+	    if ( ($hours = floor($datediff)) ) {
             return $hours  . ' ' . \_t('app.second', null, $hours);
         }
 
@@ -46,7 +46,7 @@ class Date
 	
 	public static function datetime($date, $format = 'Y-m-d H:i:s')
 	{
-		if( ! is_numeric($date) ) {
+		if ( ! is_numeric($date) ) {
             $date = strtotime($date);
         }
 		return date($format, $date);
@@ -61,7 +61,7 @@ class Date
 	{
 		$format = $format ?: 'd.m.Y';
 		$dateInt = strtotime($date);
-		if( date($format, $dateInt) == $date ) return date('Y-m-d', $dateInt);
+		if ( date($format, $dateInt) == $date ) return date('Y-m-d', $dateInt);
 		return false;
 	}
 	
@@ -74,7 +74,7 @@ class Date
 	{
 		$start    = (new DateTime($start));
 		$end      = (new DateTime($end));
-		if( $wholeMonth ) {
+		if ( $wholeMonth ) {
 			$start = $start->modify('first day of this month');
 			$end = $end->modify('first day of next month');
 		}
@@ -91,7 +91,7 @@ class Date
 
 	public static function getUserFormat($format = self::FORMAT_DATE, $javascript = false)
 	{
-		if( $javascript ) {
+		if ( $javascript ) {
 			if ($format == self::FORMAT_DATE) {
                 return 'dd.MM.yyyy';
             }
@@ -107,7 +107,7 @@ class Date
 
 	public static function userDate($date = null)
 	{
-		if( $date && ! is_integer($date) ) {
+		if ( $date && ! is_integer($date) ) {
             $date = strtotime($date);
         }
 
@@ -116,7 +116,7 @@ class Date
 
 	public static function userDatetime($date = null)
 	{
-		if( $date && ! is_integer($date) ) {
+		if ( $date && ! is_integer($date) ) {
             $date = strtotime($date);
         }
 

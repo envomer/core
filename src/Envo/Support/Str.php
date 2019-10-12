@@ -136,7 +136,7 @@ class Str
      */
     public static function limit($value, $limit = 100, $end = '...'): ?string
 	{
-		if(!$value) {
+		if (!$value) {
 			return $value;
 		}
 		
@@ -250,10 +250,10 @@ class Str
      */
     public static function quickRandom($length = 16, $alpha = true, $numeric = true)
     {
-        if( $alpha && $numeric ) {
+        if ( $alpha && $numeric ) {
             $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         }
-        else if($alpha) {
+        else if ($alpha) {
             $pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
         }
         else {
@@ -470,12 +470,12 @@ class Str
 	 */
     public static function strposa($haystack, $needle, $offset = 0): bool
 	{
-        if(!\is_array($needle)) {
+        if (!\is_array($needle)) {
         	$needle = array($needle);
 		}
 		
         foreach($needle as $query) {
-            if(strpos($haystack, $query, $offset) !== false) {
+            if (strpos($haystack, $query, $offset) !== false) {
             	return true; // stop on first true result
 			}
         }
@@ -573,7 +573,7 @@ class Str
 		$un = uniqid('', true);
 		$dmtun = $dmt.$un;
 		$mdun = md5($dmtran.$un);
-		if( $length ) {
+		if ( $length ) {
             return substr($mdun, $length);
         }
 

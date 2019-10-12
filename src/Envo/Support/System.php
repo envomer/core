@@ -32,7 +32,7 @@ class System
 		//DO NOT EDIT BELOW THIS LINE
 		//Export the database and output the status to the page
 		$command = self::mysqldump_location() . ' --opt -h' .$config['host'] .' -u' .$config['username'] .' ' .($config['password'] ? '-p'. $config['password'] : '') .' ' .$config['database'];
-		if( $compress ) {
+		if ( $compress ) {
 			$path .= '.bz2';
 			$filename .= '.bz2';
 			$command .= ' | bzip2 > ' . $path;
@@ -70,7 +70,7 @@ class System
 	 */
 	public static function mysqldump_location()
 	{
-		if( is_executable('mysqldump') ) {
+		if ( is_executable('mysqldump') ) {
             return 'mysqldump';
         }
 

@@ -24,19 +24,25 @@ class Paginator
 	{
     	$this->first = 1;
 
-		if( $total === null ) {
+		if ( $total === null ) {
 			$total = count($data);
 		}
     	
-    	if( $page > 1 ) $this->before = $page - 1;
-    	else $this->before = 1;
+    	if ( $page > 1 ) {
+    		$this->before = $page - 1;
+		} else {
+    		$this->before = 1;
+		}
 
     	$this->current = $page;
 
     	// $this->current = $page;
     	$this->last = ceil(($total ?:1) / ($per_page ?: 1)) ?: 1;
-    	if( $this->current < $this->last ) $this->next = $this->current + 1;
-    	else $this->next = $this->last;
+    	if ( $this->current < $this->last ) {
+    		$this->next = $this->current + 1;
+		} else {
+    		$this->next = $this->last;
+		}
     	
     	$this->total_pages = $this->last;
     	$this->total_items = $total;

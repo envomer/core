@@ -14,12 +14,12 @@ class Queue
 
 	public static function push($job, $delay = 0)
 	{
-		if( ! self::$queue ) {
+		if ( ! self::$queue ) {
             self::$queue = new self();
         }
 		$queue = self::$queue;
 
-		if( ! self::$beanstalk ) {
+		if ( ! self::$beanstalk ) {
             self::$beanstalk = $queue->connect();
         }
 		$beanstalk = self::$beanstalk;
@@ -47,7 +47,7 @@ class Queue
   //               throw $ex;
   //           }
 
-  //           if( env('APP_ENV') == 'production' ) {
+  //           if ( env('APP_ENV') == 'production' ) {
   //               $message = 'Beanstalk exception: ' . $e->getMessage();
   //               \Notification::pushoverRemind($_SERVER['SERVER_NAME'],  'IP: ' . \IP::getIpAddress(). ' ' . "\n\rMessage: " . $message, 60*5);
   //           }
@@ -65,7 +65,7 @@ class Queue
     {
         // get job type
         $jobType = QueueJobTypeRepository::getByName($data['class']);
-        if( ! $jobType ) {
+        if ( ! $jobType ) {
             $jobType = new QueueJobType;
             $jobType->name = $data['class'];
             $jobType->created_at = \Date::now();
@@ -102,7 +102,7 @@ class Queue
 
 	public function work($data)
 	{
-        if( is_object($data) ) {
+        if ( is_object($data) ) {
             $job = $data;
             $data = json_decode($job->payload, true);
         }

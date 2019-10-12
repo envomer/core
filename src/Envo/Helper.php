@@ -7,7 +7,7 @@ use Envo\Exception\PublicException;
  * Environment helper function.
  * Retrieve data defined in .env file
  */
-if( ! function_exists('env') )
+if ( ! function_exists('env') )
 {
 	function env($name, $default = false)
 	{
@@ -18,17 +18,17 @@ if( ! function_exists('env') )
 /**
  * Translation helper
  */
-if( ! function_exists('_t') )
+if ( ! function_exists('_t') )
 {
 	function _t($val, $params = null, $amount = null, $lang = null)
 	{
 		$translator = resolve('translator');
 
-		if(!$translator) {
+		if (!$translator) {
 			return $val;
 		}
 
-		if( $amount && ! is_bool($params) ) {
+		if ( $amount && ! is_bool($params) ) {
 			return $translator->choice($val, $amount, $lang);
 		}
 		
@@ -39,7 +39,7 @@ if( ! function_exists('_t') )
 /**
  * Get the render time
  */
-if( ! function_exists('render_time') )
+if ( ! function_exists('render_time') )
 {
 	function render_time()
 	{
@@ -50,7 +50,7 @@ if( ! function_exists('render_time') )
 /**
  * Public path
  */
-if( ! function_exists('public_path') )
+if ( ! function_exists('public_path') )
 {
 	function public_path($path = '')
 	{
@@ -61,19 +61,19 @@ if( ! function_exists('public_path') )
 /**
  * Needed to fetch the headers when using api
  */
-if( ! function_exists('apache_request_headers') )
+if ( ! function_exists('apache_request_headers') )
 {
 	function apache_request_headers()
 	{
 		$arh = array();
 		$rx_http = '/\AHTTP_/';
 		foreach($_SERVER as $key => $val) {
-			if( preg_match($rx_http, $key) ) {
+			if ( preg_match($rx_http, $key) ) {
 				$arh_key = preg_replace($rx_http, '', $key);
 				// do some nasty string manipulations to restore the original letter case
 				// this should work in most cases
 				$rx_matches = explode('_', $arh_key);
-				if( count($rx_matches) > 0 and strlen($arh_key) > 2 ) {
+				if ( count($rx_matches) > 0 and strlen($arh_key) > 2 ) {
 					foreach($rx_matches as $ak_key => $ak_val) {
 						$rx_matches[ $ak_key ] = ucfirst($ak_val);
 					}
@@ -89,7 +89,7 @@ if( ! function_exists('apache_request_headers') )
 /**
  * Die and dump
  */
-if( ! function_exists('dd') )
+if ( ! function_exists('dd') )
 {
 	function dd($arg)
 	{
@@ -175,7 +175,7 @@ if (! function_exists('session'))
 /**
  * Get current user
  */
-if( ! function_exists('user') )
+if ( ! function_exists('user') )
 {
 	/**
 	 * @return \Envo\Model\User
@@ -183,7 +183,8 @@ if( ! function_exists('user') )
 	function user()
 	{
 		$auth = resolve('auth');
-		if(!$auth) {
+		
+		if (!$auth) {
 			return null;
 		}
 		
@@ -195,15 +196,15 @@ if( ! function_exists('user') )
  * Handle all exceptions
  * TODO: modify
  */
-if(!function_exists('envo_exception_handler'))
+if (!function_exists('envo_exception_handler'))
 {
 	function envo_exception_handler($error)
 	{
-		if($error instanceof \Exception && class_exists(\Envo\Foundation\ExceptionHandler::class)) {
+		if ($error instanceof \Exception && class_exists(\Envo\Foundation\ExceptionHandler::class)) {
 			\Envo\Foundation\ExceptionHandler::handle($error);
 		}
 		
-		if($error) {
+		if ($error) {
 			/** @var $error \Error */
 			echo '<pre>';
 			echo $error->getMessage() . "\n\n";
@@ -219,7 +220,7 @@ if(!function_exists('envo_exception_handler'))
 /**
  * Turn all errors into exceptions
  */
-if(!function_exists('envo_error_handler'))
+if (!function_exists('envo_error_handler'))
 {
 	function envo_error_handler($errno, $errstr, $errfile, $errline)
 	{
@@ -241,7 +242,7 @@ if(!function_exists('envo_error_handler'))
 /**
  * Abort unless
  */
-if( ! function_exists('abort_unless') )
+if ( ! function_exists('abort_unless') )
 {
 	/**
 	 * @param      $condition
@@ -250,7 +251,7 @@ if( ! function_exists('abort_unless') )
 	 */
 	function abort_unless($condition, $code = 403, $message = null)
 	{
-		if( ! $condition ) {
+		if ( ! $condition ) {
 			abort($code, $message);
 		}
 	}
@@ -259,7 +260,7 @@ if( ! function_exists('abort_unless') )
 /**
  * Resolve
  */
-if( ! function_exists('resolve') )
+if ( ! function_exists('resolve') )
 {
 	/**
 	 * @param      $class
@@ -271,19 +272,19 @@ if( ! function_exists('resolve') )
 	{
 		$di = \Phalcon\DI::getDefault();
 
-		if(!$di) {
+		if (!$di) {
 			return null;
 		}
 		
-		if($di->has($class)) {
+		if ($di->has($class)) {
 			return $di->getShared($class);
 		}
 		
-		if(!$instance) {
+		if (!$instance) {
 			$instance = $class;
 		}
 		
-		if($instance) {
+		if ($instance) {
 			$di->setShared($class, $instance);
 			
 			return $di->getShared($class);
@@ -296,14 +297,16 @@ if( ! function_exists('resolve') )
 /**
  * Config
  */
-if( ! function_exists('config') )
+if ( ! function_exists('config') )
 {
 	function config($name = null, $default = null)
 	{
 		$config = resolve('config');
-		if(!$name || !$config) {
+		
+		if (!$name || !$config) {
 			return $config;
 		}
+		
 		return $config->get($name, $default);
 	}
 }
@@ -311,7 +314,7 @@ if( ! function_exists('config') )
 /**
  * Event listener
  */
-if( ! function_exists('on') )
+if ( ! function_exists('on') )
 {
 	function on($name, $callback)
 	{
@@ -322,7 +325,7 @@ if( ! function_exists('on') )
 /**
  * Trigger event
  */
-if( ! function_exists('fire') )
+if ( ! function_exists('fire') )
 {
 	function fire($name, $data)
 	{
@@ -333,7 +336,7 @@ if( ! function_exists('fire') )
 /**
  * Trigger public exception
  */
-if( ! function_exists('public_exception') )
+if ( ! function_exists('public_exception') )
 {
 	/**
 	 * @param      $messageCode
@@ -354,7 +357,7 @@ if( ! function_exists('public_exception') )
 /**
  * Trigger private exception
  */
-if( ! function_exists('internal_exception') )
+if ( ! function_exists('internal_exception') )
 {
 	/**
 	 * @param      $messageCode
@@ -375,7 +378,7 @@ if( ! function_exists('internal_exception') )
 /**
  * Trigger public exception
  */
-if( ! function_exists('uncaught_exception') )
+if ( ! function_exists('uncaught_exception') )
 {
 	/**
 	 * @param Exception $exception
@@ -385,7 +388,7 @@ if( ! function_exists('uncaught_exception') )
 	 */
 	function uncaught_exception(\Exception $exception, $code = 500)
 	{
-		if( $exception instanceof AbstractException ) {
+		if ( $exception instanceof AbstractException ) {
 			return $exception;
 		}
 
@@ -400,7 +403,7 @@ if( ! function_exists('uncaught_exception') )
 	}
 }
 
-if( ! function_exists('encrypt') )
+if ( ! function_exists('encrypt') )
 {
 	/**
 	 * @param Exception $exception
@@ -412,7 +415,7 @@ if( ! function_exists('encrypt') )
 	{
 		$crypt = resolve('crypt');
 
-		if($value) {
+		if ($value) {
 			return $crypt->encrypt($value, $key);
 		}
 
@@ -420,7 +423,7 @@ if( ! function_exists('encrypt') )
 	}
 }
 
-if( ! function_exists('decrypt') )
+if ( ! function_exists('decrypt') )
 {
 	/**
 	 * @param Exception $exception
@@ -432,7 +435,7 @@ if( ! function_exists('decrypt') )
 	{
 		$crypt = resolve('crypt');
 
-		if($value) {
+		if ($value) {
 			return $crypt->decrypt($value, $key);
 		}
 

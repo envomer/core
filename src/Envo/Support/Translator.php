@@ -46,25 +46,25 @@ class Translator
 	public static function lang($name, $params = null, $locale = null)
 	{
 		$translation = self::get($name, $params, $locale);
-		if( $params && is_array($params) ) {
+		if ( $params && is_array($params) ) {
 			$i = 0;
 			foreach ($params as $k => $param) {
-				if(is_array($translation) ) {
+				if (is_array($translation) ) {
 					return $translation;
 				}
 				
-				if(is_array($param)) {
+				if (is_array($param)) {
 					continue;
 				}
 				
 				$translation = str_replace(':' . $k, $param, $translation);
 				
-				//if( strpos($translation, ':' .$k) === false ) {
+				//if ( strpos($translation, ':' .$k) === false ) {
 				//
 				//	preg_match_all('/(?<!\w):\w+/', $translation, $matches);
 				//	$matches = $matches[0];
 				//
-				//	if( ! $matches ) {
+				//	if ( ! $matches ) {
 				//		return $translation;
 				//	}
 				//
@@ -94,11 +94,11 @@ class Translator
 	public static function choice($name, $count = 1, $locale = null)
 	{
 		$name = self::get($name, $count, $locale);
-		if(is_array($name)) {
+		if (is_array($name)) {
 			return $name;
 		}
 		$names = explode('|', $name);
-		if( $count > 1 && isset($names[1]) ) {
+		if ( $count > 1 && isset($names[1]) ) {
 			return $names[1];
 		}
 		
@@ -118,27 +118,27 @@ class Translator
 		$locale = $locale ?: self::$locale;
 		$search = explode('.', $name);
 
-		if( strpos($search[0], ' ') !== false ) {
+		if ( strpos($search[0], ' ') !== false ) {
 			return $name;
 		}
 		
-		if( ! isset(self::$langs[$search[0]]) ) {
-			if( isset(self::$alias[$search[0]]) ) {
+		if ( ! isset(self::$langs[$search[0]]) ) {
+			if ( isset(self::$alias[$search[0]]) ) {
 				$search[0] = self::$alias[$search[0]];
 			}
 
 			$path = APP_PATH . self::LANG_PATH . $locale .'/' . $search[0] . '.php';
-			if( file_exists($path) ) {
+			if ( file_exists($path) ) {
 				self::$langs[$search[0]] = require $path;
 			} else {
 				self::$langs[$search[0]] = [];
 			}
 		}
-		if( $all && count($search) === 1 ) {
+		if ( $all && count($search) === 1 ) {
 			return self::$langs[$search[0]];
 		}
 		
-		if( ! isset($search[1]) || ! isset(self::$langs[$search[0]]) || ! isset(self::$langs[$search[0]][$search[1]]) ) {
+		if ( ! isset($search[1]) || ! isset(self::$langs[$search[0]]) || ! isset(self::$langs[$search[0]][$search[1]]) ) {
 			return $name;
 		}
 		

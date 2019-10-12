@@ -46,7 +46,7 @@ class Validator
 	 */
 	public function throwError()
 	{
-		if($this->errors) {
+		if ($this->errors) {
 			public_exception('validation.failed', 400, $this);
 		}
 	}
@@ -90,18 +90,18 @@ class Validator
 		$response = array();
 		foreach ($validators as $validator) {
 			$parameters = null;
-			if( strpos($validator, ':') !== false){
+			if ( strpos($validator, ':') !== false){
 				list($validator, $parameters) = explode(':', $validator);
 				//$validator = $parts[0];
 				//$parameters = $parts[1];
 			}
 			$func = 'validate' . ucfirst($validator);
 
-			if( ! method_exists($this, $func) ) {
+			if ( ! method_exists($this, $func) ) {
 				throw new \Exception("Validator method {$func} not found", 500);
 			}
 			
-            if( $isObject ) {
+            if ( $isObject ) {
                 $value = $this->data->$key ?? null;
             } else {
                 $value = $this->data[ $key ] ?? null;
@@ -109,7 +109,7 @@ class Validator
 
 			$resp = $this->$func($key, $value, $parameters);
 
-			if( ! $resp || \is_string($resp) ) {
+			if ( ! $resp || \is_string($resp) ) {
                 $response[] = $this->addError($validator, $key, $parameters, $value);
             }
 		}
@@ -130,9 +130,9 @@ class Validator
 		$message = \_t('validation.' . $validator, [$attribute]);
         $message = $this->doReplacements($message, $attribute, $validator, $parameters);
 
-        if( \is_array($message) ) {
+        if ( \is_array($message) ) {
             $type = $value ? $this->getType($value) : 'numeric';
-            if( isset($message[$type]) ) {
+            if ( isset($message[$type]) ) {
                 $message = $message[$type];
             }
         }
@@ -147,13 +147,13 @@ class Validator
 	 */
     protected function getType($value)
     {
-        if( \is_array($value) ) {
+        if ( \is_array($value) ) {
             return 'array';
         }
-        if( is_numeric($value) ) {
+        if ( is_numeric($value) ) {
             return 'numeric';
         }
-        if( \is_string($value) ) {
+        if ( \is_string($value) ) {
             return 'string';
         }
 
@@ -642,7 +642,7 @@ class Validator
     public function validateMax($attribute, $value, $parameters)
     {
         // die(var_dump($this->getSize($attribute, $value), $attribute, $value, $parameters));
-        if(!is_array($parameters)) {
+        if (!is_array($parameters)) {
             $parameters = [$parameters];
         }
         return $this->getSize($attribute, $value) <= $parameters[0];
