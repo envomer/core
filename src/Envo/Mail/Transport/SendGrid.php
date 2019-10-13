@@ -158,10 +158,10 @@ class SendGrid implements TransportInterface
 		if(is_array($to)) {
 			$emails = [];
 			foreach ($to as $key => $mail) {
-				if(is_integer($recipient)) {
-					$recipient = $mail;
+				if(is_integer($key)) {
+					$key = $mail;
 				}
-				$emails[$recipient] = $mail;
+				$emails[$key] = $mail;
 			}
 			$to = $emails;
 		}
