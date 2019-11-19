@@ -32,10 +32,8 @@ class AbstractException extends Exception
     {
         $this->reference = Str::quickRandom() . '.' . time();
         $this->messageCode = $messageCode;
-
-        if(isset($_REQUEST)) {
-            $this->request = $_REQUEST;
-        }
+        
+        $this->request = $_REQUEST ?? null;
 		
         parent::__construct($messageCode, $code, $previous);
     }
@@ -89,6 +87,7 @@ class AbstractException extends Exception
     {
         $publicException = ($this instanceof PublicException);
         $code = $this->getCode();
+        
         try {
             $user = user();
         } catch(\Exception $exception) {
