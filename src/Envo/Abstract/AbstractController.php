@@ -20,17 +20,17 @@ class AbstractController extends Controller
 	 * @var User
 	 */
 	protected $user;
-	
+
 	/**
 	 * @var Auth
 	 */
 	protected $auth;
-	
+
 	/**
 	 * @var bool
 	 */
 	protected $isAjaxRequest = false;
-	
+
 	/**
 	 * @param bool $set
 	 *
@@ -40,7 +40,7 @@ class AbstractController extends Controller
 	{
 		return $this->isAjaxRequest = $set;
 	}
-	
+
 	/**
 	 * @return bool
 	 */
@@ -48,7 +48,7 @@ class AbstractController extends Controller
 	{
 		return $this->isAjaxRequest;
 	}
-	
+
 	public function initialize()
 	{
 		$module = explode('\\', static::class);
@@ -59,7 +59,7 @@ class AbstractController extends Controller
 	 * Set views directory
 	 *
 	 * @param string $module
-	 * 
+	 *
 	 * @return void
 	 */
 	public function setViewsDir($module = 'Core')
@@ -82,7 +82,7 @@ class AbstractController extends Controller
 
 		return $this->user = user();
 	}
-	
+
 	/**
 	 * Get parameter
 	 *
@@ -118,7 +118,23 @@ class AbstractController extends Controller
 
 		return $default;
 	}
-	
+
+    /**
+     * @param array $allowed
+     *
+     * @return array|mixed|string|null
+     */
+	public function only(array $allowed)
+    {
+        $data = $this->get();
+
+        if ($data) {
+            return array_intersect_key($data, array_flip($allowed));
+        }
+
+        return $data;
+    }
+
 	/**
 	 * Return the response as a json
 	 *
@@ -154,7 +170,7 @@ class AbstractController extends Controller
 
 			$code = $msg->getCode();
 			$msg = $msg->json();
-			
+
 			if(isset($msg['internal']) && env('APP_ENV') !== 'local') {
 				unset($msg['internal']);
 			}
@@ -189,7 +205,7 @@ class AbstractController extends Controller
 	    $this->view->disable();
 	    $this->response->setStatusCode($code);
 	    $this->response->setContentType('application/json');
-		
+
 	    //Return the response
 	    return $this->response->setJsonContent($msg)->send();
 	}
@@ -212,7 +228,7 @@ class AbstractController extends Controller
 			'current' => 1
 		]);
 	}
-	
+
 	/**
 	 * Abort unless user is admin
 	 *
@@ -227,7 +243,7 @@ class AbstractController extends Controller
 
 		return $this->abort();
 	}
-	
+
 	/**
 	 * Abort unless user is logged in
 	 *
@@ -242,7 +258,7 @@ class AbstractController extends Controller
 
 		return $this->abort(404);
 	}
-	
+
 	/**
 	 * Abort
 	 *
@@ -255,7 +271,7 @@ class AbstractController extends Controller
 	public function abort($code = 403, $msgCode = 'app.unauthorized') : bool
 	{
 		public_exception($msgCode, $code);
-		
+
 		return false;
 	}
 }

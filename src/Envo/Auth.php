@@ -27,29 +27,29 @@ class Auth extends Component
 	 * @var User
 	 */
 	protected $user;
-	
+
 	/**
 	 * @var Team
 	 */
 	protected $team;
-	
+
 	/**
 	 * @var bool
 	 */
 	protected $loggedIn;
-	
+
 	/**
 	 * @var string
 	 */
 	protected $userClass;
-	
+
 	/**
 	 * @var string
 	 */
 	protected $teamClass;
 
 	public $authKey = 'id';
-	
+
 	/**
 	 * Auth constructor.
 	 */
@@ -58,7 +58,7 @@ class Auth extends Component
 		$this->userClass = config('app.classmap.user', User::class);
 		$this->teamClass = config('app.classmap.team', Team::class);
 	}
-	
+
 	/**
 	 * Get current team
 	 *
@@ -73,7 +73,7 @@ class Auth extends Component
 
 		return $this->team;
 	}
-	
+
 	/**
 	 * Get current user
 	 *
@@ -92,13 +92,13 @@ class Auth extends Component
 
 		// TODO: if no session class is defined then return empty user object
 		$auth = @$this->session->get(self::TOKEN_NAME);
-		
+
 		$user = null;
 		if ( ! $auth ) {
 			if( ! $user && ($key = $this->usesApiKey())) {
 				$user = $this->getUserFromApiKey($key);
 			}
-			
+
 			if ( ! $user && ($key = $this->hasRememberMe())) {
 				$user = $this->loginWithRememberMe($key);
 			}
@@ -128,7 +128,7 @@ class Auth extends Component
 
 				return false;
 			}
-			
+
 			$user->loggedIn = $this->loggedIn = true;
 			$user->setAccessMode($userClass::ACCESS_SESSION);
 			// $user->switched = $session->get( 'orig_user' );
@@ -137,10 +137,10 @@ class Auth extends Component
 		 if( $user->isLoggedIn() && $user->getLanguage() ) {
 			 resolve('translator')->setLocale($user->getLanguage());
 		 }
-		
+
 		return $this->user = $user;
 	}
-	
+
 	/**
 	 * Is user a guest
 	 *
@@ -155,7 +155,7 @@ class Auth extends Component
 
 		return $this->loggedIn;
 	}
-	
+
 	/**
 	 * Checks the user credentials
 	 *
@@ -172,24 +172,24 @@ class Auth extends Component
 	{
 		// Check if the user exist
 		$userClass = $this->userClass;
-		
+
 		$emailProp = 'email';
-		
+
 		$config = $this->di->get( 'config');
-		
+
 		if($config->get('app.auth.wildcard_email_login', false)) {
 			//normalize the email
 			$email = preg_replace( '/(\+.*)(@)/', '$2', $email);
 			//if enabled then we have to check the email this way
 			$emailProp = 'REGEXP_REPLACE(email, "\\\+.*@", "@")';
 		}
-		
+
 		/** @var User $user */
 		$user = $userClass::repo()->where('deleted_at IS NULL AND ('. $emailProp .' = :email: OR username = :username:)',[
 			'email' => $email,
 			'username' => $email
 		])->getOne();
-		
+
 		if(
 			(! $user || ! env('IGNORE_PASSWORDS'))
 			&& (!$user || password_verify($password, $user->getPassword()) === false)
@@ -207,7 +207,7 @@ class Auth extends Component
 			return false;
 			// public_exception('validation.emailOrPasswordWrong', 400);
 		}
-		
+
 		if( ! $user ) {
 			return false;
 			// public_exception('validation.emailOrPasswordWrong', 400);
@@ -302,7 +302,7 @@ class Auth extends Component
 				break;
 		}
 	}
-	
+
 	/**
 	 * Creates the remember me environment settings the related cookies and generating tokens
 	 *
@@ -334,7 +334,7 @@ class Auth extends Component
 		$cookie = $this->cookies->get(self::COOKIE_REMEMBER);
 		return $cookie ? $cookie->getValue() : null;
 	}
-	
+
 	/**
 	 * Logs on using the information in the cookies
 	 *
@@ -347,7 +347,7 @@ class Auth extends Component
 	{
 		$userId = $userId ?: $this->cookies->get(self::COOKIE_REMEMBER)->getValue();
 		$token = $this->cookies->get(self::COOKIE_TOKEN)->getValue();
-		
+
 		$userModel = $this->userClass;
 		$user = $userModel::repo()->where('identifier', $userId)->getOne();
 
@@ -375,11 +375,11 @@ class Auth extends Component
 		if( ! isset($headers['Authorization']) || ! ($authorization = $headers['Authorization']) ) {
 			return null;
 		}
-		
+
 		if( strpos($authorization, 'Bearer') === false ) {
 			return null;
 		}
-		
+
 		$apiKey = str_replace('Bearer ', '', $authorization);
 		if( ! $apiKey ) {
 			return null;
@@ -402,7 +402,7 @@ class Auth extends Component
 	{
 		return $this->request->get('api_key');
 	}
-	
+
 	/**
 	 * Get user from api key
 	 *
@@ -466,14 +466,14 @@ class Auth extends Component
 		if ( $this->cookies->has(self::COOKIE_REMEMBER) ) {
 			$this->cookies->get(self::COOKIE_REMEMBER)->delete();
 		}
-		
+
 		if ( $this->cookies->has(self::COOKIE_TOKEN) ) {
 			$this->cookies->get(self::COOKIE_TOKEN)->delete();
 		}
-		
+
 		$this->session->remove(self::TOKEN_NAME);
 	}
-	
+
 	/**
 	 * Auth the user by their id
 	 *
@@ -500,7 +500,7 @@ class Auth extends Component
 
 		return $user;
 	}
-	
+
 	/**
 	 * Login the user by their id
 	 *
@@ -554,7 +554,7 @@ class Auth extends Component
 
 		return false;
 	}
-	
+
 	/**
 	 * Encrypt the given password
 	 *
