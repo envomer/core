@@ -372,10 +372,11 @@ class Auth extends Component
 	public function loginWithAuthorizationHeaders()
 	{
 		$headers = apache_request_headers();
-		if( ! isset($headers['Authorization']) || ! ($authorization = $headers['Authorization']) ) {
-			return null;
-		}
-
+        $headers = \array_change_key_case($headers, \CASE_UPPER);
+        
+        if( ! isset($headers['AUTHORIZATION']) || ! ($authorization = $headers['AUTHORIZATION']) ) {
+            return null;
+        }
 		if( strpos($authorization, 'Bearer') === false ) {
 			return null;
 		}

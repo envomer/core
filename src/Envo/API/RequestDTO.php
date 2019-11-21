@@ -15,6 +15,8 @@ class RequestDTO extends AbstractDTO
     public $method;
 
     public $id;
+    
+    public $headers;
 
     public function get($name = null, $default = null)
     {
