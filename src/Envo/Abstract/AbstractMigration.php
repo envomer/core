@@ -48,11 +48,16 @@ class AbstractMigration
         $table = $this->table($name);
 
         $closure($table);
+        
+        $data = [
+            'columns' => $table->columns
+        ];
+        
+        if ($table->indexes){
+            $data['indexes'] = $table->indexes;
+        }
 		
-        $this->connection->createTable($table->name, null, [
-        	'columns' => $table->columns,
-            'indexes' => $table->indexes
-		]);
+        $this->connection->createTable($table->name, null, $data);
     }
 
     /**
