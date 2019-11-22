@@ -50,7 +50,8 @@ class AbstractMigration
         $closure($table);
 		
         $this->connection->createTable($table->name, null, [
-        	'columns' => $table->columns
+        	'columns' => $table->columns,
+            'indexes' => $table->indexes
 		]);
     }
 
@@ -76,7 +77,10 @@ class AbstractMigration
 				$this->connection->addColumn($table->name, null, $column);
 			}
         }
-
+    
+        foreach ($table->indexes as $index){
+            $this->connection->addIndex($table->name, null, $index);
+        }
         //$table->update();
     }
 	

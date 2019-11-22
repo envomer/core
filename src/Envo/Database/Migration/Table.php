@@ -2,6 +2,8 @@
 
 namespace Envo\Database\Migration;
 
+use Phalcon\Db\Index;
+
 class Table
 {
 	/**
@@ -643,12 +645,13 @@ class Table
     {
         // create a new index object if strings or an array of strings were supplied
         if (!$columns instanceof Index) {
-            $index = new Index();
-            if (is_string($columns)) {
-                $columns = array($columns); // str to array
+            if (! is_array($columns)){
+                $columns = [$columns];
             }
-            $index->setColumns($columns);
-            $index->setOptions($options);
+            $name = 'idx_' . implode('_', $columns);
+            
+            $unique = isset($options['unique']) && $options['unique'] ? 'UNIQUE' : null;
+            $index = new Index($name, $columns, $unique);
         } else {
             $index = $columns;
         }

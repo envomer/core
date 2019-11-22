@@ -19,7 +19,7 @@ class Config
 	 *
 	 * @param string $name
 	 * @param mixed $default
-	 * 
+	 *
 	 * @return string|array|integer
 	 */
 	public function get($name, $default = null)
@@ -36,7 +36,7 @@ class Config
 					return $default;
 				}
 
-				$this->configs[$search[0]] = require_once $file;
+				$this->configs[$search[0]] = require $file;
 			}
 		}
 
@@ -55,7 +55,7 @@ class Config
 
 	/**
 	 * Get the default database connection
-	 * 
+	 *
 	 * @return array
 	 */
 	public function database()

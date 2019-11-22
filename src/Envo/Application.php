@@ -40,6 +40,11 @@ use Phalcon\Mvc\View\Engine\Php;
  */
 class Application extends \Phalcon\Mvc\Application
 {
+    public const APP_ENV_TESTING = 'testing';
+    public const APP_ENV_PRODUCTION = 'production';
+    public const APP_ENV_STAGING = 'staging';
+    public const APP_ENV_DEVELOPING = 'local';
+    
 	//use ApplicationTrait;
 
 	/**
@@ -139,6 +144,10 @@ class Application extends \Phalcon\Mvc\Application
 		}
 
 		try {
+		    if (env( 'APP_ENV') === self::APP_ENV_TESTING){
+		        return $this;
+            }
+		   
 			echo $this->handle()->getContent();
 		} catch(\Exception $exception) {
 			envo_exception_handler($exception);

@@ -17,7 +17,7 @@
   ],
   "minimum-stability": "dev",
   "require": {
-    "php": ">=7.0.0",
+    "php": ">=7.1",
     "symfony/console": "3.1.10",
     "adhocore/cron-expr": "dev-master"
   },

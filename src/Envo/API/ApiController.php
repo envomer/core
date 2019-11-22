@@ -66,6 +66,7 @@ class ApiController extends AbstractController
         $parameters = $this->get();
         $this->apiHandler->request = new RequestDTO($parameters);
         $this->apiHandler->request->parameters = $parameters;
+        $this->apiHandler->request->headers = $this->request->getHeaders();
         $this->apiHandler->name = $model;
         
         try {
