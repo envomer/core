@@ -31,7 +31,7 @@ if ( ! function_exists('_t') )
 		if ( $amount && ! is_bool($params) ) {
 			return $translator->choice($val, $amount, $lang);
 		}
-		
+
 		return $translator->lang($val, $params, $lang);
 	}
 }
@@ -115,7 +115,7 @@ if (! function_exists('value')) {
 
 /**
  * Get / set the specified cache value.
- * 
+ *
  * set (['key' => 'value'], lifetime) //lifetime only works with memcache
  * get(key, lifetime, defaultvalue)
  *
@@ -136,7 +136,7 @@ if (! function_exists('cache'))
         if (empty($arguments)) {
             return $instance;
         }
-		
+
         if (is_string($arguments[0])) { // get cached item
         	return $instance->get($arguments[0], $arguments[1] ?? null, $arguments[2] ?? null);
         }
@@ -183,11 +183,11 @@ if ( ! function_exists('user') )
 	function user()
 	{
 		$auth = resolve('auth');
-		
+
 		if (!$auth) {
 			return null;
 		}
-		
+
 		return $auth->user();
 	}
 }
@@ -203,7 +203,7 @@ if (!function_exists('envo_exception_handler'))
 		if ($error instanceof \Exception && class_exists(\Envo\Foundation\ExceptionHandler::class)) {
 			\Envo\Foundation\ExceptionHandler::handle($error);
 		}
-		
+
 		if ($error) {
 			/** @var $error \Error */
 			echo '<pre>';
@@ -212,7 +212,7 @@ if (!function_exists('envo_exception_handler'))
 		} else {
 			die(var_dump($error));
 		}
-		
+
 		die;
 	}
 }
@@ -229,11 +229,11 @@ if (!function_exists('envo_error_handler'))
 			// through to the standard PHP error handler
 			return false;
 		}
-		
+
 		$error = new \ErrorException($errstr, 0, $errno, $errfile, $errline);
-	
+
 		envo_exception_handler($error);
-	
+
 		/* Don't execute PHP internal error handler */
 		return true;
 	}
@@ -275,22 +275,20 @@ if ( ! function_exists('resolve') )
 		if (!$di) {
 			return null;
 		}
-		
+
 		if ($di->has($class)) {
 			return $di->getShared($class);
 		}
-		
-		if (!$instance) {
-			$instance = $class;
-		}
-		
-		if ($instance) {
-			$di->setShared($class, $instance);
-			
+
+		if ($class) {
+			$di->setShared($class, function() use($class) {
+			    return new $class;
+            });
+
 			return $di->getShared($class);
 		}
 
-        return $repo;
+        return null;
 	}
 }
 
@@ -302,11 +300,11 @@ if ( ! function_exists('config') )
 	function config($name = null, $default = null)
 	{
 		$config = resolve('config');
-		
+
 		if (!$name || !$config) {
 			return $config;
 		}
-		
+
 		return $config->get($name, $default);
 	}
 }

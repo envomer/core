@@ -44,6 +44,7 @@ if (! defined( 'APP_PATH')){
 	 */
 	define('APP_PATH', __DIR__ . '/../');
 }
+require __DIR__ . '/../vendor/envome/core/src/Envo/Helper.php';
 
 /**
  * Include the framework layer

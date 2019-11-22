@@ -41,17 +41,17 @@ use Phalcon\Mvc\View\Engine\Php;
 class Application extends \Phalcon\Mvc\Application
 {
 	//use ApplicationTrait;
-	
+
 	/**
 	 * @var bool
 	 */
 	public $inMaintenance;
-	
+
 	/**
 	 * @var bool
 	 */
 	public $initialized = false;
-	
+
 	/**
 	 * @var bool
 	 */
@@ -84,7 +84,7 @@ class Application extends \Phalcon\Mvc\Application
 
 		return false;
 	}
-	
+
 	/**
 	 * Start app
 	 *
@@ -96,9 +96,9 @@ class Application extends \Phalcon\Mvc\Application
 		if (!defined('APP_START')) {
 			define('APP_START', microtime(true));
 		}
-		
+
 		require_once 'Helper.php';
-		
+
 		$this->setup();
 		$this->setupEnv();
 		$this->registerServices();
@@ -106,7 +106,7 @@ class Application extends \Phalcon\Mvc\Application
 
 		$this->initialized = true;
 	}
-	
+
 	/**
 	 * @param bool $initialize
 	 *
@@ -118,14 +118,14 @@ class Application extends \Phalcon\Mvc\Application
 		if (!$this->initialized) {
 			$this->initialize();
 		}
-		
+
 		if (defined('APP_CLI') && APP_CLI) {
 			return true;
 		}
-		
+
 		if (env('APP_DEBUGBAR', false)) {
 			$this->di->setShared('app', $this);
-			
+
 			/** @var Loader $loader */
 			$loader = $this->di->get('autoloader');
 			$loader->loadNamespace([
@@ -134,10 +134,10 @@ class Application extends \Phalcon\Mvc\Application
 				'Psr' => APP_PATH.'vendor/psr/log/Psr/',
 				'Symfony\Component\VarDumper' => APP_PATH.'vendor/symfony/var-dumper/',
 			]);
-			
+
 			(new \Snowair\Debugbar\ServiceProvider(APP_PATH . 'config/debugbar.php'))->start();
 		}
-		
+
 		try {
 			echo $this->handle()->getContent();
 		} catch(\Exception $exception) {
@@ -154,18 +154,18 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		$di = new DI();
 		$this->debug = $debug = env('APP_DEBUG');
-		
+
 		$config = $this->initConfig($di);
 
 		$this->sessionSetup($di, $config);
-		
+
 		$this->initCookies($di, $config);
-		
+
 		/**
 		 * Set request
 		 */
 		$di->setShared('request', Request::class);
-		
+
 		/**
 		 * Set caching
 		 */
@@ -175,7 +175,7 @@ class Application extends \Phalcon\Mvc\Application
 		 * Set response
 		 */
 		$di->setShared('response', Response::class);
-		
+
 		/**
 		 * Set permission
 		 */
@@ -192,12 +192,12 @@ class Application extends \Phalcon\Mvc\Application
 		 * Custom authentication component
 		 */
 		$di->setShared('auth', Auth::class);
-		
+
 		/**
 		 * Translator
 		 */
 		$di->setShared('translator', Translator::class);
-		
+
 		/**
 		 * Events manager
 		 */
@@ -217,18 +217,18 @@ class Application extends \Phalcon\Mvc\Application
 			$dispatcher->setDefaultNamespace("Core\Controller\\");
 			return $dispatcher;
 		});
-		
+
 		/**
 		 * Initialize API handler
 		 */
 		$di->setShared('apiHandler', Handler::class);
-		
+
 		$this->initRouter($di, $config);
 		$this->initView($di, $config);
 		$this->initVolt($di, $config);
 		$this->initDatabase($di, $config);
-		
-		
+
+
 		$di->setShared('crypt', function() use($config) {
 			$crypt = new \Phalcon\Crypt();
 			$crypt->setCipher($config->get('app.cipher'));
@@ -236,18 +236,18 @@ class Application extends \Phalcon\Mvc\Application
 
 			return $crypt;
 		});
-		
+
 		/**
 		 * Set URL component
 		 */
 		$url = new Url();
 		$url->setBaseUri('/');
 		$di->setShared('url', $url);
-		
+
 		if ( $debug ) {
 			$di->set('escaper', Escaper::class, true);
 			$di->set('profiler', Profiler::class, true);
-			
+
 			//$debug = new \Phalcon\Debug();
 			//$debug->listen();
 		}
@@ -256,7 +256,7 @@ class Application extends \Phalcon\Mvc\Application
 
 		return $di;
 	}
-	
+
 	/**
 	 * Define error logging and check if .env file exists
 	 *
@@ -267,38 +267,38 @@ class Application extends \Phalcon\Mvc\Application
 		error_reporting(-1);
 		set_exception_handler('envo_exception_handler');
 		set_error_handler('envo_error_handler');
-		
+
 		ini_set('error_log', APP_PATH . 'storage/framework/logs/errors/'.date('Y-m.W').'.log');
-	
+
 		if (!defined('ENVO_PATH')) {
 			define('ENVO_PATH', __DIR__ . '/../');
 		}
-		
+
 		if ( ! defined('APP_PATH') ) {
 			throw new \Exception('app.appPathNotDefined', 500);
 		}
-		
+
 		/**
 		 * Read configuration file
 		 */
 		if (! file_exists(APP_PATH . '.env') ) {
 			throw new \Exception('app.envConfigurationFileNotFound', 500);
 		}
-		
+
 		require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
 	}
-	
+
 	/**
 	 * Setup .env configuration
 	 */
 	public function setupEnv()
 	{
 		$config = parse_ini_file(APP_PATH . '.env');
-		
+
 		if ( getenv('APP_ENV') === 'testing' ) {
 			unset($config['APP_ENV']);
 		}
-		
+
 		foreach($config as $key => $conf) {
 			if ( is_array($conf) ) {
 				continue;
@@ -306,7 +306,7 @@ class Application extends \Phalcon\Mvc\Application
 			putenv($key.'='.$conf);
 		}
 	}
-	
+
 	/**
 	 * Debug database
 	 *
@@ -320,13 +320,13 @@ class Application extends \Phalcon\Mvc\Application
 		if (!$this->debug) {
 			return;
 		}
-		
+
 		// log the mysql queries if APP_DEBUG is set to true
 		/** @var Profiler $profiler */
 		$profiler = $di->get('profiler');
 		$eventsManager = new EventManager();
 		$eventsManager->collectResponses(true);
-		
+
 		// Listen all the database events
 		//$requestDebug = isset($_GET['cc2']); // add this to config or so...
 		$logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
@@ -337,7 +337,7 @@ class Application extends \Phalcon\Mvc\Application
 				$item = $profiler->getLastProfile();
 				$item->setSqlVariables($connection->getSqlVariables() ?: []);
 				$item->setSqlBindTypes($connection->getSqlBindTypes() ?: []);
-				
+
 				//if ($requestDebug) {
 					$ignoreClasses = ['Phalcon\\', 'Application'];
 					$path = '';
@@ -357,10 +357,10 @@ class Application extends \Phalcon\Mvc\Application
 				$profiler->stopProfile();
 			}
 		});
-		
+
 		return $eventsManager;
 	}
-	
+
 	/**
 	 * Register database connections
 	 *
@@ -377,29 +377,29 @@ class Application extends \Phalcon\Mvc\Application
 				$connections[$item] = $item;
 			}
 		}
-		
+
 		$self = $this;
 		foreach ($connections as $key => $connectionName){
 			$di->setShared($key, function () use($logging, $databaseConfig, $key, $connectionName, $self) {
 				$data = $databaseConfig['connections'][$connectionName];
-				
+
 				if ( $data['driver'] === 'sqlite' ) {
 					$connection = new Sqlite($data);
 				} else {
 					$connection = new Mysql($data);
 				}
-				
+
 				if ( $logging && $self->debug ) {
 					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
-				
+
 				return $connection;
 			});
 		}
-		
+
 		// @see https://docs.phalconphp.com/en/3.2/db-models#disabling-enabling-features
 		$dbConfig = config('database');
-		
+
 		Model::setup([
 			'astCache'              => $dbConfig['astCache'] ?? null,
 			'cacheLevel'            => $dbConfig['cacheLevel'] ?? 3,
@@ -422,7 +422,7 @@ class Application extends \Phalcon\Mvc\Application
 			'virtualForeignKeys'    => $dbConfig['virtualForeignKeys'] ?? true,
 		]);
 	}
-	
+
 	/**
 	 * @param DI     $di
 	 * @param Config $config
@@ -435,10 +435,10 @@ class Application extends \Phalcon\Mvc\Application
 		 *
 		 * TODO: implement different session types [files, database, etc...found in config('session.driver')]
 		 */
-		
+
 		$di->setShared('session', function () use($config) {
 			$driver = $config->get('session.driver', 'file');
-			
+
 			if ($driver === 'redis') {
 				$session = new \Phalcon\Session\Adapter\Redis([
 					'prefix'     => $config->get('session.prefix', ''),
@@ -460,7 +460,7 @@ class Application extends \Phalcon\Mvc\Application
 					'prefix'     => $config->get('session.prefix', ''),
 				]);
 			} else {
-				
+
 				session_save_path($config->get('session.files', APP_PATH.'storage/framework/sessions'));
 				$session = new \Phalcon\Session\Adapter\Files([
 					'uniqueId' => $config->get('session.prefix', '')
@@ -474,7 +474,7 @@ class Application extends \Phalcon\Mvc\Application
 			return $session;
 		});
 	}
-	
+
 	/**
 	 * @param DI $di
 	 * @param Config $config
@@ -488,38 +488,38 @@ class Application extends \Phalcon\Mvc\Application
 			$router = new Router(false);
 			$router->removeExtraSlashes(true);
 			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
-			
+
 			if ( file_exists(APP_PATH . 'bootstrap/cache/routes.php') ) {
 				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';
 				$router->import($routes);
-				
+
 				if ( isset($routes['apis']) && $routes['apis'] ) {
 					$di->get('apiHandler')->setApis($routes['apis']);
 				}
-				
+
 				return $router;
 			}
-			
+
 			$appConfig = $config->get('app.api', []);
-			
+
 			if ( !isset($appConfig['enabled']) || $appConfig['enabled'] ) {
 				$router->apiPrefix = $appConfig['prefix'] ?? $router->apiPrefix;
 				$api = $router->api();
 				$router->setHandler($di->get('apiHandler'));
 			}
-			
+
 			require_once APP_PATH . 'app/routes.php';
-			
+
 			if ( isset($api) ) {
 				$router->mount($api);
 			}
-			
+
 			$router->extensions();
-			
+
 			return $router;
 		});
 	}
-	
+
 	/**
 	 * @param DI $di
 	 * @param Config $config
@@ -531,23 +531,23 @@ class Application extends \Phalcon\Mvc\Application
 		 */
 		$di->setShared('view', function () use ($config) {
 			$view = new View();
-			
+
 			$view->setViewsDir($config->get('view.defaultDirectory', [
 				APP_PATH . 'app/Core/views/',
 				APP_PATH . 'app/Core/Template/'
 			]));
-			
+
 			$engines = ['.php' => Php::class];
 			if ( $config->get('view.volt', false) ) {
 				$engines['.volt'] = 'volt';
-				
+
 			}
 			$view->registerEngines($engines);
-			
+
 			return $view;
 		});
 	}
-	
+
 	/**
 	 * @param Config $config
 	 * @param DI $di
@@ -555,14 +555,14 @@ class Application extends \Phalcon\Mvc\Application
 	private function initVolt(DI $di, Config $config): void
 	{
 		$voltConfig = $config->get('view.volt');
-		
+
 		if ( !isset($voltConfig['enabled']) || ! $voltConfig['enabled'] ) {
 			return;
 		}
-		
+
 		$di->setShared('volt', function ($view, $di) use ($config, $voltConfig) {
 			$volt = new \Phalcon\Mvc\View\Engine\Volt($view, $di);
-			
+
 			$volt->setOptions([
 				'compiledPath' => $voltConfig['compiledPath'] ?? true,
 				'stat' => $voltConfig['stat'] ?? true,
@@ -572,7 +572,7 @@ class Application extends \Phalcon\Mvc\Application
 				'compileAlways' => $voltConfig['compileAlways'] ?? false,
 				'autoescape' => $voltConfig['autoescape'] ?? false,
 			]);
-			
+
 			// TODO: we need to move the volt functions. causes trouble with config:cache command (closures)!!
 			$compiler = $volt->getCompiler();
 			if ( isset($voltConfig['functions']) && is_array($voltConfig['functions']) ) {
@@ -580,11 +580,11 @@ class Application extends \Phalcon\Mvc\Application
 					$compiler->addFunction($functionName, $function);
 				}
 			}
-			
+
 			return $volt;
 		});
 	}
-	
+
 	/**
 	 * @param DI $di
 	 * @param Config $config
@@ -595,7 +595,7 @@ class Application extends \Phalcon\Mvc\Application
 		 * Set the database configuration
 		 */
 		$this->registerDatabases($di, $config->get('database.log', false));
-		
+
 		/**
 		 * If the configuration specify the use of metadata adapter use it or use memory otherwise
 		 */
@@ -603,25 +603,25 @@ class Application extends \Phalcon\Mvc\Application
 			$metaData = new Files(array(
 				'metaDataDir' => APP_PATH . 'storage/framework/cache/'
 			));
-			
+
 			return $metaData;
 		});
-		
+
 		/**
 		 * Set the models cache service
 		 */
 		$di->setShared('modelsCache', function () {
 			// Cache data for one day by default
 			$frontCache = new FrontendData(['lifetime' => 86400]);
-			
+
 			$cache = new File($frontCache, array(
 				'cacheDir' => APP_PATH . 'storage/framework/cache/'
 			));
-			
+
 			return $cache;
 		});
 	}
-	
+
 	/**
 	 * @param DI $di
 	 * @param Config $config
@@ -636,11 +636,11 @@ class Application extends \Phalcon\Mvc\Application
 			$settings = $config->get('app.cookies', []);
 			$cookies->useEncryption($settings['encryption'] ?? false);
 			$cookies->setSignKey($settings['sign_key'] ?? null);
-			
+
 			return $cookies;
 		});
 	}
-	
+
 	/**
 	 * @return Config
 	 */
@@ -648,17 +648,17 @@ class Application extends \Phalcon\Mvc\Application
 	{
 		$config = new Config();
 		putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
-		
+
 		$timezone = $config->get('app.timezone');
 		if ( $timezone ) {
 			date_default_timezone_set($timezone);
 		}
-		
+
 		/**
 		 * Set config
 		 */
 		$di->setShared('config', $config);
-		
+
 		return $config;
 	}
 }

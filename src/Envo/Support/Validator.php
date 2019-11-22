@@ -7,7 +7,7 @@ class Validator
 	public $data = [];
     public $errors = [];
 	public $rules = [];
-	
+
 	/**
 	 * Validate given data
 	 *
@@ -20,6 +20,11 @@ class Validator
 	public static function make($data, $validations, $messages = null)
 	{
 		$instance = resolve(self::class);
+
+		if (!$instance) {
+		    internal_exception('app.failedToInitializeValidator', 500);
+        }
+
 		$instance->data = $data;
 
 		$response = array();
@@ -31,7 +36,7 @@ class Validator
 
         return $instance;
 	}
-	
+
 	/**
 	 * @return bool
 	 */
@@ -39,7 +44,7 @@ class Validator
     {
         return $this->errors ? true : false;
     }
-	
+
 	/**
 	 * @return void
 	 * @throws \Envo\Exception\PublicException
@@ -50,7 +55,7 @@ class Validator
 			public_exception('validation.failed', 400, $this);
 		}
 	}
-	
+
 	/**
 	 * @return bool
 	 */
@@ -58,7 +63,7 @@ class Validator
     {
         return $this->errors ? false : true;
     }
-	
+
 	/**
 	 * @return array
 	 */
@@ -66,7 +71,7 @@ class Validator
     {
         return $this->errors;
     }
-	
+
 	/**
 	 * @return mixed
 	 */
@@ -74,7 +79,7 @@ class Validator
     {
         return $this->errors;
     }
-	
+
 	/**
 	 * @param $key
 	 * @param $validations
@@ -100,7 +105,7 @@ class Validator
 			if ( ! method_exists($this, $func) ) {
 				throw new \Exception("Validator method {$func} not found", 500);
 			}
-			
+
             if ( $isObject ) {
                 $value = $this->data->$key ?? null;
             } else {
@@ -116,7 +121,7 @@ class Validator
 
 		return $response ?: null;
 	}
-	
+
 	/**
 	 * @param $validator
 	 * @param $attribute
@@ -139,7 +144,7 @@ class Validator
 
         return $this->errors[] = $message;
 	}
-	
+
 	/**
 	 * @param $value
 	 *
@@ -159,7 +164,7 @@ class Validator
 
         return 'file';
     }
-	
+
 	/**
 	 * @param $attribute
 	 * @param $value
@@ -171,18 +176,18 @@ class Validator
 		if ( null === $value ) {
             return false;
         }
-		
+
 		if ( \is_string($value) && trim($value) === '' ) {
 			return false;
 		}
-		
+
 		if ( (\is_array($value) || $value instanceof \Countable) && \count($value) < 1 ) {
 			return false;
 		}
-		
+
 		return true;
 	}
-	
+
 	/**
 	 * @param $attribute
 	 * @param $value
@@ -194,7 +199,7 @@ class Validator
 	{
 		$this->requireParameterCount(1, $parameters, 'same');
 		$other = resolve(Arr::class)->get($this->data, $parameters);
-		
+
         return $other !== null && $value === $other;
 	}
 
@@ -618,7 +623,7 @@ class Validator
     {
         return rtrim(explode('*', $attribute)[0], '.') ?: null;
     }
-	
+
 	/**
 	 * @param $attribute
 	 * @param $value
@@ -690,15 +695,15 @@ class Validator
 		if ( is_numeric($value) ) {
 			return $value;
 		}
-	
+
 		if ( \is_array($value) ) {
 			return \count($value);
 		}
-		
+
 		if ($value instanceof File) {
 			return $value->getSize() / 1024;
 		}
-	
+
 		return mb_strlen($value);
     }
 
@@ -841,7 +846,7 @@ class Validator
             (:[0-9]+)?                              # a port (optional)
             (/?|/\S+|\?\S*|\#\S*)                   # a /, nothing, a / with something, a query or a fragment
         $~ixu';
-        
+
         return preg_match($pattern, $value) > 0;
     }
 }

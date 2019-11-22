@@ -40,17 +40,17 @@ use Symfony\Component\Console\Application;
 class Console extends \Phalcon\Application
 {
     use ApplicationTrait;
-	
+
 	/**
 	 * @var array
 	 */
     public $argv;
-	
+
 	/**
 	 * @var bool
 	 */
     public $dbRegistered = false;
-	
+
 	/**
 	 * Console constructor.
 	 *
@@ -61,7 +61,7 @@ class Console extends \Phalcon\Application
 		$this->argv = $argv;
 		parent::__construct();
     }
-	
+
 	/**
 	 * Start the console
 	 * @throws \Exception
@@ -69,39 +69,25 @@ class Console extends \Phalcon\Application
     public function start()
     {
     	error_reporting(E_ALL);
-    	
+
     	$name = 'envome';
     	$version = '0.2.0';
 		//$di = new Di();
-		$di = new FactoryDefault();
-		
+
         \define('APP_CLI', true);
         \define('ENVO_CLI', true);
-        
+
         $inFuseMode = getenv('FUSE_CLI');
 		if ($inFuseMode) {
 			\define('FUSE_CLI', true);
 			$name = 'Burning ' . $name;
 			$version = '0.0.1';
 		}
-	
-		$config = new Config();
-		
-		/** Set config */
-		$di->setShared('config', $config);
-		$di->setShared('app', $this);
-	
-		$this->setDI($di);
-    	$this->setup();
-        $this->registerServices($di, $config);
-        $this->setupConfig();
-	
-		//if ( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
-			$this->registerDatabases($di);
-		//}
+
+        $this->prepare();
 
         $app = new Application($name, $version);
-		
+
         //$app->add((new SeedRun())->setName('seed'));
         $app->add(new ConfigJsonCommand);
         $app->add(new ConfigCacheCommand);
@@ -125,17 +111,17 @@ class Console extends \Phalcon\Application
 		$app->add(new MakeEventCommand);
 		$app->add(new MakeDTOCommand);
 		$app->add(new RunCommand());
-	
+
 		if ($inFuseMode) {
 			$app->add(new StartCommand);
 			$app->add(new InstallCommand);
 		}
-	
+
 		$this->registerAppCommands($app);
-	
+
 		$app->run();
     }
-	
+
 	/**
 	 * @return void
 	 */
@@ -152,21 +138,21 @@ class Console extends \Phalcon\Application
 
 		$loader->registerNamespaces($namespaces);
 		$loader->register();
-		
+
 		/**
 		 * Custom authentication component
 		 */
 		$di->setShared('auth', Auth::class);
-		
+
 		$di->setShared('crypt', function() use($config) {
 			$crypt = new \Phalcon\Crypt();
 			$crypt->setCipher($config->get('app.cipher'));
 			$crypt->setKey($config->get('app.key'));
-			
+
 			return $crypt;
 		});
 	}
-	
+
 	/**
 	 * Handles a request
 	 */
@@ -174,7 +160,7 @@ class Console extends \Phalcon\Application
 	{
 		// TODO: Implement handle() method.
 	}
-	
+
 	/**
 	 * Define error logging and check if .env file exists
 	 *
@@ -184,44 +170,44 @@ class Console extends \Phalcon\Application
 	{
 		\define('APP_START', microtime(true));
 		\define('ENVO_PATH', __DIR__ . '/../');
-		
+
 		if ( ! \defined('APP_PATH') ) {
 			exit('APP_PATH not defined');
 		}
-		
+
 		/**
 		 * Read configuration file
 		 */
 		if (! file_exists(APP_PATH . '.env') ) {
 			throw new \Exception('Configuration file not set. Contact support team.', 500);
 		}
-		
+
 		ini_set('error_log', APP_PATH . 'storage/frameworks/logs/errors/'.date('Y-m.W').'.log');
-		
+
 		// IP check
 		require_once 'Helper.php';
 	}
-	
+
 	/**
 	 * Setup .env configuration
 	 */
 	public function setupConfig()
 	{
 		$config = parse_ini_file(APP_PATH . '.env');
-		
+
 		if ( getenv('APP_ENV') === 'testing' ) {
 			unset($config['APP_ENV']);
 		}
-		
+
 		foreach($config as $key => $conf) {
 			if ( \is_array($conf) ) {
 				continue;
 			}
-			
+
 			putenv($key.'='.$conf);
 		}
 	}
-	
+
 	/**
 	 * Register database connections
 	 *
@@ -233,11 +219,11 @@ class Console extends \Phalcon\Application
 		if ($this->dbRegistered) {
 			return;
 		}
-		
+
 		if (!$di) {
 			$di = Di::getDefault();
 		}
-		
+
 		$databaseConfig = config('database');
 		$connections = ['db' => $databaseConfig['default']];
 		if (isset($databaseConfig['use'])) {
@@ -246,29 +232,29 @@ class Console extends \Phalcon\Application
 				$connections[$item] = $item;
 			}
 		}
-		
+
 		$self = $this;
 		foreach ($connections as $key => $connectionName){
 			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connectionName, $self) {
 				$data = $databaseConfig['connections'][$connectionName];
-				
+
 				if ( $data['driver'] === 'sqlite' ) {
 					$connection = new Sqlite($data);
 				} else {
 					$connection = new Mysql($data);
 				}
-				
+
 				if ( $debug ) {
 					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
-				
+
 				return $connection;
 			});
 		}
-		
+
 		$this->dbRegistered = true;
 	}
-	
+
 	/**
 	 * @param Application $app
 	 *
@@ -279,31 +265,50 @@ class Console extends \Phalcon\Application
 		if ( ! class_exists('Console') ) {
 			return false;
 		}
-		
+
 		$console = new \Console();
-		
+
 		if ( !method_exists($console, 'commands') ) {
 			return false;
 		}
-		
+
 		$commands = $console->commands();
-		
+
 		if (!$commands) {
 			return false;
 		}
-		
+
 		if ( !is_array($commands) ) {
 			throw new \Exception('Console::commands() must return an array');
 		}
-		
+
 		foreach ($commands as $command) {
 			if (is_string(($command))) {
 				$command = new $command();
 			}
-			
+
 			$app->add($command);
 		}
-		
+
 		return true;
 	}
+
+    public function prepare(): void
+    {
+        $di = new FactoryDefault();
+        $config = new Config();
+
+        /** Set config */
+        $di->setShared('config', $config);
+        $di->setShared('app', $this);
+
+        $this->setDI($di);
+        $this->setup();
+        $this->registerServices($di, $config);
+        $this->setupConfig();
+
+        //if ( isset($this->argv[1]) && Str::strposa($this->argv[1], ['migrate', 'queue']) ) {
+        $this->registerDatabases($di);
+        //}
+    }
 }

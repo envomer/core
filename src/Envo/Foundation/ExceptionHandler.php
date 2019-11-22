@@ -23,8 +23,10 @@ class ExceptionHandler
 	{
 		$trace = true;
 		$exceptionActual = $exception;
-		
-		if ( $exception instanceof PublicException ) {
+
+//		die(rt($exception));
+
+		if ( $exception instanceof AbstractException ) {
 			http_response_code($exception->getCode());
 			// $trace = false;
 		} else {
@@ -33,7 +35,7 @@ class ExceptionHandler
 
 
 		// die(var_dump($exception->getMessage()));
-		
+
 		// hmmm
 		if(!($exception instanceof AbstractException) && class_exists(\Envo\Exception\InternalException::class)) {
 			$isJson = property_exists($exception, 'isJson');
@@ -43,7 +45,7 @@ class ExceptionHandler
 			}
 		}
 
-		
+
 		//TODO: sure about this??
 		// TODO: catch offline database exception?
 		try {
@@ -59,7 +61,7 @@ class ExceptionHandler
 					$dataEvent['request'] = $_REQUEST;
 					$dataEvent['uri'] = $_SERVER['REQUEST_URI'] ?? '';
 				}
-				
+
 				new \Envo\Event\Exception($exception->getMessage(), true, null, $dataEvent);
 				if ( $exception->isJson || (($router = resolve('router')) && ($route = $router->getMatchedRoute()) && strpos($route->getPattern(), '/api/') === 0 )) {
 					header('Content-Type: application/json');
@@ -69,7 +71,7 @@ class ExceptionHandler
 					echo json_encode($json);
 					exit;
 				}
-				
+
 			} else if(class_exists(\Envo\Event\Exception::class)) {
 				//die(var_dump('here?'));
 				new \Envo\Event\Exception($exception->getMessage(), true, null, [
@@ -82,18 +84,18 @@ class ExceptionHandler
 		} catch (\Exception $e) {
 			// die(var_dump($e));
 		}
-		
+
 		if(defined('APP_CLI') && APP_CLI) {
 			throw $exception;
 			//die(var_dump($exception->getMessage()));
 		}
-		
+
 		$error = $exception;
 		//require_once __DIR__ . '/View/html/errors.php';
 		require_once ENVO_PATH . 'Envo/View/html/errors.php';
 		exit;
 	}
-	
+
 	/**
 	 * Handle all exceptions types here
 	 */
@@ -121,7 +123,7 @@ class ExceptionHandler
 			$code = 404;
 			$message = $requestMethod;
 		}
-		
+
 		/**
 		 * 2002: Means database is down. so don't record event in database
 		 * 1049: Means database couldn't be found
@@ -132,7 +134,7 @@ class ExceptionHandler
 			// if( $exception instanceof AbstractException ) {
 			// 	$event->getEvent()->reference = $exception->reference;
 			// }
-			
+
 			// $event->save();
 			// $event->notify();
 		}
@@ -166,13 +168,13 @@ class ExceptionHandler
 				$exception->isJson = true;
 			}
 		}
-		
+
 		//die(var_dump($exception->getTraceAsString()));
 		self::handleError($exception);
 		//envo_exception_handler($exception);
-		
+
 		self::handle($exception);
-		
+
 		//$error = $exception;
 		//require_once ENVO_PATH . 'Envo/View/html/errors.php';
 	}
