@@ -296,15 +296,18 @@ class Console extends \Phalcon\Application
     public function prepare(): void
     {
         $di = new FactoryDefault();
-        $config = $this->initConfig($di);
-        $this->setupEnv();
-    
-        $this->debug = $debug = env('APP_DEBUG');
-        
+
         $di->setShared('app', $this);
 
         $this->setDI($di);
+
         $this->setup();
+        $this->setupEnv();
+
+        $config = $this->initConfig($di);
+
+        $this->debug = $debug = env('APP_DEBUG');
+
         $this->registerBaseServices($config, $di);
         //$this->setupConfig();
 

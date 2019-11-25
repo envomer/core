@@ -27,7 +27,7 @@ trait ApplicationTrait
         if( ! defined('APP_PATH') ) {
             exit('APP_PATH not defined');
         }
-	
+
 		/**
 		 * Read configuration file
 		 */
@@ -38,20 +38,24 @@ trait ApplicationTrait
         ini_set('error_log', APP_PATH . 'storage/frameworks/logs/errors/'.date('Y-m.W').'.log');
 
 		// IP check
-		(new IP())->isBlocked();
     }
-	
+
+    public function ipCheck()
+    {
+        (new IP())->isBlocked();
+    }
+
 	/**
 	 * Setup .env configuration
 	 */
 	public function setupConfig()
 	{
 		$config = parse_ini_file(APP_PATH . '.env');
-		
+
 		if( getenv('APP_ENV') === 'testing' ) {
 			unset($config['APP_ENV']);
 		}
-		
+
 		foreach($config as $key => $conf) {
 			if( is_array($conf) ) {
 				continue;
@@ -59,7 +63,7 @@ trait ApplicationTrait
 			putenv($key.'='.$conf);
 		}
 	}
-	
+
 	/**
 	 * Debug database
 	 *
@@ -97,10 +101,10 @@ trait ApplicationTrait
 				$profiler->stopProfile();
 			}
 		});
-		
+
 		return $eventsManager;
 	}
-	
+
 	/**
 	 * Register database connections
 	 *
@@ -117,22 +121,22 @@ trait ApplicationTrait
 				$connections[$item] = $item;
 			}
 		}
-		
+
 		$self = $this;
 		foreach ($connections as $key => $connectionName){
 			$di->setShared($key, function () use($debug, $databaseConfig, $key, $connectionName, $self) {
 				$data = $databaseConfig['connections'][$connectionName];
-				
+
 				if( $data['driver'] === 'sqlite' ) {
 					$connection = new \Phalcon\Db\Adapter\Pdo\Sqlite($data);
 				} else {
 					$connection = new Database($data);
 				}
-				
+
 				if( $debug ) {
 					$connection->setEventsManager($self->dbDebug($key, $this));
 				}
-				
+
 				return $connection;
 			});
 		}

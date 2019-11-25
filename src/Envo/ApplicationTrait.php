@@ -151,7 +151,7 @@ trait ApplicationTrait
             throw new \Exception('app.envConfigurationFileNotFound', 500);
         }
 
-        require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
+//        require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
     }
 
     /**

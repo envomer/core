@@ -44,7 +44,7 @@ class Application extends \Phalcon\Mvc\Application
     public const APP_ENV_PRODUCTION = 'production';
     public const APP_ENV_STAGING = 'staging';
     public const APP_ENV_DEVELOPING = 'local';
-    
+
 	use ApplicationTrait;
 
 	/**
@@ -105,6 +105,7 @@ class Application extends \Phalcon\Mvc\Application
 		require_once 'Helper.php';
 
 		$this->setup();
+		$this->ipCheck();
 		$this->setupEnv();
 		$this->registerServices();
 		$this->isInMaintenance();
@@ -147,7 +148,7 @@ class Application extends \Phalcon\Mvc\Application
 		    if (env( 'APP_ENV') === self::APP_ENV_TESTING){
 		        return $this;
             }
-		   
+
 			echo $this->handle()->getContent();
 		} catch(\Exception $exception) {
 			envo_exception_handler($exception);
@@ -169,7 +170,7 @@ class Application extends \Phalcon\Mvc\Application
 		$this->sessionSetup($di, $config);
 
 		$this->initCookies($di, $config);
-		
+
 		$this->registerBaseServices($config, $di);
 
 		$this->initRouter($di, $config);
