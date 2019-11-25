@@ -105,7 +105,6 @@ class Application extends \Phalcon\Mvc\Application
 		require_once 'Helper.php';
 
 		$this->setup();
-		$this->ipCheck();
 		$this->setupEnv();
 		$this->registerServices();
 		$this->isInMaintenance();
