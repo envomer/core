@@ -168,76 +168,57 @@ class Auth extends Component
 	 * @throws \RuntimeException
 	 * @throws Exception\PublicException
 	 */
-	public function check($email, $password, $remember = false)
+	public function check(string $email, string $password, bool $remember = false)
 	{
-		// Check if the user exist
-		$userClass = $this->userClass;
+        $user = $this->validate($email, $password);
 
-		$emailProp = 'email';
+        $this->loginUser($user, $remember);
 
-		$config = $this->di->get( 'config');
-
-		if($config->get('app.auth.wildcard_email_login', false)) {
-			//normalize the email
-			$email = preg_replace( '/(\+.*)(@)/', '$2', $email);
-			//if enabled then we have to check the email this way
-			$emailProp = 'REGEXP_REPLACE(email, "\\\+.*@", "@")';
-		}
-
-		/** @var User $user */
-		$user = $userClass::repo()->where('deleted_at IS NULL AND ('. $emailProp .' = :email: OR username = :username:)',[
-			'email' => $email,
-			'username' => $email
-		])->getOne();
-
-		if(
-			(! $user || ! env('IGNORE_PASSWORDS'))
-			&& (!$user || password_verify($password, $user->getPassword()) === false)
-		) {
-			if(env('APP_ENV') !== 'local') {
-				$this->registerUserThrottling($user);
-			}
-
-			if ($user) {
-				new UserWrongPassword(null, true, $user);
-			} else {
-				new LoginFailed(['user' => $email]);
-			}
-
-			return false;
-			// public_exception('validation.emailOrPasswordWrong', 400);
-		}
-
-		if( ! $user ) {
-			return false;
-			// public_exception('validation.emailOrPasswordWrong', 400);
-		}
-
-		// Check if the user was flagged
-		$this->checkUserFlags( $user );
-
-		// Check if the remember me was selected
-		if ($remember) {
-			$this->createRememberEnvironment( $user );
-		}
-
-		$this->session->set(self::TOKEN_NAME, [
-			'id'   => $user->getQualifierValue(),
-			'name' => $user->username,
-		]);
-
-		$event = new LoggedIn(null, false, $user, [
-			'username' => $user->username
-		]);
-		$event = $event->getEvent();
-		if($event) {
-			$event->user_id = $user->getId();
-			$event->team_id = $user->getTeamId();
-			$event->save();
-		}
-
-		return true;
+        return true;
 	}
+
+    /**
+     * @param string $email
+     * @param string $password
+     *
+     * @return array
+     */
+    public function validate(string $email, string $password): array
+    {
+        $user = $this->getUserByEmail($email);
+
+        if (!$user) {
+            new LoginFailed(['user' => $email]);
+            $this->throttle();
+            return false;
+        }
+
+        $valid = $this->validateUserPassword($user, $email, $password);
+
+        if (!$valid) {
+            new UserWrongPassword(null, true, $user);
+            $this->throttle($user);
+            return false;
+        }
+
+        // Check if the user was flagged
+        $this->checkUserFlags($user);
+
+        return $user;
+    }
+
+    /**
+     * In case the user login didn't work, then
+     * throttle the user
+     *
+     * @return bool
+     */
+	private function throttle($user = null)
+    {
+        if (env('APP_ENV') !== 'local') {
+            $this->registerUserThrottling($user);
+        }
+    }
 
 	/**
 	 * Implements login throttling
@@ -373,7 +354,7 @@ class Auth extends Component
 	{
 		$headers = apache_request_headers();
         $headers = \array_change_key_case($headers, \CASE_UPPER);
-        
+
         if( ! isset($headers['AUTHORIZATION']) || ! ($authorization = $headers['AUTHORIZATION']) ) {
             return null;
         }
@@ -567,4 +548,80 @@ class Auth extends Component
 	{
 		return Str::hash($password);
 	}
+
+    /**
+     * @param User $user
+     * @param boolean $remember
+     *
+     * @return User
+     */
+    public function loginUser(User $user, $remember = false)
+    {
+        $this->session->set(self::TOKEN_NAME, [
+            'id' => $user->getQualifierValue(),
+            'name' => $user->username,
+        ]);
+
+        // Check if the remember me was selected
+        if ($remember) {
+            $this->createRememberEnvironment($user);
+        }
+
+        $event = new LoggedIn(null, false, $user, [
+            'username' => $user->username
+        ]);
+
+        $event = $event->getEvent();
+        if ($event) {
+            $event->user_id = $user->getId();
+            $event->team_id = $user->getTeamId();
+            $event->save();
+        }
+
+        return $user;
+    }
+
+    /**
+     * @param string $email
+     *
+     * @return array
+     */
+    private function getUserByEmail($email): array
+    {
+        // Check if the user exist
+        $userClass = $this->userClass;
+
+        $emailProp = 'email';
+
+        $config = $this->di->get('config');
+
+        if ($config->get('app.auth.wildcard_email_login', false)) {
+            //normalize the email
+            $email = preg_replace('/(\+.*)(@)/', '$2', $email);
+
+            // if enabled then we have to check the email this way
+            $emailProp = 'REGEXP_REPLACE(email, "\\\+.*@", "@")';
+        }
+
+        /** @var User $user */
+        $user = $userClass::repo()->where(
+            'deleted_at IS NULL AND (' . $emailProp . ' = :email: OR username = :username:)',
+            [
+                'email' => $email,
+                'username' => $email
+            ]
+        )->getOne();
+
+        return $user;
+    }
+
+    /**
+     * @param $email
+     * @param $password
+     * @param array $user
+     */
+    private function validateUserPassword($user, $email, $password): void
+    {
+        return !env('IGNORE_PASSWORDS') && password_verify($password, $user->getPassword()) === false;
+    }
 }
