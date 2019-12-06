@@ -616,11 +616,11 @@ class Auth extends Component
     }
 
     /**
-     * @param $email
-     * @param $password
+     * @param string $email
+     * @param string $password
      * @param array $user
      */
-    private function validateUserPassword($user, $email, $password): void
+    private function validateUserPassword($user, $email, $password): bool
     {
         return !env('IGNORE_PASSWORDS') && password_verify($password, $user->getPassword()) === false;
     }
