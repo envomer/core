@@ -2,9 +2,11 @@
 
 namespace Envo\Database\Console;
 
+use Envo\ApplicationTrait;
 use Envo\Console\Command;
 use Envo\Database\Migration\Manager;
 
+use Phalcon\Di;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -23,7 +25,9 @@ abstract class BaseCommand extends Command
 	 */
 	protected function execute(InputInterface $input, OutputInterface $output)
 	{
-		resolve('app')->registerDatabases();
+        /** @var ApplicationTrait $app */
+        $app = resolve('app');
+        $app->registerDatabases(Di::getDefault(), resolve('config') );
 		
 		$this->manager = new Manager();
 		$this->manager->command = $this->name;

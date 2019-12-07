@@ -19,7 +19,8 @@
   "require": {
     "php": ">=7.1",
     "symfony/console": "3.1.10",
-    "adhocore/cron-expr": "dev-master"
+    "adhocore/cron-expr": "dev-master",
+    "erusev/parsedown": "1.7.3"
   },
   "autoload": {
     "files": [
