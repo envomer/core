@@ -174,7 +174,7 @@ class Auth extends Component
 
         $this->loginUser($user, $remember);
 
-        return true;
+        return $user;
 	}
 
     /**
@@ -183,7 +183,7 @@ class Auth extends Component
      *
      * @return array
      */
-    public function validate(string $email, string $password): array
+    public function validate(string $email, string $password)
     {
         $user = $this->getUserByEmail($email);
 
@@ -193,7 +193,8 @@ class Auth extends Component
             return false;
         }
 
-        $valid = $this->validateUserPassword($user, $email, $password);
+
+        $valid = $this->validateUserPassword($user, $password);
 
         if (!$valid) {
             new UserWrongPassword(null, true, $user);
@@ -555,7 +556,7 @@ class Auth extends Component
      *
      * @return User
      */
-    public function loginUser(User $user, $remember = false)
+    public function loginUser($user, $remember = false)
     {
         $this->session->set(self::TOKEN_NAME, [
             'id' => $user->getQualifierValue(),
@@ -586,7 +587,7 @@ class Auth extends Component
      *
      * @return array
      */
-    private function getUserByEmail($email): array
+    private function getUserByEmail($email)
     {
         // Check if the user exist
         $userClass = $this->userClass;
@@ -620,8 +621,8 @@ class Auth extends Component
      * @param string $password
      * @param array $user
      */
-    private function validateUserPassword($user, $email, $password): bool
+    private function validateUserPassword($user, $password)
     {
-        return !env('IGNORE_PASSWORDS') && password_verify($password, $user->getPassword()) === false;
+        return password_verify($password, $user->getPassword()) === true;
     }
 }
