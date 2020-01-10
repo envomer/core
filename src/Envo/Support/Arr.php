@@ -24,7 +24,7 @@ class Arr
         }
         return $results;
     }
-	
+
 	/**
 	 * Search array of values with an array of needles
 	 * Stop at first true result
@@ -378,8 +378,8 @@ class Arr
         $results = [];
 
         list($value, $key) = self::explodePluckParameters($value, $key);
-        
-        $func = is_object($array) ? 'object_get' : 'get'; 
+
+        $func = is_object($array) ? 'object_get' : 'get';
 
         foreach ($array as $item) {
             $itemValue = self::$func($item, $value);
@@ -541,7 +541,7 @@ class Arr
 
         return $filtered;
     }
-	
+
 	/**
 	 * @param      $array
 	 * @param      $by
@@ -554,7 +554,7 @@ class Arr
         if ( ! $array || ! count($array) ) {
             return $array;
         }
-		
+
         $result = array();
         $isObject = current($array) && is_object(current($array));
         $isObjectAndHasMethod = $isObject && method_exists(current($array), $by);
@@ -581,7 +581,7 @@ class Arr
 
         return $result;
     }
-	
+
 	/**
 	 * @param $object
 	 *
@@ -591,7 +591,7 @@ class Arr
     {
         return get_object_vars($object);
     }
-	
+
 	/**
 	 * @param      $array
 	 * @param      $value
@@ -638,5 +638,32 @@ class Arr
         }
 
         return $outputData;
+    }
+
+    /**
+     * Insert new value into array by index
+     * @param array $array
+     * @param int $index
+     * @param mixed $val
+     *
+     * @return array|null
+     */
+    public static function insertAt($array, int $index, $val): ?array
+    {
+        $size = count($array);
+        if (!is_int($index) || $index < 0) {
+            return null;
+        }
+
+        if ($index > $size) {
+            $array[] = $val;
+
+            return $array;
+        }
+
+        $temp = array_slice($array, 0, $index);
+        $temp[] = $val;
+
+        return array_merge($temp, array_slice($array, $index, $size));
     }
 }
