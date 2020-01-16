@@ -6,6 +6,11 @@ use Envo\AbstractDTO;
 
 class RequestDTO extends AbstractDTO
 {
+    const REQUEST_METHOD_INDEX = 'index';
+    const REQUEST_METHOD_SHOW = 'show';
+    const REQUEST_METHOD_CREATE = 'store';
+    const REQUEST_METHOD_UPDATE = 'update';
+    
     public $parameters = null;
 
     public $limit;
@@ -15,7 +20,7 @@ class RequestDTO extends AbstractDTO
     public $method;
 
     public $id;
-    
+
     public $headers;
 
     public function get($name = null, $default = null)
