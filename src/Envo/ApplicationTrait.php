@@ -9,8 +9,6 @@ use Envo\Foundation\ExceptionHandler;
 use Envo\Foundation\Permission;
 use Envo\Support\Str;
 use Envo\Support\Translator;
-use Phalcon\Cache\Backend\File;
-use Phalcon\Cache\Frontend\Data as FrontendData;
 use Phalcon\Db\Adapter\Pdo\Mysql;
 use Phalcon\Db\Adapter\Pdo\Sqlite;
 use Phalcon\Db\Profiler;
@@ -24,8 +22,9 @@ use Phalcon\Http\Response;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Model;
 use Phalcon\Mvc\Model\Manager as ModelManager;
-use Phalcon\Mvc\Model\MetaData\Files;
-use Phalcon\Mvc\Url;
+use Phalcon\Mvc\Model\MetaData\Stream;
+use Phalcon\Storage\SerializerFactory;
+use Phalcon\Url;
 
 trait ApplicationTrait
 {
@@ -110,7 +109,7 @@ trait ApplicationTrait
         /**
          * Set URL component
          */
-        $url = new Url();
+        $url = new \Phalcon\Url();
         $url->setBaseUri('/');
         $di->setShared('url', $url);
 
@@ -206,7 +205,7 @@ trait ApplicationTrait
 
         // Listen all the database events
         //$requestDebug = isset($_GET['cc2']); // add this to config or so...
-        $logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
+        $logger = new \Phalcon\Logger\Adapter\Stream( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
         $eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler, $logger) {
             if ($event->getType() === 'beforeQuery') {
                 // $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
@@ -318,7 +317,7 @@ trait ApplicationTrait
          * If the configuration specify the use of metadata adapter use it or use memory otherwise
          */
         $di->setShared('modelsMetadata', function () {
-            $metaData = new Files(array(
+            $metaData = new Stream(array(
                 'metaDataDir' => APP_PATH . 'storage/framework/cache/'
             ));
 
@@ -330,11 +329,15 @@ trait ApplicationTrait
          */
         $di->setShared('modelsCache', function () {
             // Cache data for one day by default
-            $frontCache = new FrontendData(['lifetime' => 86400]);
+            $serializerFactory = new SerializerFactory();
 
-            $cache = new File($frontCache, array(
-                'cacheDir' => APP_PATH . 'storage/framework/cache/'
-            ));
+            $cache = new \Phalcon\Cache\Adapter\Stream($serializerFactory,
+                [
+                    'defaultSerializer' => 'Php',
+                    'lifetime' => 86400,
+                    'storageDir' => APP_PATH . 'storage/framework/cache/'
+                ]
+            );
 
             return $cache;
         });

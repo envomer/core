@@ -2,37 +2,18 @@
 
 namespace Envo;
 
-use Envo\API\Handler;
-use Envo\Foundation\Cache;
 use Envo\Foundation\Config;
-use Envo\Foundation\ExceptionHandler;
-use Envo\Foundation\Loader;
-use Envo\Foundation\Permission;
 use Envo\Foundation\Router;
-use Envo\Support\Str;
-use Envo\Support\Translator;
-
-use Phalcon\Cache\Backend\File;
-use Phalcon\Cache\Frontend\Data as FrontendData;
-use Phalcon\Db\Adapter\Pdo\Mysql;
-use Phalcon\Db\Adapter\Pdo\Sqlite;
-use Phalcon\Db\Profiler;
 use Phalcon\DI;
-use Phalcon\Escaper;
-use Phalcon\Events\Event;
-use Phalcon\Events\Manager;
-use Phalcon\Events\Manager as EventManager;
-use Phalcon\Http\Request;
-use Phalcon\Http\Response;
 use Phalcon\Http\Response\Cookies;
-use Phalcon\Mvc\Dispatcher;
-use Phalcon\Mvc\Model;
-use Phalcon\Mvc\Model\Manager as ModelManager;
-use Phalcon\Mvc\Model\Metadata\Files;
-use Phalcon\Mvc\Router\Route;
-use Phalcon\Mvc\Url;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Php;
+use Phalcon\Session\Adapter\Libmemcached;
+use Phalcon\Session\Adapter\Redis;
+use Phalcon\Session\Adapter\Stream;
+use Phalcon\Session\Manager;
+use Phalcon\Storage\AdapterFactory;
+use Phalcon\Storage\SerializerFactory;
 
 /**
  * Class Application
@@ -148,7 +129,7 @@ class Application extends \Phalcon\Mvc\Application
 		        return $this;
             }
 
-			echo $this->handle()->getContent();
+			echo $this->handle($_SERVER["REQUEST_URI"])->getContent();
 		} catch(\Exception $exception) {
 			envo_exception_handler($exception);
 		}
@@ -363,9 +344,14 @@ class Application extends \Phalcon\Mvc\Application
 
 		$di->setShared('session', function () use($config) {
 			$driver = $config->get('session.driver', 'file');
-
-			if ($driver === 'redis') {
-				$session = new \Phalcon\Session\Adapter\Redis([
+            $serializerFactory = new SerializerFactory();
+            $adapterFactory    = new AdapterFactory($serializerFactory);
+            
+            $session = new Manager();
+            
+            if ($driver === 'redis') {
+                
+                $adapter = new Redis($adapterFactory,[
 					'prefix'     => $config->get('session.prefix', ''),
 					'uniqueId'   => $config->get('database.uniqueId', ''),
 					'lifetime'   => $config->get('session.lifetime', 120) * 60,
@@ -375,8 +361,9 @@ class Application extends \Phalcon\Mvc\Application
 					'port'       => $config->get('database.redis.default.port', 6379),
 					'host'       => $config->get('database.redis.default.host', '127.0.0.1'),
 				]);
+    
 			} else if ($driver === 'memcache') {
-				$session = new \Phalcon\Session\Adapter\Memcache([
+				$adapter = new Libmemcached($adapterFactory,[
 					'uniqueId'   => $config->get('database.uniqueId', ''),
 					'host'       => $config->get('database.host', '127.0.0.1'),
 					'port'       => $config->get('database.port', 11211),
@@ -387,12 +374,13 @@ class Application extends \Phalcon\Mvc\Application
 			} else {
 
 				session_save_path($config->get('session.files', APP_PATH.'storage/framework/sessions'));
-				$session = new \Phalcon\Session\Adapter\Files([
+				$adapter = new Stream([
 					'uniqueId' => $config->get('session.prefix', '')
 				]);
 			}
 
-			if (!$session->isStarted()) {
+            $session->setAdapter($adapter);
+			if ($session->status() !== Manager::SESSION_ACTIVE) {
                 $session->start();
             }
 
@@ -412,7 +400,7 @@ class Application extends \Phalcon\Mvc\Application
 		$di->setShared('router', function () use ($di, $config) {
 			$router = new Router(false);
 			$router->removeExtraSlashes(true);
-			$router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
+			// $router->setUriSource(Router::URI_SOURCE_SERVER_REQUEST_URI);
 
 			if ( file_exists(APP_PATH . 'bootstrap/cache/routes.php') ) {
 				$routes = require_once APP_PATH . 'bootstrap/cache/routes.php';

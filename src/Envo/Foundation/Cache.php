@@ -2,7 +2,7 @@
 
 namespace Envo\Foundation;
 
-use Phalcon\Cache\Backend\File as BackFile;
+use Phalcon\Cache\Adapter\Stream as BackFile;
 use Phalcon\Cache\Frontend\Data as FrontData;
 
 class Cache
