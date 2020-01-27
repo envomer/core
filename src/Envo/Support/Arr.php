@@ -73,7 +73,7 @@ class Arr
         $results = [];
 
         foreach ($array as $key => $value) {
-            list($innerKey, $innerValue) = call_user_func($callback, $key, $value);
+            [$innerKey, $innerValue] = call_user_func($callback, $key, $value);
 
             $results[$innerKey] = $innerValue;
         }
@@ -377,7 +377,7 @@ class Arr
     {
         $results = [];
 
-        list($value, $key) = self::explodePluckParameters($value, $key);
+        [$value, $key] = self::explodePluckParameters($value, $key);
 
         $func = is_object($array) ? 'object_get' : 'get';
 
@@ -563,7 +563,7 @@ class Arr
             $key = null;
             if ( $isObjectAndHasMethod && property_exists($value, $by) ) {
                 $key = $value->{$by}();
-            } else if ( $isObject && property_exists($value, $by) ) {
+            } else if ( is_object($value) && property_exists($value, $by) ) {
                 $key = $value->{$by};
             } else if (array_key_exists($by, $value)) {
                 $key = $value[$by];
