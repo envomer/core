@@ -42,6 +42,7 @@ class Permission extends AbstractModel
 	 */
 	public function initialize()
 	{
+	    parent::initialize();
 		/* defines the relation to Module */
 		$this->belongsTo('module_id', Module::class, 'id', [ 'alias' => 'module']);
 	}

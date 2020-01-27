@@ -29,24 +29,20 @@ class AbstractModel extends Model
 	 * @var AbstractService
 	 */
 	protected static $services;
-	
-	/**
-	 * Get the table name
-	 *
-	 * @return string table name
-	 * @throws Exception\InternalException
-	 */
-	public function getSource()
-	{
-		if(!isset($this->table)) {
-			internal_exception('app.tableNameMissing', 500);
-		}
-		return $this->table;
-	}
+    
+    public function initialize()
+    {
+        if(!isset($this->table)) {
+            internal_exception('app.tableNameMissing', 500);
+        }
+        
+        $this->setSource($this->table);
+    }
+    
 	
     /**
     * Get the columns of the table
-    * 
+    *
     * @param  string $type name of the column
     * @return string       column value
     */
@@ -59,13 +55,13 @@ class AbstractModel extends Model
         if( isset($this->{$type . 'Columns'}) ) {
 			return $this->{$type . 'Columns'};
 		}
-        
+  
 		return '';
     }
 
 	/**
 	 * Get the model relationships
-	 * 
+	 *
 	 * @param  string $name
 	 * @return array|null
 	 */
@@ -90,7 +86,7 @@ class AbstractModel extends Model
 
 	/**
 	 * Whether the model is soft deletable
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function isSoftDeletable()
@@ -128,7 +124,7 @@ class AbstractModel extends Model
 	 *
 	 * @return array
 	 */
-	public function jsonSerialize()
+	public function jsonSerialize() :array
 	{
 		if( method_exists($this, 'toDTO') ) {
 			return $this->toDTO();

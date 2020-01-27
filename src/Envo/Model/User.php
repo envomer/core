@@ -113,6 +113,7 @@ class User extends AbstractModel
 	 */
     public function initialize()
 	{
+	    parent::initialize();
 		$this->softDeletes = false;
 		$this->belongsTo( 'team_id', Team::class, 'id', ['alias' => 'team'] );
 	}

@@ -36,6 +36,10 @@ class Event extends AbstractModel
 
 	public function initialize()
 	{
+	    parent::initialize();
+	    
+	    $this->setSource(config('app.events.table', $this->table));
+	    
 		$userClass = config('app.classmap.user', User::class);
 		$userIpClass = config('app.classmap.ip', \Envo\Model\IP::class);
 		$eventType = config('app.classmap.event_type', \Envo\Event\Model\EventType::class);
@@ -45,11 +49,6 @@ class Event extends AbstractModel
 		$this->hasOne('event_type_id', $eventType, 'id', ['alias' => 'type']);
 		$this->hasOne('user_id', $userClass, 'id', ['alias' => 'user']);
 		$this->hasOne('ip_id', $userIpClass, 'id', ['alias' => 'ip']);
-	}
-
-	public function getSource()
-	{
-		return config('app.events.table', $this->table);
 	}
 
 	public function index($attributes, $user)
@@ -65,7 +64,7 @@ class Event extends AbstractModel
 		return [
 			// 'conditions' => $where,
 			// 'bind' => $bind,
-			// 
+			//
 			'with' => array(
 				'type',
 				'user',

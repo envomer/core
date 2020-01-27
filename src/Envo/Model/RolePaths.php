@@ -44,6 +44,7 @@ class RolePaths extends AbstractModel
 	 */
 	public function initialize()
 	{
+	    parent::initialize();
 		$this->belongsTo('parent_id', Role::class, 'id', [ 'alias' => 'parent']);
 		$this->belongsTo('child_id', Role::class, 'id', [ 'alias' => 'child']);
 	}

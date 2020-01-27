@@ -22,6 +22,7 @@ class Rule extends AbstractModel
 	 */
 	public function initialize()
 	{
+	    parent::initialize();
 		$this->belongsTo('role_id', Role::class, 'id', [ 'alias' => 'role']);
 		$this->belongsTo('permission_id', Permission::class, 'id', [ 'alias' => 'permission']);
 		$this->belongsTo('module_id', Module::class, 'id', ['alias' => 'module']);
