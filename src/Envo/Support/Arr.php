@@ -619,7 +619,7 @@ class Arr
         } elseif (is_string($class)) {
             $className = $class;
         } else {
-            internal_exception('app.givenTypeIsNotAllowed', 500, [
+            internal_exception('app.classTypeIsInvalid', 500, [
                 'class' => $class
             ]);
         }
