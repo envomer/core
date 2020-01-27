@@ -45,7 +45,7 @@ class MysqlExtended extends Mysql
 	 * @throws \Phalcon\Db\Exception
 	 * @throws \Exception
 	 */
-	public function getSqlExpression(array $expression, $escapeChar = null, $bindCounts = null)
+	public function getSqlExpression(array $expression,string $escapeChar = null, $bindCounts = null) :string
 	{
 		if ( $expression['type'] === 'functionCall') {
 			switch (strtoupper($expression['name'])) {

@@ -12,12 +12,12 @@ use Envo\Event\LoggedIn;
 
 use Envo\Support\Str;
 use Envo\Support\Translator;
-use Phalcon\Mvc\User\Component;
+use Phalcon\Di\Injectable;
 
 /**
  * Class Auth
  */
-class Auth extends Component
+class Auth extends Injectable
 {
 	const TOKEN_NAME = 'auth-identity';
 	const COOKIE_REMEMBER = 'remember_rmu';
