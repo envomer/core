@@ -135,8 +135,6 @@ class Handler
 		}
 
 		$builder->columns('COUNT(*)');
-		$builder->limit(null);
-		$builder->offset(null);
 		$counter = $builder->getQuery()->execute();
 		$count = $counter->getFirst();
 		$countTotal = $count ? $count->{0} : 0;
@@ -400,7 +398,7 @@ class Handler
 		$context = $apiTransformation ? $this->api : $this;
 		$definition = $definition ? array_flip($definition) : null;
 
-		if( 
+		if(
 			$this->request->method === 'index' && ($apiTransformation || $definition)
 		) {
 			if(!$data || !count($data)) {
