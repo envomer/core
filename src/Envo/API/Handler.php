@@ -406,8 +406,8 @@ class Handler
 			}
 			
 			$result = [];
-			foreach ($data as $item) {
-				$result[] = $context->transformItem($item, $definition);
+			foreach ($data as $key => $item) {
+				$result[$key] = $context->transformItem($item, $definition);
 			}
 			return $result;
 			//return array_map(function($item) use($definition, $context) {
