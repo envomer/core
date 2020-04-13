@@ -4,206 +4,206 @@ namespace Envo\Support;
 
 class Validator
 {
-	public $data = [];
+    public $data = [];
     public $errors = [];
-	public $rules = [];
+    public $rules = [];
 
-	/**
-	 * Validate given data
-	 *
-	 * @param      $data
-	 * @param      $validations
-	 * @param null $messages
-	 *
-	 * @return bool|array|self
-	 */
-	public static function make($data, $validations, $messages = null)
-	{
-		$instance = resolve(self::class);
+    /**
+     * Validate given data
+     *
+     * @param      $data
+     * @param      $validations
+     * @param null $messages
+     *
+     * @return bool|array|self
+     */
+    public static function make($data, $validations, $messages = null)
+    {
+        $instance = resolve(self::class);
 
-		if (!$instance) {
-		    internal_exception('app.failedToInitializeValidator', 500);
+        if (!$instance) {
+            internal_exception('app.failedToInitializeValidator', 500);
         }
 
-		$instance->data = $data;
+        $instance->data = $data;
 
-		$response = array();
-		foreach ($validations as $key => $validation) {
-			$response[$key] = $instance->validate($key, $validation);
-		}
+        $response = array();
+        foreach ($validations as $key => $validation) {
+            $response[$key] = $instance->validate($key, $validation);
+        }
 
         $instance->errors = array_filter($response);
 
         return $instance;
-	}
+    }
 
-	/**
-	 * @return bool
-	 */
+    /**
+     * @return bool
+     */
     public function fails()
     {
         return $this->errors ? true : false;
     }
 
-	/**
-	 * @return void
-	 * @throws \Envo\Exception\PublicException
-	 */
-	public function throwError()
-	{
-		if ($this->errors) {
-			public_exception('validation.failed', 400, $this);
-		}
-	}
+    /**
+     * @return void
+     * @throws \Envo\Exception\PublicException
+     */
+    public function throwError()
+    {
+        if ($this->errors) {
+            public_exception('validation.failed', 400, $this);
+        }
+    }
 
-	/**
-	 * @return bool
-	 */
+    /**
+     * @return bool
+     */
     public function isValid()
     {
         return $this->errors ? false : true;
     }
 
-	/**
-	 * @return array
-	 */
+    /**
+     * @return array
+     */
     public function errors()
     {
         return $this->errors;
     }
 
-	/**
-	 * @return mixed
-	 */
+    /**
+     * @return mixed
+     */
     public function getErrors()
     {
         return $this->errors;
     }
 
-	/**
-	 * @param $key
-	 * @param $validations
-	 *
-	 * @return null
-	 * @throws \Exception
-	 */
-	public function validate($key, $validations)
-	{
-		$validators = explode('|', $validations);
+    /**
+     * @param $key
+     * @param $validations
+     *
+     * @return null
+     * @throws \Exception
+     */
+    public function validate($key, $validations)
+    {
+        $validators = explode('|', $validations);
         $isObject = \is_object($this->data);
 
-		$response = array();
-		foreach ($validators as $validator) {
-			$parameters = null;
-			if ( strpos($validator, ':') !== false){
-				list($validator, $parameters) = explode(':', $validator);
-				//$validator = $parts[0];
-				//$parameters = $parts[1];
-			}
-			$func = 'validate' . ucfirst($validator);
+        $response = array();
+        foreach ($validators as $validator) {
+            $parameters = null;
+            if (strpos($validator, ':') !== false) {
+                list($validator, $parameters) = explode(':', $validator);
+                //$validator = $parts[0];
+                //$parameters = $parts[1];
+            }
+            $func = 'validate' . ucfirst($validator);
 
-			if ( ! method_exists($this, $func) ) {
-				throw new \Exception("Validator method {$func} not found", 500);
-			}
+            if (! method_exists($this, $func)) {
+                throw new \Exception("Validator method {$func} not found", 500);
+            }
 
-            if ( $isObject ) {
+            if ($isObject) {
                 $value = $this->data->$key ?? null;
             } else {
                 $value = $this->data[ $key ] ?? null;
             }
 
-			$resp = $this->$func($key, $value, $parameters);
+            $resp = $this->$func($key, $value, $parameters);
 
-			if ( ! $resp || \is_string($resp) ) {
+            if (! $resp || \is_string($resp)) {
                 $response[] = $this->addError($validator, $key, $parameters, $value);
             }
-		}
+        }
 
-		return $response ?: null;
-	}
+        return $response ?: null;
+    }
 
-	/**
-	 * @param $validator
-	 * @param $attribute
-	 * @param $parameters
-	 * @param null $value
-	 *
-	 * @return array|mixed|string
-	 */
-	protected function addError($validator, $attribute, $parameters, $value = null)
-	{
-		$message = \_t('validation.' . $validator, [$attribute]);
+    /**
+     * @param $validator
+     * @param $attribute
+     * @param $parameters
+     * @param null $value
+     *
+     * @return array|mixed|string
+     */
+    protected function addError($validator, $attribute, $parameters, $value = null)
+    {
+        $message = \_t('validation.' . $validator, [$attribute]);
         $message = $this->doReplacements($message, $attribute, $validator, $parameters);
 
-        if ( \is_array($message) ) {
+        if (\is_array($message)) {
             $type = $value ? $this->getType($value) : 'numeric';
-            if ( isset($message[$type]) ) {
+            if (isset($message[$type])) {
                 $message = $message[$type];
             }
         }
 
         return $this->errors[] = $message;
-	}
+    }
 
-	/**
-	 * @param $value
-	 *
-	 * @return string
-	 */
+    /**
+     * @param $value
+     *
+     * @return string
+     */
     protected function getType($value)
     {
-        if ( \is_array($value) ) {
+        if (\is_array($value)) {
             return 'array';
         }
-        if ( is_numeric($value) ) {
+        if (is_numeric($value)) {
             return 'numeric';
         }
-        if ( \is_string($value) ) {
+        if (\is_string($value)) {
             return 'string';
         }
 
         return 'file';
     }
 
-	/**
-	 * @param $attribute
-	 * @param $value
-	 *
-	 * @return bool
-	 */
-	protected function validateRequired($attribute, $value)
-	{
-		if ( null === $value ) {
+    /**
+     * @param $attribute
+     * @param $value
+     *
+     * @return bool
+     */
+    protected function validateRequired($attribute, $value)
+    {
+        if (null === $value) {
             return false;
         }
 
-		if ( \is_string($value) && trim($value) === '' ) {
-			return false;
-		}
+        if (\is_string($value) && trim($value) === '') {
+            return false;
+        }
 
-		if ( (\is_array($value) || $value instanceof \Countable) && \count($value) < 1 ) {
-			return false;
-		}
+        if ((\is_array($value) || $value instanceof \Countable) && \count($value) < 1) {
+            return false;
+        }
 
-		return true;
-	}
+        return true;
+    }
 
-	/**
-	 * @param $attribute
-	 * @param $value
-	 * @param $parameters
-	 *
-	 * @return bool
-	 */
-	protected function validateSame($attribute, $value, $parameters) : bool
-	{
-		$this->requireParameterCount(1, $parameters, 'same');
-		$other = resolve(Arr::class)->get($this->data, $parameters);
+    /**
+     * @param $attribute
+     * @param $value
+     * @param $parameters
+     *
+     * @return bool
+     */
+    protected function validateSame($attribute, $value, $parameters) : bool
+    {
+        $this->requireParameterCount(1, $parameters, 'same');
+        $other = resolve(Arr::class)->get($this->data, $parameters);
 
         return $other !== null && $value === $other;
-	}
+    }
 
-	/**
+    /**
      * Require a certain number of parameters to be present.
      *
      * @param  int    $count
@@ -215,8 +215,8 @@ class Validator
      */
     protected function requireParameterCount($count, $parameters, $rule)
     {
-    	//die(var_dump($parameters, $count));
-        if ( $parameters instanceof \Countable && \count($parameters) < $count) {
+        //die(var_dump($parameters, $count));
+        if ($parameters instanceof \Countable && \count($parameters) < $count) {
             throw new \InvalidArgumentException("Validation rule $rule requires at least $count parameters.");
         }
     }
@@ -229,7 +229,7 @@ class Validator
      * @return bool
      */
     protected function validateEmail($attribute, $value) : bool
-	{
+    {
         return filter_var($value, FILTER_VALIDATE_EMAIL) !== false;
     }
 
@@ -624,13 +624,13 @@ class Validator
         return rtrim(explode('*', $attribute)[0], '.') ?: null;
     }
 
-	/**
-	 * @param $attribute
-	 * @param $value
-	 * @param $parameters
-	 *
-	 * @return bool
-	 */
+    /**
+     * @param $attribute
+     * @param $value
+     * @param $parameters
+     *
+     * @return bool
+     */
     protected function validateMin($attribute, $value, $parameters)
     {
         return $this->getSize($attribute, $value) >= $parameters[0];
@@ -692,19 +692,19 @@ class Validator
         // return the proper size accordingly. If it is a number, then number itself
         // is the size. If it is a file, we take kilobytes, and for a string the
         // entire length of the string will be considered the attribute size.
-		if ( is_numeric($value) ) {
-			return $value;
-		}
+        if (is_numeric($value)) {
+            return $value;
+        }
 
-		if ( \is_array($value) ) {
-			return \count($value);
-		}
+        if (\is_array($value)) {
+            return \count($value);
+        }
 
-		if ($value instanceof File) {
-			return $value->getSize() / 1024;
-		}
+        if ($value instanceof File) {
+            return $value->getSize() / 1024;
+        }
 
-		return mb_strlen($value);
+        return mb_strlen($value);
     }
 
     /**
@@ -725,8 +725,8 @@ class Validator
      * @param  string  $attribute
      * @param  string|array  $rules
      *
-	 * @return array|bool|null
-	 */
+     * @return array|bool|null
+     */
     protected function getRule($attribute, $rules)
     {
         if (! array_key_exists($attribute, $this->rules)) {
@@ -738,7 +738,7 @@ class Validator
         foreach ($this->rules[$attribute] as $rule) {
             list($rule, $parameters) = $this->parseRule($rule);
 
-            if ( \in_array($rule, $rules, false)) {
+            if (\in_array($rule, $rules, false)) {
                 return [$rule, $parameters];
             }
         }

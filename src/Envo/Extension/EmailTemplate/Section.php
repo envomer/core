@@ -64,7 +64,7 @@ class Section extends AbstractDTO
 		if(!$value) {
 			// check what kind of theme
 			$cerberus = [
-				'backgroundColor' => '#e9ecef'
+				//'backgroundColor' => '#e9ecef'
 			];
 			
 			

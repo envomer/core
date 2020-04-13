@@ -34,7 +34,7 @@ class Str
      * @return string
      */
     public static function camel($value): string
-	{
+    {
         if (isset(static::$camelCache[$value])) {
             return static::$camelCache[$value];
         }
@@ -50,7 +50,7 @@ class Str
      * @return bool
      */
     public static function contains($haystack, $needles): bool
-	{
+    {
         foreach ((array) $needles as $needle) {
             if ($needle !== '' && strpos($haystack, $needle) !== false) {
                 return true;
@@ -68,7 +68,7 @@ class Str
      * @return bool
      */
     public static function endsWith($haystack, $needles): bool
-	{
+    {
         foreach ((array) $needles as $needle) {
             if ((string) $needle === substr($haystack, - \strlen($needle))) {
                 return true;
@@ -86,7 +86,7 @@ class Str
      * @return string
      */
     public static function finish($value, $cap): string
-	{
+    {
         $quoted = preg_quote($cap, '/');
 
         return preg_replace('/(?:'.$quoted.')+$/', '', $value).$cap;
@@ -122,7 +122,7 @@ class Str
      * @return int
      */
     public static function length($value): int
-	{
+    {
         return mb_strlen($value);
     }
 
@@ -135,11 +135,11 @@ class Str
      * @return string
      */
     public static function limit($value, $limit = 100, $end = '...'): ?string
-	{
-		if (!$value) {
-			return $value;
-		}
-		
+    {
+        if (!$value) {
+            return $value;
+        }
+        
         if (mb_strwidth($value, 'UTF-8') <= $limit) {
             return $value;
         }
@@ -154,7 +154,7 @@ class Str
      * @return string
      */
     public static function lower($value): string
-	{
+    {
         return mb_strtolower($value, 'UTF-8');
     }
 
@@ -167,7 +167,7 @@ class Str
      * @return string
      */
     public static function words($value, $words = 100, $end = '...'): string
-	{
+    {
         preg_match('/^\s*+(?:\S++\s*+){1,'.$words.'}/u', $value, $matches);
 
         if (! isset($matches[0]) || \strlen($value) === \strlen($matches[0])) {
@@ -178,29 +178,29 @@ class Str
     }
 
     /**
-	 * Parse a "Class@method" syntax
-	 *
+     * Parse a "Class@method" syntax
+     *
      * @param  string  $callback
      * @param  string  $default
      *
      * @return array
      */
     public static function parseCallback($callback, $default): array
-	{
+    {
         return static::contains($callback, '@') ? explode('@', $callback, 2) : [$callback, $default];
     }
-	
-	/**
-	 * Generate a more truly "random" alpha-numeric string.
-	 *
-	 * @param  int $length
-	 *
-	 * @return string
-	 *
-	 * @throws \Exception
-	 */
+    
+    /**
+     * Generate a more truly "random" alpha-numeric string.
+     *
+     * @param  int $length
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
     public static function random($length = 16): string
-	{
+    {
         $string = '';
 
         while (($len = strlen($string)) < $length) {
@@ -213,21 +213,21 @@ class Str
 
         return $string;
     }
-	
-	/**
-	 * Generate a more truly "random" bytes.
-	 *
-	 * @param  int $length
-	 *
-	 * @return string
-	 *
-	 * @throws \Exception
-	 */
+    
+    /**
+     * Generate a more truly "random" bytes.
+     *
+     * @param  int $length
+     *
+     * @return string
+     *
+     * @throws \Exception
+     */
     public static function randomBytes($length = 16): string
-	{
+    {
         if (PHP_MAJOR_VERSION >= 7 || defined('RANDOM_COMPAT_READ_BUFFER')) {
             $bytes = random_bytes($length);
-        } elseif ( \function_exists('openssl_random_pseudo_bytes')) {
+        } elseif (\function_exists('openssl_random_pseudo_bytes')) {
             $bytes = \openssl_random_pseudo_bytes($length, $strong);
 
             if ($bytes === false || $strong === false) {
@@ -250,13 +250,11 @@ class Str
      */
     public static function quickRandom($length = 16, $alpha = true, $numeric = true)
     {
-        if ( $alpha && $numeric ) {
+        if ($alpha && $numeric) {
             $pool = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        }
-        else if ($alpha) {
+        } elseif ($alpha) {
             $pool = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        }
-        else {
+        } else {
             $pool = '0123456789';
         }
 
@@ -275,7 +273,7 @@ class Str
      * @return bool
      */
     public static function equals($knownString, $userInput): bool
-	{
+    {
         if (! \is_string($knownString)) {
             $knownString = (string) $knownString;
         }
@@ -284,7 +282,7 @@ class Str
             $userInput = (string) $userInput;
         }
 
-        if ( \function_exists('hash_equals')) {
+        if (\function_exists('hash_equals')) {
             return hash_equals($knownString, $userInput);
         }
 
@@ -310,7 +308,7 @@ class Str
      * @return string
      */
     public static function upper($value): string
-	{
+    {
         return mb_strtoupper($value, 'UTF-8');
     }
 
@@ -321,23 +319,23 @@ class Str
      * @return string
      */
     public static function title($value): string
-	{
+    {
         return mb_convert_case($value, MB_CASE_TITLE, 'UTF-8');
     }
-	
-	/**
-	 * Generate a URL friendly "slug" from a given string.
-	 *
-	 * @param  string $title
-	 * @param  string $separator
-	 *
-	 * @return string
-	 * @throws \Envo\Exception\InternalException
-	 */
+    
+    /**
+     * Generate a URL friendly "slug" from a given string.
+     *
+     * @param  string $title
+     * @param  string $separator
+     *
+     * @return string
+     * @throws \Envo\Exception\InternalException
+     */
     public static function slug($title, $separator = '-') : string
     {
         //$title = static::ascii($title);
-		internal_exception('ASCII method missing. @TODO', 500);
+        internal_exception('ASCII method missing. @TODO', 500);
 
         // Convert all dashes/underscores into separator
         $flip = $separator === '-' ? '_' : '-';
@@ -402,7 +400,7 @@ class Str
      * @return string
      */
     public static function studly($value): string
-	{
+    {
         $key = $value;
 
         if (isset(static::$studlyCache[$key])) {
@@ -423,7 +421,7 @@ class Str
      * @return string
      */
     public static function substr($string, $start, $length = null): string
-	{
+    {
         return mb_substr($string, $start, $length, 'UTF-8');
     }
 
@@ -434,7 +432,7 @@ class Str
      * @return string
      */
     public static function ucfirst($string): string
-	{
+    {
         return static::upper(static::substr($string, 0, 1)).static::substr($string, 1);
     }
 
@@ -443,7 +441,7 @@ class Str
      */
     public static function minimizeHTML($html)
     {
-        return preg_replace(array('/ {2,}/', '/<!--.*?-->|\t|(?:\r?\n[ \t]*)+/s'), array(' ', ''), $html );
+        return preg_replace(array('/ {2,}/', '/<!--.*?-->|\t|(?:\r?\n[ \t]*)+/s'), array(' ', ''), $html);
     }
 
     /**
@@ -451,7 +449,7 @@ class Str
      * one character and 6 digits
      */
     public static function generateCustomerId(): string
-	{
+    {
         $alpha = ucfirst(self::quickRandom(1, true, false));
 
         while ($alpha === 'O') {
@@ -460,77 +458,77 @@ class Str
 
         return $alpha .'-' . self::quickRandom(6, false);
     }
-	
-	/**
-	 * @param     $haystack
-	 * @param     $needle
-	 * @param int $offset
-	 *
-	 * @return bool
-	 */
+    
+    /**
+     * @param     $haystack
+     * @param     $needle
+     * @param int $offset
+     *
+     * @return bool
+     */
     public static function strposa($haystack, $needle, $offset = 0): bool
-	{
+    {
         if (!\is_array($needle)) {
-        	$needle = array($needle);
-		}
-		
-        foreach($needle as $query) {
-            if (strpos($haystack, $query, $offset) !== false) {
-            	return true; // stop on first true result
-			}
+            $needle = array($needle);
         }
-		
+        
+        foreach ($needle as $query) {
+            if (strpos($haystack, $query, $offset) !== false) {
+                return true; // stop on first true result
+            }
+        }
+        
         return false;
     }
-	
-	/**
-	 * @return string
-	 * @throws \Exception
-	 */
+    
+    /**
+     * @return string
+     * @throws \Exception
+     */
     public static function guid(): string
-	{
-        if ( \function_exists('com_create_guid') === true) {
+    {
+        if (\function_exists('com_create_guid') === true) {
             return trim(com_create_guid(), '{}');
         }
 
         return sprintf(
-        	'%04X%04X-%04X-%04X-%04X-%04X%04X%04X',
-			\random_int(0, 65535),
-			\random_int(0, 65535),
-			\random_int(0, 65535),
-			\random_int(16384, 20479),
-			\random_int(32768, 49151),
-			\random_int(0, 65535),
-			\random_int(0, 65535),
-			\random_int(0, 65535)
-		);
+            '%04X%04X-%04X-%04X-%04X-%04X%04X%04X',
+            \random_int(0, 65535),
+            \random_int(0, 65535),
+            \random_int(0, 65535),
+            \random_int(16384, 20479),
+            \random_int(32768, 49151),
+            \random_int(0, 65535),
+            \random_int(0, 65535),
+            \random_int(0, 65535)
+        );
     }
-	
-	/**
-	 * @param $data
-	 *
-	 * @return string
-	 */
+    
+    /**
+     * @param $data
+     *
+     * @return string
+     */
     public static function base64url_encode($data): string
-	{
-        return rtrim(strtr(base64_encode($data), '+/', '-_'), '='); 
+    {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }
-	
-	/**
-	 * @param $data
-	 *
-	 * @return bool|string
-	 */
+    
+    /**
+     * @param $data
+     *
+     * @return bool|string
+     */
     public static function base64url_decode($data)
-    { 
+    {
         return base64_decode(str_pad(strtr($data, '-_', '+/'), \strlen($data) % 4, '=', STR_PAD_RIGHT));
     }
-	
-	/**
-	 * @param string $input
-	 *
-	 * @return string
-	 */
+    
+    /**
+     * @param string $input
+     *
+     * @return string
+     */
     public static function cleanDb($input) : string
     {
         return htmlentities(trim($input));
@@ -544,40 +542,40 @@ class Str
      * @return boolean
      */
     public static function hash($value, array $options = array()): string
-	{
-		$cost = $options['rounds'] ?? 10;
-		$hash = password_hash($value, PASSWORD_BCRYPT, ['cost' => $cost]);
-	    if ($hash === false) {
-	        throw new \RuntimeException('Bcrypt hashing not supported.');
-	    }
-	    return $hash;
-	}
-	
-	/**
-	 * Generate unique id
-	 *
-	 * @param integer $length
-	 *
-	 * @return string
-	 * @throws \Exception
-	 */
+    {
+        $cost = $options['rounds'] ?? 10;
+        $hash = password_hash($value, PASSWORD_BCRYPT, ['cost' => $cost]);
+        if ($hash === false) {
+            throw new \RuntimeException('Bcrypt hashing not supported.');
+        }
+        return $hash;
+    }
+    
+    /**
+     * Generate unique id
+     *
+     * @param integer $length
+     *
+     * @return string
+     * @throws \Exception
+     */
     public static function uniqueId($length = 16): string
-	{
-		$d = date ('d');
-		$m = date ('m');
-		$y = date ('Y');
-		$t = time();
-		$dmt = $d+$m+$y+$t;
-		$ran = random_int(0,10000000);
-		$dmtran = $dmt+$ran;
-		$un = uniqid('', true);
-		$dmtun = $dmt.$un;
-		$mdun = md5($dmtran.$un);
-		if ( $length ) {
+    {
+        $d = date('d');
+        $m = date('m');
+        $y = date('Y');
+        $t = time();
+        $dmt = $d+$m+$y+$t;
+        $ran = random_int(0, 10000000);
+        $dmtran = $dmt+$ran;
+        $un = uniqid('', true);
+        $dmtun = $dmt.$un;
+        $mdun = md5($dmtran.$un);
+        if ($length) {
             return substr($mdun, $length);
         }
 
-		return $mdun;
+        return $mdun;
     }
     
     /**
@@ -587,38 +585,37 @@ class Str
      * @return string
      */
     public static function identifier($length = 32): string
-	{
+    {
         $time = time();
         return self::quickRandom(($length - 1) - \strlen((string)$time)) . '.' . $time;
     }
-	
-	/**
-	 *
-	 * Generate v4 UUID
-	 *
-	 * Version 4 UUIDs are pseudo-random.
-	 */
-	public static function uuidV4()
-	{
-		return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-			
-			// 32 bits for "time_low"
-			mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-			
-			// 16 bits for "time_mid"
-			mt_rand(0, 0xffff),
-			
-			// 16 bits for "time_hi_and_version",
-			// four most significant bits holds version number 4
-			mt_rand(0, 0x0fff) | 0x4000,
-			
-			// 16 bits, 8 bits for "clk_seq_hi_res",
-			// 8 bits for "clk_seq_low",
-			// two most significant bits holds zero and one for variant DCE1.1
-			mt_rand(0, 0x3fff) | 0x8000,
-			
-			// 48 bits for "node"
-			mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-		);
-	}
+    
+    /**
+     *
+     * Generate v4 UUID
+     *
+     * Version 4 UUIDs are pseudo-random.
+     */
+    public static function uuidV4()
+    {
+        return sprintf(
+            '%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
+            // 32 bits for "time_low"
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            // 16 bits for "time_mid"
+            mt_rand(0, 0xffff),
+            // 16 bits for "time_hi_and_version",
+            // four most significant bits holds version number 4
+            mt_rand(0, 0x0fff) | 0x4000,
+            // 16 bits, 8 bits for "clk_seq_hi_res",
+            // 8 bits for "clk_seq_low",
+            // two most significant bits holds zero and one for variant DCE1.1
+            mt_rand(0, 0x3fff) | 0x8000,
+            // 48 bits for "node"
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff),
+            mt_rand(0, 0xffff)
+        );
+    }
 }

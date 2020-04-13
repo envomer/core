@@ -37,7 +37,7 @@ trait ApplicationTrait
      */
     public function registerBaseServices(Config $config, $di)
     {
-        $di->setShared('crypt', function() use($config) {
+        $di->setShared('crypt', function () use ($config) {
             $crypt = new \Phalcon\Crypt();
             $crypt->setCipher($config->get('app.cipher'));
             $crypt->setKey($config->get('app.key'));
@@ -85,7 +85,7 @@ trait ApplicationTrait
         /**
          * Events manager
          */
-        $di->setShared('eventsManager', function() {
+        $di->setShared('eventsManager', function () {
             $eventManager = new Manager();
             $eventManager->attach('dispatch:beforeException', new ExceptionHandler);
 
@@ -95,7 +95,7 @@ trait ApplicationTrait
         /**
          * Listen to dispatch
          */
-        $di->setShared('dispatcher', function() {
+        $di->setShared('dispatcher', function () {
             $dispatcher = new Dispatcher();
             $dispatcher->setEventsManager($this->get('eventsManager'));
             $dispatcher->setDefaultNamespace("Core\Controller\\");
@@ -114,7 +114,7 @@ trait ApplicationTrait
         $url->setBaseUri('/');
         $di->setShared('url', $url);
 
-        if ( $this->debug ) {
+        if ($this->debug) {
             $di->set('escaper', Escaper::class, true);
             $di->set('profiler', Profiler::class, true);
 
@@ -140,14 +140,14 @@ trait ApplicationTrait
             define('ENVO_PATH', __DIR__ . '/../');
         }
 
-        if ( ! defined('APP_PATH') ) {
+        if (! defined('APP_PATH')) {
             throw new \Exception('app.appPathNotDefined', 500);
         }
 
         /**
          * Read configuration file
          */
-        if (! file_exists(APP_PATH . '.env') ) {
+        if (! file_exists(APP_PATH . '.env')) {
             throw new \Exception('app.envConfigurationFileNotFound', 500);
         }
 
@@ -161,7 +161,7 @@ trait ApplicationTrait
     {
         $config = parse_ini_file(APP_PATH . '.env');
 
-        if ( getenv('APP_ENV') === 'testing' ) {
+        if (getenv('APP_ENV') === 'testing') {
             unset($config['APP_ENV']);
         }
 
@@ -173,11 +173,11 @@ trait ApplicationTrait
             }
         }
 
-        foreach($config as $key => $conf) {
+        foreach ($config as $key => $conf) {
             if (substr($key, 0, 1) === '#') {
                 continue;
             }
-            if ( is_array($conf) ) {
+            if (is_array($conf)) {
                 continue;
             }
             putenv($key.'='.$conf);
@@ -206,8 +206,8 @@ trait ApplicationTrait
 
         // Listen all the database events
         //$requestDebug = isset($_GET['cc2']); // add this to config or so...
-        $logger = new \Phalcon\Logger\Adapter\File( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
-        $eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler, $logger) {
+        $logger = new \Phalcon\Logger\Adapter\File(APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
+        $eventsManager->attach($databaseName, function (Event $event, $connection) use ($profiler, $logger) {
             if ($event->getType() === 'beforeQuery') {
                 // $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
                 $profiler->startProfile($connection->getSQLStatement());
@@ -218,8 +218,8 @@ trait ApplicationTrait
                 //if ($requestDebug) {
                 $ignoreClasses = ['Phalcon\\', 'Application'];
                 $path = '';
-                foreach(debug_backtrace() as $trace) {
-                    if ( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ){
+                foreach (debug_backtrace() as $trace) {
+                    if (isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses)) {
                         continue;
                     }
                     $path .= (isset($trace['class']) ? $trace['class'] : '') . '::' .$trace['function'].';';
@@ -253,23 +253,23 @@ trait ApplicationTrait
         $connections = ['db' => $databaseConfig['default']];
         if (isset($databaseConfig['use'])) {
             /** @var array $databaseConfig */
-            foreach ($databaseConfig['use'] as $item){
+            foreach ($databaseConfig['use'] as $item) {
                 $connections[$item] = $item;
             }
         }
 
         $self = $this;
-        foreach ($connections as $key => $connectionName){
-            $di->setShared($key, function () use($logging, $databaseConfig, $key, $connectionName, $self) {
+        foreach ($connections as $key => $connectionName) {
+            $di->setShared($key, function () use ($logging, $databaseConfig, $key, $connectionName, $self) {
                 $data = $databaseConfig['connections'][$connectionName];
 
-                if ( $data['driver'] === 'sqlite' ) {
+                if ($data['driver'] === 'sqlite') {
                     $connection = new Sqlite($data);
                 } else {
                     $connection = new Mysql($data);
                 }
 
-                if ( $logging && $self->debug ) {
+                if ($logging && $self->debug) {
                     $connection->setEventsManager($self->dbDebug($key, $this));
                 }
 
@@ -318,11 +318,9 @@ trait ApplicationTrait
          * If the configuration specify the use of metadata adapter use it or use memory otherwise
          */
         $di->setShared('modelsMetadata', function () {
-            $metaData = new Files(array(
+            return new Files(array(
                 'metaDataDir' => APP_PATH . 'storage/framework/cache/'
             ));
-
-            return $metaData;
         });
 
         /**
@@ -331,12 +329,10 @@ trait ApplicationTrait
         $di->setShared('modelsCache', function () {
             // Cache data for one day by default
             $frontCache = new FrontendData(['lifetime' => 86400]);
-
-            $cache = new File($frontCache, array(
+    
+            return new File($frontCache, array(
                 'cacheDir' => APP_PATH . 'storage/framework/cache/'
             ));
-
-            return $cache;
         });
     }
 
@@ -348,12 +344,12 @@ trait ApplicationTrait
         $config = new Config();
         putenv('APP_VERSION=' . $config->get('app.version', '0.0.0'));
 
-        if ( getenv('APP_ENV') === 'testing' ) {
+        if (getenv('APP_ENV') === 'testing') {
             unset($config['APP_ENV']);
         }
 
         $timezone = $config->get('app.timezone');
-        if ( $timezone ) {
+        if ($timezone) {
             date_default_timezone_set($timezone);
         }
 
