@@ -345,7 +345,7 @@ class Handler
         $builder = $this->api->model->createBuilder();
         $alias = $this->api->model->getClassNameAlias();
         
-        if ($this->api->request->method === 'show' && method_exists($this->api, 'show')) {
+        if (method_exists($this->api, 'show')) {
             $this->api->show($builder, $entityId);
         } else {
             $className = get_class($this->api->model);
