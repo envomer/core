@@ -13,10 +13,10 @@ use Envo\Notification\Notification;
 
 class AbstractEvent
 {
-    const NOTIFY_VIA_NOTIFICATION = 'notification';
-    const NOTIFY_VIA_EMAIL = 'email';
-    const NOTIFY_VIA_SMS = 'sms';
-    const NOTIFY_VIA_PUSHOVER = 'pushover';
+    public const NOTIFY_VIA_NOTIFICATION = 'notification';
+    public const NOTIFY_VIA_EMAIL = 'email';
+    public const NOTIFY_VIA_SMS = 'sms';
+    public const NOTIFY_VIA_PUSHOVER = 'pushover';
 
     protected static $instance;
     protected $event;
