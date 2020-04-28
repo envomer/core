@@ -139,11 +139,12 @@ class REST
      *
      * @return REST
      */
-    public function delete($url) : self
+    public function delete($url, $data = null) : self
     {
         return $this->run(array(
             CURLOPT_URL => $url,
-            CURLOPT_CUSTOMREQUEST => 'DELETE'
+            CURLOPT_CUSTOMREQUEST => 'DELETE',
+            CURLOPT_POSTFIELDS => $data
         ));
     }
     

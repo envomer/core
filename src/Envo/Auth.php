@@ -229,7 +229,10 @@ class Auth extends Component
 	 */
 	public function registerUserThrottling($user = null)
 	{
-		$loginFailedEvent = new LoginFailed(null, true, $user);
+		$loginFailedEvent = new LoginFailed(null, true, $user, [
+		    'data' => $_POST ?? null,
+		    'request' => $_REQUEST ?? null,
+        ]);
 
 		$loginEvent = $loginFailedEvent->getEvent();
 
