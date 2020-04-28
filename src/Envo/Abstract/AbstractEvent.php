@@ -13,289 +13,288 @@ use Envo\Notification\Notification;
 
 class AbstractEvent
 {
-	const NOTIFY_VIA_NOTIFICATION = 'notification';
-	const NOTIFY_VIA_EMAIL = 'email';
-	const NOTIFY_VIA_SMS = 'sms';
-	const NOTIFY_VIA_PUSHOVER = 'pushover';
+    public const NOTIFY_VIA_NOTIFICATION = 'notification';
+    public const NOTIFY_VIA_EMAIL = 'email';
+    public const NOTIFY_VIA_SMS = 'sms';
+    public const NOTIFY_VIA_PUSHOVER = 'pushover';
 
-	protected static $instance;
-	protected $event;
-	
-	/**
-	 * AbstractEvent constructor.
-	 *
-	 * @param null $message
-	 * @param bool $save
-	 * @param null $model
-	 * @param null $data
-	 */
-	public function __construct($message = null, $save = true, $model = null, $data = null, $init = true)
-	{
-		if( !$init || ! config('app.events.enabled', false) ) {
-			return;
-		}
+    protected static $instance;
+    protected $event;
+    
+    /**
+     * AbstractEvent constructor.
+     *
+     * @param null $message
+     * @param bool $save
+     * @param null $model
+     * @param null $data
+     */
+    public function __construct($message = null, $save = true, $model = null, $data = null, $init = true)
+    {
+        if (!$init || ! config('app.events.enabled', false)) {
+            return;
+        }
+        
+        // in case an event is given as first parameter()
+        // then just set the event instance without creating
+        // a new event instance
+        if (is_a($message, self::class)) {
+            $this->event = $message;
+            return;
+        }
 
+        if (is_a($message, AbstractModel::class)) {
+            $model = $message;
+            $message = null;
+        }
+        
+        $eventClass = config('app.classmap.event', Event::class);
+        /** @var Event $event */
+        $event = new $eventClass;
+        $user = ! \defined('APP_CLI') ? user() : null;
+        if ($user && $user->loggedIn) {
+            $event->user_id = $user->id;
+            
+            $teamIdentifier = $user->getTeamIdentifierKey() ?: 'team_id';
+            if (isset($user->$teamIdentifier)) {
+                $event->$teamIdentifier = $user->$teamIdentifier;
+            }
+        }
 
-		// in case an event is given as first parameter()
-		// then just set the event instance without creating
-		// a new event instance
-		if( is_a($message, self::class) ) {
-			$this->event = $message;
-			return;
-		}
+        $event->created_at = date('Y-m-d H:i:s');
+        
+        if (config('app.events.track_ip', false)) {
+            $ip = resolve(IP::class)->getIpAddress();
+    
+            if ($ip) {
+                $ipModel = config('app.classmap.ip', IPModel::class);
+                /** @var IPModel $userIP */
+                $userIP = $ipModel::repo()->where('ip', $ip)->getOne();
+                if (! $userIP) {
+                    $userIP = new $ipModel();
+                    $userIP->ip = $ip;
+                    $userIP->created_at = Date::now();
+                    $userIP->user_id = $user ? $user->id : null;
+                    $userIP->save();
+                }
+                $event->ip_id = $userIP->id;
+            }
+        }
 
-		if( is_a($message, AbstractModel::class) ) {
-			$model = $message;
-			$message = null;
-		}
-		
-		$eventClass = config('app.classmap.event', Event::class);
-		/** @var Event $event */
-		$event = new $eventClass;
-		$user = ! \defined('APP_CLI') ? user() : null;
-		if( $user && $user->loggedIn ) {
-			$event->user_id = $user->id;
-			
-			$teamIdentifier = $user->getTeamIdentifierKey() ?: 'team_id';
-			if( isset($user->$teamIdentifier) ) {
-				$event->$teamIdentifier = $user->$teamIdentifier;
-			}
-		}
+        $this->setMessage($event, $message);
 
-		$event->created_at = date('Y-m-d H:i:s');
-		
-		if(config('app.events.track_ip', false)) {
-			$ip = resolve(IP::class)->getIpAddress();
-	
-			 if( $ip ) {
-				$ipModel = config('app.classmap.ip', IPModel::class);
-				/** @var IPModel $userIP */
-				$userIP = $ipModel::repo()->where('ip', $ip)->getOne();
-				if( ! $userIP ) {
-					$userIP = new $ipModel();
-					$userIP->ip = $ip;
-					$userIP->created_at = Date::now();
-					$userIP->user_id = $user ? $user->id : null;
-					$userIP->save();
-				}
-				$event->ip_id = $userIP->id;
-			 }
-		}
+        $this->setEventType($event);
+        $this->setModel($event, $model);
+        $this->setData($event, $data);
 
-		$this->setMessage($event, $message);
+        $this->event = $event;
 
-		$this->setEventType($event);
-		$this->setModel($event, $model);
-		$this->setData($event, $data);
+        if ($save) {
+            $event->save();
+        }
 
-		$this->event = $event;
+        $filePath = APP_PATH . 'storage/framework/logs/events/events-' . date('Y-m-d').'.log';
+        File::append($filePath, "\n\r" . $event->toReadableString(static::class));
+    }
 
-		if( $save ) {
-			$event->save();
-		}
+    /**
+     * Get instance
+     */
+    public static function getInstance()
+    {
+        //if(! static::$instance) {
+            $class = static::class;
+            return new $class(null, null, null, null, false);
+        //}
 
-		$filePath = APP_PATH . 'storage/framework/logs/events/events-' . date('Y-m-d').'.log';
-		File::append($filePath, "\n\r" . $event->toReadableString(static::class));
-	}
+        //return static::$instance;
+    }
 
-	/**
-	 * Get instance
-	 */
-	public static function getInstance()
-	{
-		//if(! static::$instance) {
-			$class = static::class;
-			return new $class(null, null, null, null, false);
-		//}
+    /**
+     * Set message
+     *
+     * @param Event $event
+     * @param mixed $message
+     *
+     * @return Event|bool
+     */
+    public function setMessage($event, $message)
+    {
+        if (! $message) {
+            return false;
+        }
 
-		//return static::$instance;
-	}
+        if (is_array($message) || is_object($message)) {
+            $message = json_encode($message);
+        }
 
-	/**
-	 * Set message
-	 *
-	 * @param Event $event
-	 * @param mixed $message
-	 *
-	 * @return Event|bool
-	 */
-	public function setMessage($event, $message)
-	{
-		if( ! $message ) {
-			return false;
-		}
+        $event->message = $message;
 
-		if( is_array($message) || is_object($message) ) {
-			$message = json_encode($message);
-		}
+        return $event;
+    }
 
-		$event->message = $message;
+    /**
+     * Set data
+     *
+     * @param AbstractEvent|Event $event
+     * @param string $data
+     *
+     * @return bool|AbstractEvent
+     */
+    public function setData($event, $data)
+    {
+        if (! $data) {
+            return false;
+        }
 
-		return $event;
-	}
+        if (is_array($data) || is_object($data)) {
+            $data = json_encode($data);
+        }
 
-	/**
-	 * Set data
-	 *
-	 * @param AbstractEvent|Event $event
-	 * @param string $data
-	 *
-	 * @return bool|AbstractEvent
-	 */
-	public function setData($event, $data)
-	{
-		if( ! $data ) {
-			return false;
-		}
+        $event->data = $data;
 
-		if( is_array($data) || is_object($data) ) {
-			$data = json_encode($data);
-		}
+        return $event;
+    }
 
-		$event->data = $data;
+    /**
+     * Set model
+     *
+     * @param Event $event
+     * @param AbstractModel $model
+     * @return Event|bool
+     */
+    public function setModel($event, $model)
+    {
+        if (! $model) {
+            return false;
+        }
 
-		return $event;
-	}
+        $modelClass = get_class($model);
 
-	/**
-	 * Set model
-	 *
-	 * @param Event $event
-	 * @param AbstractModel $model
-	 * @return Event|bool
-	 */
-	public function setModel($event, $model)
-	{
-		if( ! $model ) {
-			return false;
-		}
+        $eventType = config('app.classmap.event_type', EventType::class);
+        $eventModel = $eventType::findFirst(['class=?0', 'bind' => [$modelClass]]);
 
-		$modelClass = get_class($model);
+        if (! $eventModel) {
+            $eventModel = new $eventType();
+            $eventModel->class = $modelClass;
+            $eventModel->created_at = Date::now();
+            $eventModel->save();
+        }
 
-		$eventType = config('app.classmap.event_type', EventType::class);
-		$eventModel = $eventType::findFirst(['class=?0', 'bind' => [$modelClass]]);
+        $event->model_id = $eventModel->id;
 
-		if( ! $eventModel ) {
-			$eventModel = new $eventType();
-			$eventModel->class = $modelClass;
-			$eventModel->created_at = Date::now();
-			$eventModel->save();
-		}
+        if ($model && isset($model->id)) {
+            $event->model_entry_id = $model->id;
+        }
 
-		$event->model_id = $eventModel->id;
+        return $event;
+    }
+    
+    /**
+     * Set the current called class (event type)
+     *
+     * @param $event
+     *
+     * @return mixed
+     */
+    public function setEventType($event)
+    {
+        $class = static::class;
+        
+        $eventType = config('app.classmap.event_type', EventType::class);
+        $eventTypeResult = $eventType::findFirst(['class=?0', 'bind' => [$class]]);
 
-		if( $model && isset($model->id) ) {
-			$event->model_entry_id = $model->id;
-		}
+        if (! $eventTypeResult) {
+            $eventTypeResult = new $eventType();
+            $eventTypeResult->class = $class;
+            $eventTypeResult->created_at = Date::now();
+            $eventTypeResult->save();
+        }
 
-		return $event;
-	}
-	
-	/**
-	 * Set the current called class (event type)
-	 *
-	 * @param $event
-	 *
-	 * @return mixed
-	 */
-	public function setEventType($event)
-	{
-		$class = static::class;
-		
-		$eventType = config('app.classmap.event_type', EventType::class);
-		$eventTypeResult = $eventType::findFirst(['class=?0', 'bind' => [$class]]);
+        $event->event_type_id = $eventTypeResult->id;
 
-		if( ! $eventTypeResult ) {
-			$eventTypeResult = new $eventType();
-			$eventTypeResult->class = $class;
-			$eventTypeResult->created_at = Date::now();
-			$eventTypeResult->save();
-		}
+        return $event;
+    }
 
-		$event->event_type_id = $eventTypeResult->id;
+    /**
+     * Set event
+     *
+     * @param AbstractEvent $event
+     * @return self
+     */
+    public function setEvent($event)
+    {
+        $this->event = $event;
+        return $this;
+    }
 
-		return $event;
-	}
+    /**
+     * Get description
+     *
+     * @return string|null
+     */
+    public function getDescription()
+    {
+        return null;
+    }
 
-	/**
-	 * Set event
-	 *
-	 * @param AbstractEvent $event
-	 * @return self
-	 */
-	public function setEvent($event)
-	{
-		$this->event = $event;
-		return $this;
-	}
+    /**
+     * Get event
+     *
+     * @return Event
+     */
+    public function getEvent()
+    {
+        return $this->event;
+    }
 
-	/**
-	 * Get description
-	 *
-	 * @return string|null
-	 */
-	public function getDescription()
-	{
-		return null;
-	}
+    /**
+     * Notify users
+     *
+     * @param User[] $users
+     * @param string $data
+     * @return bool
+     */
+    public function notify($users = null, $data = null)
+    {
+        // TODO implement
+        $notification = new Notification();
+        
+        return $notification->send($this, $users, $data);
+    }
 
-	/**
-	 * Get event
-	 *
-	 * @return Event
-	 */
-	public function getEvent()
-	{
-		return $this->event;
-	}
+    /**
+     * Get event name
+     *
+     * @return string
+     */
+    public function getName()
+    {
+        return static::class;
+    }
 
-	/**
-	 * Notify users
-	 *
-	 * @param User[] $users
-	 * @param string $data
-	 * @return bool
-	 */
-	public function notify($users = null, $data = null)
-	{
-		// TODO implement
-		$notification = new Notification();
-		
-		return $notification->send($this, $users, $data);
-	}
+    public function getMessage()
+    {
+        return $this->event->getMessage();
+    }
 
-	/**
-	 * Get event name
-	 *
-	 * @return string
-	 */
-	public function getName()
-	{
-		return static::class;
-	}
+    public function userFriendly()
+    {
+        return [
+            'title' => \_t('events.' . lcfirst(str_replace('\Events\\', '', $this->getName()))),
+            'description' => $this->getDescription(),
+            'id' => $this->event->getId(),
+            'created_at' => $this->event->getCreatedAt()
+        ];
+    }
 
-	public function getMessage()
-	{
-		return $this->event->getMessage();
-	}
+    public function via()
+    {
+        return null;
+    }
 
-	public function userFriendly()
-	{
-		return [
-			'title' => \_t('events.' . lcfirst( str_replace('\Events\\', '', $this->getName()))),
-			'description' => $this->getDescription(),
-			'id' => $this->event->getId(),
-			'created_at' => $this->event->getCreatedAt()
-		];
-	}
-
-	public function via()
-	{
-		return null;
-	}
-
-	public function save()
-	{
-		return $this->event ? $this->event->save() : null;
-	}
+    public function save()
+    {
+        return $this->event ? $this->event->save() : null;
+    }
 }
