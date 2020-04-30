@@ -134,7 +134,9 @@ class Auth extends Component
         }
 
         if ($user->isLoggedIn() && $user->getLanguage()) {
-            resolve('translator')->setLocale($user->getLanguage());
+            /** @var Translator $translator */
+            $translator = resolve('translator');
+            $translator->setLocale($user->getLanguage());
         }
 
         return $this->user = $user;
