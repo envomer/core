@@ -13,7 +13,7 @@ class CreateUsers extends AbstractMigration
 
             $table->string('identifier', 64);
             $table->string('username', 64)->index();
-            $table->string('email', 160)->unique()->index();
+            $table->string('email', 160)->unique();
             
             $table->string('password', 64)->nullable();
             

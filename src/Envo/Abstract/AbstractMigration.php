@@ -56,7 +56,7 @@ class AbstractMigration
         if ($table->indexes){
             $data['indexes'] = $table->indexes;
         }
-		
+        
         $this->connection->createTable($table->name, null, $data);
     }
 
@@ -73,18 +73,22 @@ class AbstractMigration
 
         $closure($table);
 	
-		foreach ($table->columns as $column) {
-			if($column->toBeChanged) {
-				$this->connection->modifyColumn($table->name, null, $column);
-			} else if($column->toBeRemoved) {
-				$this->connection->dropColumn($table->name, null, $column->getName());
-			} else {
-				$this->connection->addColumn($table->name, null, $column);
-			}
+        if ($table->columns) {
+            foreach ($table->columns as $column) {
+                if($column->toBeChanged) {
+                    $this->connection->modifyColumn($table->name, null, $column);
+                } else if($column->toBeRemoved) {
+                    $this->connection->dropColumn($table->name, null, $column->getName());
+                } else {
+                    $this->connection->addColumn($table->name, null, $column);
+                }
+            }
         }
     
-        foreach ($table->indexes as $index){
-            $this->connection->addIndex($table->name, null, $index);
+		if ($table->indexes) {
+            foreach ($table->indexes as $index){
+                $this->connection->addIndex($table->name, null, $index);
+            }
         }
         //$table->update();
     }

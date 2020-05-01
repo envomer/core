@@ -586,9 +586,9 @@ class Auth extends Component
     /**
      * @param string $email
      *
-     * @return array
+     * @return User
      */
-    private function getUserByEmail($email)
+    public function getUserByEmail($email)
     {
         // Check if the user exist
         $userClass = $this->userClass;
@@ -618,11 +618,11 @@ class Auth extends Component
     }
 
     /**
-     * @param string $email
+     * @param mixed $user
      * @param string $password
      * @param array $user
      */
-    private function validateUserPassword($user, $password)
+    public function validateUserPassword($user, $password): bool
     {
         return password_verify($password, $user->getPassword()) === true;
     }
