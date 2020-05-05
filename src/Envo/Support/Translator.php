@@ -34,6 +34,11 @@ class Translator
     {
         self::$locale = $locale;
     }
+    
+    public static function getLocale()
+    {
+        return self::$locale;
+    }
 
     /**
      * Get translation of given word
