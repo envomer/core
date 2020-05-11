@@ -19,10 +19,10 @@ class Translator
     /**
      * Translator constructor.
      */
-    public function __construct()
-    {
-        self::$locale = config('app.locale', 'en');
-    }
+    //public function __construct()
+    //{
+    //    //self::$locale = config('app.locale', 'en');
+    //}
     
     /**
      * Set locale
