@@ -4,42 +4,48 @@ namespace Envo\Support;
 
 class Arr
 {
-	/**
-	 * @param array $words
-	 * @param       $needle
-	 * @param int   $limit
-	 *
-	 * @return array
-	 */
+    /**
+     * @param array $words
+     * @param       $needle
+     * @param int   $limit
+     *
+     * @return array
+     */
     public static function strpos_words(array $words, $needle, $limit = 1)
     {
         $results = array();
         $i = 0;
-        foreach($words as $key => $word) {
-            if ( strpos(strtolower($word), strtolower($needle)) !== false ) {
+        foreach ($words as $key => $word) {
+            if (strpos(strtolower($word), strtolower($needle)) !== false) {
                 $results[$key] = $word;
                 $i++;
-                if ( $limit == $i ) break;
+                if ($limit == $i) {
+                    break;
+                }
             }
         }
         return $results;
     }
 
-	/**
-	 * Search array of values with an array of needles
-	 * Stop at first true result
-	 *
-	 * @param     $haystack
-	 * @param     $needle
-	 * @param int $offset
-	 *
-	 * @return bool
-	 */
+    /**
+     * Search array of values with an array of needles
+     * Stop at first true result
+     *
+     * @param     $haystack
+     * @param     $needle
+     * @param int $offset
+     *
+     * @return bool
+     */
     public static function strpos($haystack, $needle, $offset = 0)
     {
-        if (!is_array($needle)) $needle = array($needle);
-        foreach($needle as $query) {
-            if (strpos($haystack, $query, $offset) !== false) return true; // stop on first true result
+        if (!is_array($needle)) {
+            $needle = array($needle);
+        }
+        foreach ($needle as $query) {
+            if (strpos($haystack, $query, $offset) !== false) {
+                return true; // stop on first true result
+            }
         }
         return false;
     }
@@ -160,7 +166,7 @@ class Arr
      */
     public static function fetch($array, $key)
     {
-		$results = [];
+        $results = [];
         foreach (explode('.', $key) as $segment) {
             foreach ($array as $value) {
                 if (array_key_exists($segment, $value = (array) $value)) {
@@ -274,7 +280,7 @@ class Arr
             return $array;
         }
 
-        if ( is_object($array) ) {
+        if (is_object($array)) {
             return self::object_get($array, $key, $default);
         }
 
@@ -542,16 +548,16 @@ class Arr
         return $filtered;
     }
 
-	/**
-	 * @param      $array
-	 * @param      $by
-	 * @param bool $group
-	 *
-	 * @return array
-	 */
+    /**
+     * @param      $array
+     * @param      $by
+     * @param bool $group
+     *
+     * @return array
+     */
     public static function reference($array, $by, $group = false)
     {
-        if ( ! $array || ! count($array) ) {
+        if (! $array || ! count($array)) {
             return $array;
         }
 
@@ -561,16 +567,16 @@ class Arr
 
         foreach ($array as $value) {
             $key = null;
-            if ( $isObjectAndHasMethod && property_exists($value, $by) ) {
+            if ($isObjectAndHasMethod && property_exists($value, $by)) {
                 $key = $value->{$by}();
-            } else if ( $isObject && property_exists($value, $by) ) {
+            } elseif ($isObject && property_exists($value, $by)) {
                 $key = $value->{$by};
-            } else if (array_key_exists($by, $value)) {
+            } elseif (array_key_exists($by, $value)) {
                 $key = $value[$by];
             }
 
-            if ( $group ) {
-                if ( ! isset($result[$key]) ) {
+            if ($group) {
+                if (! isset($result[$key])) {
                     $result[$key] = [];
                 }
                 $result[$key][] = $value;
@@ -582,30 +588,30 @@ class Arr
         return $result;
     }
 
-	/**
-	 * @param $object
-	 *
-	 * @return array
-	 */
+    /**
+     * @param $object
+     *
+     * @return array
+     */
     public static function getPublicProperties($object)
     {
         return get_object_vars($object);
     }
 
-	/**
-	 * @param      $array
-	 * @param      $value
-	 * @param bool $desc
-	 *
-	 * @return array
-	 */
+    /**
+     * @param      $array
+     * @param      $value
+     * @param bool $desc
+     *
+     * @return array
+     */
     public static function sortByValue($array, $value, $desc = false)
     {
-        usort($array, function($a, $b) use($value) {
+        usort($array, function ($a, $b) use ($value) {
             return $a[$value] - $b[$value];
         });
 
-        if ( $desc ) {
+        if ($desc) {
             $array = array_reverse($array);
         }
 

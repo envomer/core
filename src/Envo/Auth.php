@@ -19,9 +19,9 @@ use Phalcon\Mvc\User\Component;
  */
 class Auth extends Component
 {
-    const TOKEN_NAME = 'auth-identity';
-    const COOKIE_REMEMBER = 'remember_rmu';
-    const COOKIE_TOKEN = 'remember_rmt';
+    public const TOKEN_NAME = 'auth-identity';
+    public const COOKIE_REMEMBER = 'remember_rmu';
+    public const COOKIE_TOKEN = 'remember_rmt';
 
     /**
      * @var User
@@ -570,7 +570,7 @@ class Auth extends Component
 
         $event = new LoggedIn(null, false, $user, [
             'username' => $user->username,
-            'email' => $user->email
+            'email' => $user->email,
         ]);
 
         $event = $event->getEvent();
