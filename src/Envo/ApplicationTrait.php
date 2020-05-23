@@ -205,7 +205,14 @@ trait ApplicationTrait
 
         // Listen all the database events
         //$requestDebug = isset($_GET['cc2']); // add this to config or so...
-        $logger = new \Phalcon\Logger\Adapter\Stream( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
+        $adapter = new \Phalcon\Logger\Adapter\Stream( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
+        $logger  = new \Phalcon\Logger(
+            'messages',
+            [
+                'main' => $adapter,
+            ]
+        );
+    
         $eventsManager->attach($databaseName, function(Event $event, $connection) use ($profiler, $logger) {
             if ($event->getType() === 'beforeQuery') {
                 // $traces = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
