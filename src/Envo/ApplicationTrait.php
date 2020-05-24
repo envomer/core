@@ -149,8 +149,6 @@ trait ApplicationTrait
         if (! file_exists(APP_PATH . '.env') ) {
             throw new \Exception('app.envConfigurationFileNotFound', 500);
         }
-
-//        require_once APP_PATH. DIRECTORY_SEPARATOR .'vendor'. DIRECTORY_SEPARATOR .'autoload.php';
     }
 
     /**
@@ -207,7 +205,7 @@ trait ApplicationTrait
         //$requestDebug = isset($_GET['cc2']); // add this to config or so...
         $adapter = new \Phalcon\Logger\Adapter\Stream( APP_PATH . 'storage/framework/logs/db/db-'.date('Y-m-d').'.log');
         $logger  = new \Phalcon\Logger(
-            'messages',
+            'db',
             [
                 'main' => $adapter,
             ]
@@ -228,12 +226,12 @@ trait ApplicationTrait
                     if ( isset($trace['class']) && Str::strposa($trace['class'], $ignoreClasses) ){
                         continue;
                     }
-                    $path .= (isset($trace['class']) ? $trace['class'] : '') . '::' .$trace['function'].';';
+                    $path .= ($trace['class'] ?? '') . '::' . $trace['function'].';';
                 }
                 //var_dump($connection->getSQLStatement(), $connection->getSQLVariables());
                 //echo "Execution Time: {$profiler->getTotalElapsedSeconds()}. <br> PATH: {$path}\n\r";
                 //echo '<br><br>-----------------------------------------------------------------------<br><br>';
-                $logger->log($connection->getSQLStatement() . " [Execution Time: {$profiler->getTotalElapsedSeconds()}. PATH: {$path}]\n\r", \Phalcon\Logger::DEBUG);
+                $logger->debug($connection->getSQLStatement() . " [Execution Time: {$profiler->getTotalElapsedSeconds()}. PATH: {$path}]\n\r");
                 //}
             }
             if ($event->getType() === 'afterQuery') {

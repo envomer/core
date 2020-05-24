@@ -75,10 +75,10 @@ class ExceptionHandler
 			} else if(class_exists(\Envo\Event\Exception::class)) {
 				//die(var_dump('here?'));
 				new \Envo\Event\Exception($exception->getMessage(), true, null, [
-					'request' => isset($_REQUEST) ? $_REQUEST : '',
-					'uri' => $_SERVER['REQUEST_URI'] ?? '',
-					'trace_string' => $exceptionActual->getTraceAsString(),
-					'trace' => $exceptionActual->getTrace()
+                    'request' => $_REQUEST ?? '',
+                    'uri' => $_SERVER['REQUEST_URI'] ?? '',
+                    'trace_string' => $exceptionActual->getTraceAsString(),
+                    'trace' => $exceptionActual->getTrace()
 				]);
 			}
 		} catch (\Exception $e) {

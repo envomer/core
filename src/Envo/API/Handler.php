@@ -8,7 +8,9 @@ use Envo\Exception\InternalException;
 use Envo\Exception\PublicException;
 use Envo\Support\Paginator;
 use Phalcon\Mvc\Model;
+use Phalcon\Mvc\Model\Query;
 use Phalcon\Mvc\Model\Resultset;
+use Phalcon\Mvc\Model\Resultset\Simple;
 
 class Handler
 {
@@ -115,13 +117,15 @@ class Handler
 	    	/** @var mixed $manipulator */
 	    	$manipulator = $this->api->index($builder);
 	    }
+        
+        $counter = clone $builder;
 
 		$builder->offset($limit * ($page - 1));
 		$builder->limit($limit);
 
-		/** @var \Phalcon\Mvc\Model\Query $query */
+		/** @var Query $query */
 		$query = $builder->getQuery();
-		/** @var \Phalcon\Mvc\Model\Resultset\Simple $data */
+		/** @var Simple $data */
 		$data = $query->execute();
 		
 		if( $manipulator ) {
@@ -133,17 +137,17 @@ class Handler
 		if( $data ) {
 			$data = $this->transform($data);
 		}
-
-		$builder->columns('COUNT(*)');
-		$counter = $builder->getQuery()->execute();
-		$count = $counter->getFirst();
-		$countTotal = $count ? $count->{0} : 0;
+		
+        $columns = 'COUNT(*) as cnt';
+        $counter->columns($columns);
+		$count = $counter->getQuery()->getSingleResult();
+		$countTotal = $count && isset($count->cnt) ? $count->cnt : 0;
 		
 		return new Paginator($data, $countTotal, (int)$page, (int)$limit);
 	}
 	
 	/**
-	 * @param \Phalcon\Mvc\Model\Resultset\Simple $data
+	 * @param Simple $data
 	 * @param $configKey
 	 *
 	 * @return mixed
@@ -397,9 +401,10 @@ class Handler
 		$apiTransformation = method_exists($this->api, 'transformItem');
 		$context = $apiTransformation ? $this->api : $this;
 		$definition = $definition ? array_flip($definition) : null;
+		
 
 		if(
-			$this->request->method === 'index' && ($apiTransformation || $definition)
+			$this->request->method === RequestDTO::REQUEST_METHOD_INDEX && ($apiTransformation || $definition)
 		) {
 			if(!$data || !count($data)) {
 				return $data;
@@ -414,6 +419,7 @@ class Handler
 			//	return $context->transformItem($item, $definition);
 			//}, $data);
 		}
+        
 		
 		if( $data && ($apiTransformation || $definition) ) {
 			return $context->transformItem($data, $definition);

@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Envo\Model\Eagerload;
 
@@ -15,29 +15,29 @@ final class Eagerload
     private $relation;
     /** @var null|callable */
     private $constraints;
-    /** @var Loader|EagerLoad */
+    /** @var Loader|Eagerload */
     private $parent;
     /** @var null|\Phalcon\Mvc\ModelInterface[] */
     private $subject;
     /** @var boolean */
     private static $isPhalcon2;
-
+    
     /**
      * @param Relation $relation
      * @param null|callable $constraints
-     * @param Loader|EagerLoad $parent
+     * @param Loader|Eagerload $parent
      */
     public function __construct(Relation $relation, $constraints, $parent)
     {
         if (static::$isPhalcon2 === null) {
             static::$isPhalcon2 = version_compare(Version::get(), '2.0.0') >= 0;
         }
-
+        
         $this->relation    = $relation;
         $this->constraints = is_callable($constraints) ? $constraints : null;
         $this->parent      = $parent;
     }
-
+    
     /**
      * @return null|\Phalcon\Mvc\ModelInterface[]
      */
@@ -45,7 +45,7 @@ final class Eagerload
     {
         return $this->subject;
     }
-
+    
     /**
      * Executes each db query needed
      *
@@ -59,13 +59,13 @@ final class Eagerload
     public function load()
     {
         $parentSubject = $this->parent->getSubject();
-
+        
         if (empty($parentSubject)) {
             return $this;
         }
         
         $relation = $this->relation;
-
+        
         $alias                = $relation->getOptions();
         $alias                = strtolower($alias['alias']);
         $relField             = $relation->getFields();
@@ -74,26 +74,26 @@ final class Eagerload
         $relIrModel           = $relation->getIntermediateModel();
         $relIrField           = $relation->getIntermediateFields();
         $relIrReferencedField = $relation->getIntermediateReferencedFields();
-
+        
         // PHQL has problems with this slash
         if ($relReferencedModel[0] === '\\') {
             $relReferencedModel = ltrim($relReferencedModel, '\\');
         }
-
+        
         $bindValues = [];
-
+        
         foreach ($parentSubject as $record) {
             $bindValues[$record->readAttribute($relField)] = true;
         }
-
+        
         $bindValues = array_keys($bindValues);
-
+        
         $subjectSize         = count($parentSubject);
         $isManyToManyForMany = false;
-
+        
         $builder = new QueryBuilder;
         $builder->from($relReferencedModel);
-
+        
         if ($isThrough = $relation->isThrough()) {
             if ($subjectSize === 1) {
                 // The query is for a single model
@@ -114,7 +114,7 @@ final class Eagerload
                 // The query is for many models, so it's needed to execute an
                 // extra query
                 $isManyToManyForMany = true;
-
+                
                 $relIrValues = new QueryBuilder;
                 $relIrValues = $relIrValues
                     ->from($relIrModel)
@@ -123,45 +123,51 @@ final class Eagerload
                     ->execute()
                     ->setHydrateMode(Resultset::HYDRATE_ARRAYS)
                 ;
-
+                
                 $bindValues = $modelReferencedModelValues = [];
-
+                
                 foreach ($relIrValues as $row) {
                     $bindValues[$row[$relIrReferencedField]] = true;
                     $modelReferencedModelValues[$row[$relIrField]][$row[$relIrReferencedField]] = true;
                 }
-
+                
                 unset($relIrValues, $row);
-
-                $builder->inWhere("[{$relReferencedField}]", array_keys($bindValues));
+                
+                $builder->inWhere(
+                    "[{$relReferencedField}]",
+                    array_keys($bindValues)
+                );
             }
         } else {
-            $builder->inWhere("[{$relReferencedField}]", $bindValues);
+            $builder->inWhere(
+                "[{$relReferencedField}]",
+                $bindValues
+            );
         }
-
+        
         if ($this->constraints) {
             call_user_func($this->constraints, $builder);
         }
-
+        
         $records = [];
-
+        
         if ($isManyToManyForMany) {
             foreach ($builder->getQuery()->execute() as $record) {
                 $records[$record->readAttribute($relReferencedField)] = $record;
             }
-
+            
             foreach ($parentSubject as $record) {
                 $referencedFieldValue = $record->readAttribute($relField);
-
+                
                 if (isset($modelReferencedModelValues[$referencedFieldValue])) {
                     $referencedModels = [];
-
+                    
                     foreach ($modelReferencedModelValues[$referencedFieldValue] as $idx => $_) {
                         $referencedModels[] = $records[$idx];
                     }
-
+                    
                     $record->{$alias} = $referencedModels;
-
+                    
                     if (static::$isPhalcon2) {
                         $record->{$alias} = null;
                         $record->{$alias} = $referencedModels;
@@ -171,23 +177,23 @@ final class Eagerload
                     $record->{$alias} = [];
                 }
             }
-
+            
             $records = array_values($records);
         } else {
             // We expect a single object or a set of it
             $isSingle = !$isThrough && (
-                $relation->getType() === Relation::HAS_ONE ||
-                $relation->getType() === Relation::BELONGS_TO
-            );
-
+                    $relation->getType() === Relation::HAS_ONE ||
+                    $relation->getType() === Relation::BELONGS_TO
+                );
+            
             if ($subjectSize === 1) {
                 // Keep all records in memory
                 foreach ($builder->getQuery()->execute() as $record) {
                     $records[] = $record;
                 }
-
+                
                 $record = $parentSubject[0];
-
+                
                 if ($isSingle) {
                     $record->{$alias} = empty($records) ? null : $records[0];
                 } else {
@@ -196,7 +202,7 @@ final class Eagerload
                         $record->{$alias} = [];
                     } else {
                         $record->{$alias} = $records;
-
+                        
                         if (static::$isPhalcon2) {
                             $record->{$alias} = null;
                             $record->{$alias} = $records;
@@ -205,31 +211,31 @@ final class Eagerload
                 }
             } else {
                 $indexedRecords = [];
-
+                
                 // Keep all records in memory
                 foreach ($builder->getQuery()->execute() as $record) {
                     $records[] = $record;
-
+                    
                     if ($isSingle) {
                         $indexedRecords[$record->readAttribute($relReferencedField)] = $record;
                     } else {
                         $indexedRecords[$record->readAttribute($relReferencedField)][] = $record;
                     }
                 }
-
+                
                 foreach ($parentSubject as $record) {
                     $referencedFieldValue = $record->readAttribute($relField);
-
+                    
                     if (isset($indexedRecords[$referencedFieldValue])) {
                         $record->{$alias} = $indexedRecords[$referencedFieldValue];
-
+                        
                         if (static::$isPhalcon2 && is_array($indexedRecords[$referencedFieldValue])) {
                             $record->{$alias} = null;
                             $record->{$alias} = $indexedRecords[$referencedFieldValue];
                         }
                     } else {
                         $record->{$alias} = null;
-
+                        
                         if (!$isSingle) {
                             $record->{$alias} = [];
                         }
@@ -237,9 +243,9 @@ final class Eagerload
                 }
             }
         }
-
+        
         $this->subject = $records;
-
+        
         return $this;
     }
 }

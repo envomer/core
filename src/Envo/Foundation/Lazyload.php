@@ -21,7 +21,7 @@ class Lazyload
                 // find the relation information (id, name)
                 $relation = $entry->getRelations();
                 if( ! isset($relation[$relationName]) ) {
-                    throw new \Exception("Relationship does not exist", 500);
+                    throw new \Exception('Relationship does not exist', 500);
                 }
                 $relation = $relation[$relationName];
                 $relationId = $relation->getFields();
@@ -37,7 +37,7 @@ class Lazyload
         // make a query and get all related records
         $relatedModels = $relationClass::find(array(
             'conditions' => $referencedFields . ' IN ({relationField:array})',
-            'bind' => array('relationField' => $positions)
+            'bind' => ['relationField' => $positions]
         ));
         
         // reference the result by referenced field

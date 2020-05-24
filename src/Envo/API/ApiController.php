@@ -9,7 +9,10 @@ use Envo\Exception\InternalException;
 
 class ApiController extends AbstractController
 {
-    protected $apiHandler = null;
+    /**
+     * @var Handler
+     */
+    protected $apiHandler;
 
     /**
      * Authenticate user
