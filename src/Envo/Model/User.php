@@ -311,4 +311,9 @@ class User extends AbstractModel
 	{
 		return $this->level;
 	}
+	
+	public function getLanguageAsString()
+    {
+        $this->language;
+    }
 }

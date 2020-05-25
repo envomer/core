@@ -133,10 +133,10 @@ class Auth extends Component
             // $user->switched = $session->get( 'orig_user' );
         }
 
-        if ($user->isLoggedIn() && $user->getLanguage()) {
+        if ($user->isLoggedIn() && $user->language !== null) {
             /** @var Translator $translator */
             $translator = resolve('translator');
-            $translator->setLocale($user->getLanguage());
+            $translator->setLocaleById($user->language);
         }
 
         return $this->user = $user;

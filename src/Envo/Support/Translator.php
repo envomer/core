@@ -35,6 +35,21 @@ class Translator
         self::$locale = $locale;
     }
     
+    public static function getLanguages()
+    {
+        return [
+            self::LANG_DE => 'de',
+            self::LANG_EN => 'en'
+        ];
+    }
+    
+    public static function setLocaleById($localeId)
+    {
+        $lang = self::getLanguages()[$localeId] ?? 'en';
+        
+        self::setLocale($lang);
+    }
+    
     public static function getLocale()
     {
         return self::$locale;

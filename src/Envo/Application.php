@@ -462,7 +462,7 @@ class Application extends \Phalcon\Mvc\Application
             ]));
 
             $engines = ['.php' => Php::class];
-            if ($config->get('view.volt', false)) {
+            if ($config->get('view.volt.enabled', false)) {
                 $engines['.volt'] = 'volt';
             }
             $view->registerEngines($engines);
