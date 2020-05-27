@@ -6,7 +6,7 @@ use Envo\AbstractModel;
 
 class Model extends AbstractModel
 {
-	protected $table = 'migrations';
+	protected $table = 'core_migrations';
 	
 	/**
 	 * @var string
@@ -22,4 +22,13 @@ class Model extends AbstractModel
 	 * @var string
 	 */
 	public $migrated_at;
+	
+	public function initialize()
+    {
+        $this->table = config('database.migrations', 'core_migrations');
+        
+        $this->setSource($this->table);
+        
+        parent::initialize();
+    }
 }

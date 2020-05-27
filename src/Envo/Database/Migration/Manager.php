@@ -48,6 +48,8 @@ class Manager
 	
 	public $command;
 	
+	protected $tableName;
+	
 	/**
 	 * Manager constructor.
 	 */
@@ -56,7 +58,7 @@ class Manager
 		$this->connection = Di::getDefault()->get('db');
 		
 		$this->migrationTableExists = $this->connection->tableExists(
-			config('database.migrations', 'migrations')
+			$this->tableName = config('database.migrations', 'core_migrations')
 		);
 	}
 	
@@ -75,7 +77,6 @@ class Manager
 		// against the migrations that have already been run for this package then
 		// run each of the outstanding migrations against a database connection.
 		$files = $this->getMigrationFiles($path);
-		
 		$this->requireFiles($migrations = $this->pendingMigrations(
 			$files, $this->getRan()
 		));
@@ -200,7 +201,6 @@ class Manager
 		}
 		
 		$this->note("<comment>Migrating:</comment> {$name}");
-		
 		if(!$this->migrationTableExists) {
 			$this->createMigrationTable();
 		}
@@ -369,14 +369,13 @@ class Manager
 		if ($pretend) {
 			return $this->pretendToRun($instance, 'down');
 		}
-		
 		$this->runMigration($instance, 'down');
 		
 		// Once we have successfully run the migration "down" we will remove it from
 		// the migration repository so it will be considered to have not been run
 		// by the application then will be able to fire by any later operation.
 		//$this->repository->delete($migration);
-		Model::repo()->execute('DELETE FROM migrations WHERE migration = :migration', [
+		Model::repo()->execute("DELETE FROM {$this->tableName} WHERE migration = :migration", [
 			'migration' => $migration->migration
 		]);
 		
@@ -570,14 +569,12 @@ class Manager
 	 */
 	public function createMigrationTable()
 	{
-		$name = config('database.migrations', 'migrations');
-		
-		$table = new Table($name);
+		$table = new Table($this->tableName);
 		$table->string('migration');
 		$table->integer('batch');
 		$table->dateTime('migrated_at');
 		
-		$this->note("<comment>Creating migrations table:</comment> {$name}");
+		$this->note("<comment>Creating migrations table:</comment> {$this->tableName}");
 		
 		$this->connection->createTable($table->name, null, [
 			'columns' => $table->columns
@@ -589,7 +586,7 @@ class Manager
 	
 	public function getLastBatchNumber()
 	{
-		$query = $this->connection->query('select max(batch) as batch from migrations');
+		$query = $this->connection->query('select max(batch) as batch from ' . $this->tableName);
 		
 		return $query->fetch()['batch'];
 	}
