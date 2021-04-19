@@ -4,9 +4,9 @@ namespace Envo\Foundation;
 
 use Envo\API\Handler;
 use Envo\Extension\EmailTemplate\API;
-use Phalcon\Mvc\Router\Group;
+use Illuminate\Support\Facades\Route;
 
-class Router extends \Phalcon\Mvc\Router
+class Router
 {
 	/**
 	 * @var self
@@ -35,6 +35,35 @@ class Router extends \Phalcon\Mvc\Router
         }
 		
         return self::$router = new self();
+    }
+
+    public function add($name, $path)
+    {
+        return Route::any($name, $this->parseRoute($path));
+    }
+    
+    public function addGet($name, $path)
+    {
+        return Route::get($name, $this->parseRoute($path));
+    }
+    
+    public function addPost($name, $path)
+    {
+        return Route::post($name, $this->parseRoute($path));
+    }
+    
+    public function parseRoute($path)
+    {
+        $parts = explode('::', $path);
+        $parts[0] .= 'Controller';
+    
+        if (!class_exists($parts[0])) {
+            $parts[0] = 'Core\\Controller\\' . $parts[0];
+        }
+    
+        $parts[1] .= 'Action';
+        
+        return $parts;
     }
 	
 	/**

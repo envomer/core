@@ -182,6 +182,7 @@ if ( ! function_exists('user') )
 	 */
 	function user()
 	{
+		return auth()->user();
 		$auth = resolve('auth');
 
 		if (!$auth) {
@@ -260,54 +261,54 @@ if ( ! function_exists('abort_unless') )
 /**
  * Resolve
  */
-if ( ! function_exists('resolve') )
-{
-	/**
-	 * @param      $class
-	 * @param null $instance
-	 *
-	 * @return mixed
-	 */
-	function resolve($class, $instance = null)
-	{
-		$di = \Phalcon\DI::getDefault();
+// if ( ! function_exists('resolve') )
+// {
+// 	/**
+// 	 * @param      $class
+// 	 * @param null $instance
+// 	 *
+// 	 * @return mixed
+// 	 */
+// 	function resolve($class, $instance = null)
+// 	{
+// 		$di = \Phalcon\DI::getDefault();
 
-		if (!$di) {
-			return null;
-		}
+// 		if (!$di) {
+// 			return null;
+// 		}
 
-		if ($di->has($class)) {
-			return $di->getShared($class);
-		}
+// 		if ($di->has($class)) {
+// 			return $di->getShared($class);
+// 		}
 
-		if ($class) {
-			$di->setShared($class, function() use($class) {
-			    return new $class;
-            });
+// 		if ($class) {
+// 			$di->setShared($class, function() use($class) {
+// 			    return new $class;
+//             });
 
-			return $di->getShared($class);
-		}
+// 			return $di->getShared($class);
+// 		}
 
-        return null;
-	}
-}
+//         return null;
+// 	}
+// }
 
 /**
  * Config
  */
-if ( ! function_exists('config') )
-{
-	function config($name = null, $default = null)
-	{
-		$config = resolve('config');
+// if ( ! function_exists('config') )
+// {
+// 	function config($name = null, $default = null)
+// 	{
+// 		$config = resolve('config');
 
-		if (!$name || !$config) {
-			return $config;
-		}
+// 		if (!$name || !$config) {
+// 			return $config;
+// 		}
 
-		return $config->get($name, $default);
-	}
-}
+// 		return $config->get($name, $default);
+// 	}
+// }
 
 /**
  * Event listener

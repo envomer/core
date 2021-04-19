@@ -6,8 +6,7 @@ use Exception;
 
 use Envo\Foundation\ExceptionHandler;
 use Envo\Model\User;
-
-use Phalcon\Mvc\Controller;
+use Illuminate\Routing\Controller;
 
 /**
  * Class AbstractController

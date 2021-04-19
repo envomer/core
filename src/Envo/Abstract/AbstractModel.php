@@ -4,7 +4,7 @@ namespace Envo;
 
 use Envo\Model\Eagerload\EagerloadTrait;
 use Envo\Support\Arr;
-use Phalcon\Mvc\Model;
+use Illuminate\Database\Eloquent\Model;
 
 class AbstractModel extends Model
 {
