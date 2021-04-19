@@ -63,9 +63,14 @@ class AbstractController extends Controller
 	 */
 	public function setViewsDir($module = 'Core')
 	{
-		$viewDirs = $this->view->getViewsDir();
-		$viewDirs[] = APP_PATH . 'app/'. $module . '/View/';
-		$this->view->setViewsDir($viewDirs );
+		//$viewDirs = $this->view->getViewsDir();
+		//$viewDirs[] = APP_PATH . 'app/'. $module . '/View/';
+		//$this->view->setViewsDir($viewDirs );
+        config([
+            'view.paths' => [
+                app_path($module . '/View/')
+            ]
+        ]);
 	}
 
 	/**
