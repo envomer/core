@@ -18,7 +18,6 @@
   "minimum-stability": "dev",
   "require": {
     "php": ">=7.1",
-    "symfony/console": "3.1.10",
     "adhocore/cron-expr": "1.1.2",
     "erusev/parsedown": "1.7.3"
   },
